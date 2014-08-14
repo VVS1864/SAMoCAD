@@ -1048,7 +1048,7 @@ class Text_TXT(Text):
                     u'Л':self.rl,
                     u'л':self.rlm,
 
-                    u'М':self.rm,
+                    u'М':self.m,
                     u'м':self.rmm,
                     'M':self.m,
                     'm':self.mm,

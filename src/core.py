@@ -1782,8 +1782,8 @@ class Graphics:
         self.c.scale('obj',x,y,zoomm,zoomm)
 
     def Mzoommer(self,event):
-        x = event.x
-        y = event.y
+        x = self.priv_coord[0]#event.x
+        y = self.priv_coord[1]#event.y
         #if x<0:
             #x = -x
         #if y<0:
