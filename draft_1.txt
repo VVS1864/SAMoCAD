@@ -1,0 +1,1 @@
+﻿self.dim(x1 = 15829.8517183, y1 = 26585.1372693, x2 = 29954.3760756, y2 = 18430.3393295, text = u'None', fill = 'white', size = -350, sloy = 1, s = 50, vr_s = 200, arrow_s = 200, type_arrow = 'Arch', s_s = 1.3, w_text = 1, font = 'Architectural')

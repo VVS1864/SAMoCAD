@@ -9,7 +9,10 @@ def get_obj(x, y, par, t_obj):
     objs = []
     if find:
         for i in find:
-            Num = par.c.gettags(i)[1]
+            tags = par.c.gettags(i)
+            if tags[0] == 'c1':
+                continue
+            Num = tags[1]
             try:
                 tag = par.ALLOBJECT[Num]['id'][i]
             except:

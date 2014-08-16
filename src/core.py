@@ -362,7 +362,6 @@ class Graphics:
             self.kill()
         else:
             self.set_coord()
-            print 111
             dimension.c_dim(graf, x1, y1, x2, y2, x3, y3, text, sloy,
                                             fill,
                                             size,
@@ -502,6 +501,7 @@ class Graphics:
     def resRect(self, event):
         self.rectx2=event.x
         self.recty2=event.y
+        self.priv_coord = (self.rectx2, self.recty2)
         self.rectx,self.recty = self.coordinator(self.rectx,self.recty)
         self.set_coord()
         if self.rectx2<self.rectx:#Цвет зависит от координат x

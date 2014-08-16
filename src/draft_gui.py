@@ -690,10 +690,15 @@ class Dim_options(Options):
         self.label_type_arrow = Label(self.frame_options1, text = 'Arrowhead type')
         self.combo_type_arrow = ttk.Combobox(self.frame_options1, values = ['Architectural tick',
                                                                             'Arrow'], width = 20, state='readonly')
+
+        self.label_font = Label(self.frame_options1, text = 'Font')
+        self.combo_font = ttk.Combobox(self.frame_options1, values = ['Architectural',
+                                                                            'Simumar TXT'], width = 20, state='readonly')
         if gui.parent.type_arrow == 'Arch':
             self.combo_type_arrow.set('Architectural tick')
         elif gui.parent.type_arrow == 'Arrow':
             self.combo_type_arrow.set('Arrow')
+        self.combo_font.set(gui.parent.font_dim)
         self.combo_type_arrow.bind("<<ComboboxSelected>>", select_type_arrow)
 
         #Упаковщик
@@ -722,6 +727,8 @@ class Dim_options(Options):
         self.label_type_arrow.grid(row = 7, column = 0, sticky = 'w', padx = 3, pady = 3)
         self.combo_type_arrow.grid(row = 7, column = 1, sticky = 'w', padx = 3, pady = 3)
 
+        self.label_font.grid(row = 8, column = 0, sticky = 'w', padx = 3, pady = 3)
+        self.combo_font.grid(row = 8, column = 1, sticky = 'w', padx = 3, pady = 3)
     def apply_p(self, event = None):
         entry_s = self.entry_s.get()
         entry_arrow_s = self.entry_arrow_s.get()
@@ -730,6 +737,7 @@ class Dim_options(Options):
         entry_s_s = self.entry_s_s.get()
         entry_w_text = self.entry_w_text.get()
         type_arrow = self.combo_type_arrow.get()
+        font = self.combo_font.get()
 
         if self.select == 1:
             if type_arrow == 'Architectural tick':
@@ -739,6 +747,7 @@ class Dim_options(Options):
                 entry_vr_s = 0
                 self.entry_vr_s.delete(0, END)
                 self.entry_vr_s.insert(0, str(entry_vr_s))
+        gui.parent.font_dim = font
         gui.parent.s = gui.normal(entry_s)
         gui.parent.arrow_s = gui.normal(entry_arrow_s)
         gui.parent.vr_s = gui.normal(entry_vr_s)

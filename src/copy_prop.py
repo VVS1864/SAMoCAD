@@ -15,31 +15,22 @@ class Copy_prop:
             self.par.info.config(text = u'Escape - stop')
             self.par.dialog.config(text = u'Copying properties - object 2:')
             self.copy_prop3(col)
-            #self.par.c.unbind('<Button-1>')
             self.par.c.bind('<Button-1>', self.copy_prop4)
             self.par.c.config(cursor = 'iron_cross')
         else:
             self.par.kill()
             self.par.info.config(text = u'Escape - stop')
             self.par.dialog.config(text = u'Copying properties - object 1:')
-            #self.par.c.unbind('<Button-1>')
             self.par.c.bind('<Button-1>', self.copy_prop2)
         
         self.par.resFlag = True    
-        self.par.c.unbind_class(self.par.c,"<Motion>")
-        #self.par.c.tag_unbind('obj', "<Leave>")
-        #self.par.c.tag_unbind('obj', "<Enter>")
-        #self.par.c.tag_unbind('sel', "<Button-1>")
-        #self.par.c.tag_unbind('sel', '<Shift-Button-1>')
-        #self.par.c.unbind('<Shift-Button-1>')
+        #self.par.c.unbind_class(self.par.c,"<Motion>")
+        self.par.unpriv = True
         self.par.c.unbind_class(self.par.master1,"<Return>")
 
     def copy_prop2(self, event = None):
         el = self.par.get_obj(event.x, event.y, 'all')
         if el:
-        #self.par.mass_collektor((el,), 'select')
-        #col = self.par.collection[0]
-        #self.par.sbros()
             self.par.dialog.config(text = u'Copying properties - object 2:')
             self.par.c.bind('<Button-1>', self.copy_prop4)
             self.copy_prop3(el)
@@ -60,7 +51,8 @@ class Copy_prop:
         if self.par.rect:
             self.par.c.delete(self.par.rect)#Удалить прямоугольник выделения
             self.par.rect = None
-            self.par.c.unbind_class(self.par.c,"<Motion>")
+            self.par.unpriv = True
+            self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
             x1 = min(self.par.rectx, self.par.rectx2)
             x2 = max(self.par.rectx, self.par.rectx2)
             y1 = min(self.par.recty, self.par.recty2)
@@ -77,8 +69,6 @@ class Copy_prop:
             el = self.par.get_obj(event.x, event.y, 'all')
             if el:
                 self.par.collection = [el,]
-                #self.par.mass_collektor((el,), 'select')
-                
                 param_edit.Param_edit(self.par, self.par.prop)
                 self.par.sbros()
                 self.par.changeFlag = True
@@ -86,4 +76,5 @@ class Copy_prop:
             else:
                 self.par.rectx = x
                 self.par.recty = y
+                self.par.unpriv = False
                 self.par.c.bind_class(self.par.c, "<Motion>", self.par.resRect)

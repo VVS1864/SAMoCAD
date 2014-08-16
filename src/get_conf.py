@@ -153,5 +153,5 @@ def get_dimR_conf(obj, par):#Принимает объект - размер, в�
     w_text_dim = par.ALLOBJECT[obj]['w_text_dim']
     font_dim = par.ALLOBJECT[obj]['font_dim']
     R = par.ALLOBJECT[obj]['R']
-    print s, vr_s, arrow_s, type_arrow
+    #print s, vr_s, arrow_s, type_arrow
     return xc, yc, x1, y1, size, fill, text, sloy, s, vr_s, arrow_s, type_arrow, s_s_dim, w_text_dim, font_dim, R

@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-from get_conf import get_line_coord, get_arc_coord
+from get_conf import get_line_coord, get_arc_coord, get_dimR_conf
 class saver:
     def __init__(self, parent):
         self.parent = parent
@@ -85,8 +85,29 @@ class saver:
                 if dxf:
                     config['fill'] = dxf_colorer(config['fill'])
                 
+            elif obj[0] == 'r':
+                x1, y1, x2, y2, size, fill, text, sloy, s, vr_s, arrow_s, type_arrow, s_s_dim, w_text_dim, font_dim, R = get_dimR_conf(obj, self.parent)
+                config = {'x1' : x1,
+                          'y1' : y1,
+                          'x2' : x2,
+                          'y2' : y2,                          
+                          'size' : size,
+                          'fill' : fill,
+                          'text' : text,
+                          'sloy' : sloy,                          
+                          's' : s,
+                          'vr_s' : vr_s,
+                          'arrow_s' : arrow_s,
+                          'type_arrow' : type_arrow,
+                          's_s_dim' : s_s_dim,
+                          'w_text_dim' : w_text_dim,
+                          'font_dim' : font_dim,
+                          'R':R}
                 
-            elif obj[0] == 'd':#'dim' in self.AL[obj]['object']:
+                e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, text = u'%(text)s', fill = '%(fill)s', size = %(size)s, sloy = %(sloy)s, s = %(s)s, vr_s = %(vr_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s_dim)s, w_text = %(w_text_dim)s, font = '%(font_dim)s')"
+                e = (e % config)
+                
+            elif obj[0] == 'd':
               
                 line1 = self.parent.get_snap_line(obj)[0]
                 line2 = self.parent.get_snap_line(obj)[1]
