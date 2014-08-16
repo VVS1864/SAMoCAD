@@ -18,7 +18,7 @@ class Offset:
             self.par.c.bind('<Button-1>', self.offsetDistanse1)
             self.par.c.bind_class(self.par.master1,"<Return>", self.offsetEvent3)
             self.par.command.focus_set()
-            self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
+            #self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
             self.par.resFlag = True
 
         else:
@@ -27,13 +27,11 @@ class Offset:
             self.par.dialog.config(text = u'Offset - object:')
             self.par.c.unbind('<Button-1>')
             self.par.c.bind('<Button-1>', self.offsetEvent2)
-            self.par.c.unbind_class(self.par.c,"<Motion>")
+            #self.par.c.unbind_class(self.par.c,"<Motion>")
+            self.par.unpriv = True
             self.par.c.unbind_class(self.par.master1,"<Return>")
 
         self.par.old_func = 'self.offsetEvent()'
-        #self.par.c.tag_unbind('sel', '<Button-1>')
-        #self.par.c.tag_unbind('sel', "<Leave>")
-        #self.par.c.tag_unbind('sel', "<Enter>")
         self.par.c.unbind('<Shift-Button-1>')
 
 
@@ -46,7 +44,8 @@ class Offset:
             self.par.c.bind_class(self.par.master1,"<Return>", self.offsetEvent3)
             self.par.dialog.config(text = (u'Offset distanse:[%s]') %(str(self.par.old_offset)))
             self.par.info.config(text = u'Escape - stop. Enter - apply. Point 1')
-            self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
+            #self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
+            self.par.unpriv = False
             self.par.command.focus_set()
 
     def offsetDistanse1(self, event):

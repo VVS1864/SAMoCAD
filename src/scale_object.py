@@ -11,9 +11,6 @@ class Scale_object:
             self.par.resFlag = True
             self.par.info.config(text = (u'Selected %s objects. Escape - stop') %(len(self.par.collection)))
             self.par.dialog.config(text = u'Scale - base point:')
-            #self.par.c.tag_unbind('sel', '<Button-1>')
-            #self.par.c.tag_unbind('sel', "<Leave>")
-            #self.par.c.tag_unbind('sel', "<Enter>")
             self.par.c.bind('<Button-1>', self.scaleEvent2)
             self.par.c.unbind('<Shift-Button-1>')
             self.par.c.unbind_class(self.par.master1,"<Return>")

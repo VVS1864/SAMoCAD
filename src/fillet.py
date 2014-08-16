@@ -18,10 +18,8 @@ class Fillet:
         self.par.c.unbind('<Button-1>')
         self.par.c.bind('<Button-1>', self.filletEvent2)
         self.par.old_func = 'self.filletEvent()'
-        self.par.c.unbind_class(self.par.c,"<Motion>")
-        #self.par.c.tag_unbind('obj', '<Button-1>')
-        #self.par.c.tag_unbind('obj', "<Leave>")
-        #self.par.c.tag_unbind('obj', "<Enter>")
+        #self.par.c.unbind_class(self.par.c,"<Motion>")
+        self.par.unpriv = True
         self.par.c.unbind('<Shift-Button-1>')
         self.par.c.unbind_class(self.par.master1,"<Return>")
 
@@ -40,7 +38,8 @@ class Fillet:
             self.par.dialog.config(text = (u'Fillet - radius: [%s]') %(str(self.par.old_fillet_R)))
             self.par.info.config(text = u'Escape - stop. Ponit 1')
             self.par.c.bind_class(self.par.master1,"<Return>", self.filletEvent4)
-            self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
+            #self.par.c.bind_class(self.par.c,"<Motion>", self.par.gpriv)
+            self.par.unpriv = False
             self.par.c.bind('<Button-1>', self.filletDistanse1)
             self.par.command.focus_set()
 
@@ -57,7 +56,7 @@ class Fillet:
         self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
         pd = math.sqrt((-self.par.ex+self.par.ex2)**2 + (-self.par.ey+self.par.ey2)**2)
         self.par.c.unbind_class(self.par.c,"<1>")
-        self.par.filletEvent4(pd = pd)
+        self.filletEvent4(pd = pd)
 
     def filletEvent4(self, event = None, pd = None):
         if pd:

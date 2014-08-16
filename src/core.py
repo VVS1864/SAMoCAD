@@ -119,6 +119,7 @@ class Graphics:
         self.current_file = 'New draft'
         self.s_dxf = False
         self.curent_class = None
+        self.unpriv = False
 
         self.edit_clone = False
         self.move_clone = False
@@ -837,6 +838,7 @@ class Graphics:
             del self.ALLOBJECT['trace']
         self.c.delete('clone')
         self.c.delete('temp')
+        self.unpriv = False
         self.edit_clone = False
         self.move_clone = False
         self.mirror_clone = False
@@ -927,94 +929,97 @@ class Graphics:
                 self.find_privs = ['t'] #Отчистить список привязок
 
 
-        if event:#Если метод вызван событием
-            self.find_privs = ['t']#Список приметивов привязки (с разделителем)
-            self.c.unbind_class(self.master1, "<End>")#Выключить реакцию на End - перебор привязок
-            x=event.x#Получить координаты положения курсора
-            y=event.y
+        #if event:#Если метод вызван событием
+        self.find_privs = ['t']#Список приметивов привязки (с разделителем)
+        #self.c.unbind_class(self.master1, "<End>")#Выключить реакцию на End - перебор привязок
+        x=event.x#Получить координаты положения курсора
+        y=event.y
+        if not self.unpriv: 
             self.x_priv, self.y_priv, self.tip_p = self.priv(x,y)#Проверить, попадает ли положение курсора под возможность привязки к приметиву
             p = self.tip_p #Тип привязки
+            self.priv_coord = (self.x_priv, self.y_priv)#Назначить кориеж координат привязки
+            if x!=self.x_priv or y!=self.y_priv or p != self.tip_p: #Если координаты курсора не равны координатам привязки или тип привязки сменился
+                self.tip_p = p #Переназначить тип привязки на новый
+                x1 = self.x_priv
+                y1 = self.y_priv
+                r=self.size_simbol_p
+                if p == 'r':#Если тип привязки - к конечной точке
+                    self.c.create_oval(x1-r,y1-r,x1+r,y1+r, outline = self.priv_color,width = 3, fill = None, tags = 'c1')#Нарисовать знак привязки - круг
+                elif p == 'c':#Если привязка к середине нарисовать знак привязки - треугольник
+                    self.c.create_line(x1-r,y1-r,x1+r,y1-r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1-r,y1-r,x1,y1+r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1,y1+r,x1+r,y1-r,fill=self.priv_color,width=3,tags='c1')
+                elif p == 'X': #Если привязка к пересечению - нарисовать знак Х
+                    self.c.create_line(x1-r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1+r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
+                elif p == 'N': #Если привязка к ближайшей - нарисовать знак N
+                    self.c.create_line(x1-r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1+r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1-r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
+                    self.c.create_line(x1+r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
 
-        self.priv_coord = (self.x_priv, self.y_priv)#Назначить кориеж координат привязки
-        if x!=self.x_priv or y!=self.y_priv or p != self.tip_p: #Если координаты курсора не равны координатам привязки или тип привязки сменился
-            self.tip_p = p #Переназначить тип привязки на новый
-            x1 = self.x_priv
-            y1 = self.y_priv
-            r=self.size_simbol_p
-            if p == 'r':#Если тип привязки - к конечной точке
-                self.c.create_oval(x1-r,y1-r,x1+r,y1+r, outline = self.priv_color,width = 3, fill = None, tags = 'c1')#Нарисовать знак привязки - круг
-            elif p == 'c':#Если привязка к середине нарисовать знак привязки - треугольник
-                self.c.create_line(x1-r,y1-r,x1+r,y1-r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1-r,y1-r,x1,y1+r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1,y1+r,x1+r,y1-r,fill=self.priv_color,width=3,tags='c1')
-            elif p == 'X': #Если привязка к пересечению - нарисовать знак Х
-                self.c.create_line(x1-r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1+r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
-            elif p == 'N': #Если привязка к ближайшей - нарисовать знак N
-                self.c.create_line(x1-r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1+r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1-r,y1-r,x1-r,y1+r,fill=self.priv_color,width=3,tags='c1')
-                self.c.create_line(x1+r,y1-r,x1+r,y1+r,fill=self.priv_color,width=3,tags='c1')
-
-            if  self.resFlag == False:#Если режим рисования не включен
-                #self.c.tag_unbind('sel', "<Button-1>")#Выключить возможность выделения
-                self.c.bind('<Button-1>', self.editEvent)#Включить возможность редактирования узла
-        else:
-            if not self.rect:
-                el = get_object.get_obj(x, y, graf, 'all')
-                if el and el != 'trace':
-                    if el == self.Old_sel:
-                        pass
-                    elif el != self.Old_sel:
+                if  self.resFlag == False:#Если режим рисования не включен
+                    #self.c.tag_unbind('sel', "<Button-1>")#Выключить возможность выделения
+                    self.c.bind('<Button-1>', self.editEvent)#Включить возможность редактирования узла
+            else:
+                if not self.rect:
+                    el = get_object.get_obj(x, y, graf, 'all')
+                    if el and el != 'trace':
+                        if el == self.Old_sel:
+                            pass
+                        elif el != self.Old_sel:
+                            if self.Old_sel:
+                                self.c.delete('C'+self.Old_sel)
+                                self.Old_sel = None
+                            if el not in self.collection and el in self.ALLOBJECT:#Если объект отсутствует в коллекции - сменить цвет, включить флаг
+                                select_clone.Select_clone((el,), graf)
+                                self.Old_sel = el
+                            if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
+                                self.c.bind('<Button-1>', self.collektor_sel)
+                                self.c.bind('<Shift-Button-1>', self.collektor_desel)
+                    else:
                         if self.Old_sel:
                             self.c.delete('C'+self.Old_sel)
                             self.Old_sel = None
-                        if el not in self.collection and el in self.ALLOBJECT:#Если объект отсутствует в коллекции - сменить цвет, включить флаг
-                            select_clone.Select_clone((el,), graf)
-                            self.Old_sel = el
-                        if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
-                            self.c.bind('<Button-1>', self.collektor_sel)
-                            self.c.bind('<Shift-Button-1>', self.collektor_desel)
-                else:
-                    if self.Old_sel:
-                        self.c.delete('C'+self.Old_sel)
-                        self.Old_sel = None
-                        
-                    if self.resFlag == False:
-                        self.c.bind('<Button-1>', self.lapping_sel)
-                        self.c.bind('<Shift-Button-1>', self.lapping_desel)
+                            
+                        if self.resFlag == False:
+                            self.c.bind('<Button-1>', self.lapping_sel)
+                            self.c.bind('<Shift-Button-1>', self.lapping_desel)
 
-        if any((self.edit_clone, self.move_clone, self.copy_clone, self.mirror_clone, self.rotate_clone, self.edit_dim_clone, self.line_clone, self.circle_clone, self.arc_clone, self.dim_clone, self.edit_dim_text_clone, self.dimR_clone, self.trim_dim_clone)):
-            if len(self.collection) < 100:
-                self.c.delete('temp')
-                if self.edit_clone:
-                    self.curent_class.editEvent2()
-                elif self.move_clone:
-                    self.curent_class.moveEvent3()
-                elif self.copy_clone:
-                    self.curent_class.copyEvent3()
-                elif self.mirror_clone:
-                    self.curent_class.mirrorEvent4()
-                elif self.rotate_clone:
-                    self.curent_class.rotateEvent5()
-                elif self.line_clone:
-                    self.curent_class.line2()
-                elif self.circle_clone:
-                    self.curent_class.circle2()
-                elif self.arc_clone:
-                    self.curent_class.arc3()
-                elif self.dim_clone:
-                    self.curent_class.risDim4()
-                elif self.edit_dim_text_clone:
-                    self.editDimTextPlace2()
-                elif self.dimR_clone:
-                    self.curent_class.risDimR3()
-                elif self.trim_dim_clone:
-                    self.curent_class.dim_conf()
+            if any((self.edit_clone, self.move_clone, self.copy_clone, self.mirror_clone, self.rotate_clone, self.edit_dim_clone, self.line_clone, self.circle_clone, self.arc_clone, self.dim_clone, self.edit_dim_text_clone, self.dimR_clone, self.trim_dim_clone)):
+                if len(self.collection) < 100:
+                    self.c.delete('temp')
+                    if self.edit_clone:
+                        self.curent_class.editEvent2()
+                    elif self.move_clone:
+                        self.curent_class.moveEvent3()
+                    elif self.copy_clone:
+                        self.curent_class.copyEvent3()
+                    elif self.mirror_clone:
+                        self.curent_class.mirrorEvent4()
+                    elif self.rotate_clone:
+                        self.curent_class.rotateEvent5()
+                    elif self.line_clone:
+                        self.curent_class.line2()
+                    elif self.circle_clone:
+                        self.curent_class.circle2()
+                    elif self.arc_clone:
+                        self.curent_class.arc3()
+                    elif self.dim_clone:
+                        self.curent_class.risDim4()
+                    elif self.edit_dim_text_clone:
+                        self.editDimTextPlace2()
+                    elif self.dimR_clone:
+                        self.curent_class.risDimR3()
+                    elif self.trim_dim_clone:
+                        self.curent_class.dim_conf()
 
-        if self.trace_on:
-            trace.tracer(graf, self.trace_x1, self.trace_y1, self.trace_x2, self.trace_y2, self.snap_s, self.angle_s) 
-
+            if self.trace_on:
+                trace.tracer(graf, self.trace_x1, self.trace_y1, self.trace_x2, self.trace_y2, self.snap_s, self.angle_s)
+        else:
+            self.x_priv, self.y_priv = x, y
+            self.priv_coord = (self.x_priv, self.y_priv)
+            
     def priv(self, x, y, f = None):#Принимает координаты точки и может принять список приметивов, возвращает координаты точки привязки если привязка допустима, в противном случае не изменяет пришедших координат
         if f == None:#Если список приметивов не назначен
             find = list(self.c.find_overlapping(x-self.snap_s,y-self.snap_s,x+self.snap_s,y+self.snap_s))#Найти все приметивы, попадающие в квадрат вокруг точки

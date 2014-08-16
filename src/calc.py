@@ -104,7 +104,15 @@ def min_distanse(x1,y1, x2,y2, x3, y3):
 def intersection_stright(x1,y1, x2,y2, x3, y3, x4, y4):#По координатам 2 линий находит уравнения их прямых и определяет, есть ли у них общая точка - если есть возвращает ее.
     x = None
     y = None
-    if (x1 != x3 or y1 != y3) and (x2 != x4 or y2 != y4):
+    if x1 == x3 and y1 == y3:
+        x = x1
+        y = y1
+        
+    elif x2 == x4 and y2 == y4:
+        x = x2
+        y = y2
+        
+    else:
         dxa = x2-x1
         dxb = x4-x3
         dya = y2-y1
