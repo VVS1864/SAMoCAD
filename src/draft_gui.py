@@ -248,6 +248,10 @@ limitations under the License.
         self.button_trace.pack(side = LEFT)
         self.button_trace.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')
 
+        self.button_trace_obj = Button(self.frame3,text="Object trace",font=('txt 12'),command = self.parent.trac_obj)
+        self.button_trace_obj.pack(side = LEFT)
+        self.button_trace_obj.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')
+
         self.button_snap_N = Button(self.frame3,text="Snap near",font=('txt 12'),command = self.parent.snap_n)
         self.button_snap_N.pack(side = LEFT)
         self.button_snap_N.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')

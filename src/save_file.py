@@ -104,7 +104,7 @@ class saver:
                           'font_dim' : font_dim,
                           'R':R}
                 
-                e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, text = u'%(text)s', fill = '%(fill)s', size = %(size)s, sloy = %(sloy)s, s = %(s)s, vr_s = %(vr_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s_dim)s, w_text = %(w_text_dim)s, font = '%(font_dim)s')"
+                e = "self.dimR(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, text = u'%(text)s', fill = '%(fill)s', size = %(size)s, sloy = %(sloy)s, s = %(s)s, vr_s = %(vr_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s_dim)s, w_text = %(w_text_dim)s, font = '%(font_dim)s')"
                 e = (e % config)
                 
             elif obj[0] == 'd':

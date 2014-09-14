@@ -8,6 +8,7 @@ import get_object
 import param_edit
 import select_clone
 import trace
+import trace_object
 
 import save_file
 import undo_redo
@@ -109,7 +110,9 @@ class Graphics:
 
         self.ortoFlag=False #Если True - значит орто вкл
         self.trace_on = False
+        self.trace_obj_on = False
         self.tracingFlag = True
+        self.tracing_obj_Flag = True
         self.snap_near = True
         self.lappingFlag = False #Если True - значит активен квадрат выделения
         self.resFlag = False #Если True - значит рисуем
@@ -180,6 +183,7 @@ class Graphics:
         self.info = draft_gui.gui.info
         self.button_orto = draft_gui.gui.button_orto
         self.button_trace = draft_gui.gui.button_trace
+        self.button_trace_obj = draft_gui.gui.button_trace_obj
         self.button_snap_N = draft_gui.gui.button_snap_N
         self.frame1 = draft_gui.gui.frame1
         self.c = draft_gui.gui.canvas
@@ -739,8 +743,7 @@ class Graphics:
                                         
     def colorer(self, event):#действие при наезжании курсора на приметив
         Num = self.get_obj(event.x, event.y, 'all')
-        print 111
-        if Num not in self.collection and Num in self.ALLOBJECT and Num != 'trace':#Если объект отсутствует в коллекции - сменить цвет, включить флаг
+        if Num not in self.collection and Num in self.ALLOBJECT and Num not in ('trace', 'trace_o'):#Если объект отсутствует в коллекции - сменить цвет, включить флаг
             select_clone.Select_clone((Num,), graf)
             print Num
         if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
@@ -836,6 +839,9 @@ class Graphics:
         if 'trace' in self.ALLOBJECT:
             self.c.delete('trace')
             del self.ALLOBJECT['trace']
+        if 'trace_o' in self.ALLOBJECT:
+            self.c.delete('trace_o')
+            del self.ALLOBJECT['trace_o']
         self.c.delete('clone')
         self.c.delete('temp')
         self.unpriv = False
@@ -869,6 +875,7 @@ class Graphics:
         self.lappingFlag = False
         self.anchorFlag = False
         self.trace_on = False
+        self.trace_obj_on = False
         self.command.delete(0,END)
         self.com = None
         self.sbros()
@@ -964,7 +971,7 @@ class Graphics:
             else:
                 if not self.rect:
                     el = get_object.get_obj(x, y, graf, 'all')
-                    if el and el != 'trace':
+                    if el and el not in ['trace', 'trace_o']:
                         if el == self.Old_sel:
                             pass
                         elif el != self.Old_sel:
@@ -1016,6 +1023,8 @@ class Graphics:
 
             if self.trace_on:
                 trace.tracer(graf, self.trace_x1, self.trace_y1, self.trace_x2, self.trace_y2, self.snap_s, self.angle_s)
+            if self.trace_obj_on:
+                trace_object.tracer_obj(graf, self.priv_coord[0], self.priv_coord[1], self.snap_s)
         else:
             self.x_priv, self.y_priv = x, y
             self.priv_coord = (self.x_priv, self.y_priv)
@@ -1042,7 +1051,6 @@ class Graphics:
             t = obj_tags[1]
             if t[0] == 'C' or 'temp' in obj_tags or 'text' in obj_tags:
                 continue
-            
             tags = self.ALLOBJECT[t]['id'][i]
             
                 
@@ -1270,6 +1278,9 @@ class Graphics:
         if 'trace' in self.ALLOBJECT:
             self.c.delete('trace')
             del self.ALLOBJECT['trace']
+        if 'trace_o' in self.ALLOBJECT:
+            self.c.delete('trace_o')
+            del self.ALLOBJECT['trace_o']
         if not color_only:
             if self.tracingFlag == True:
                 self.tracingFlag = False
@@ -1283,6 +1294,24 @@ class Graphics:
                 self.button_trace.config(bg='white',fg='black', activebackground = 'white', activeforeground = 'black')
             else:
                 self.button_trace.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')
+
+    def trac_obj(self, event=None, color_only = None):
+        if 'trace_o' in self.ALLOBJECT:
+            self.c.delete('trace_o')
+            del self.ALLOBJECT['trace_o']
+        if not color_only:
+            if self.tracing_obj_Flag == True:
+                self.tracing_obj_Flag = False
+                self.trace_obj_on = False
+                self.button_trace_obj.config(bg='white',fg='black', activebackground = 'white', activeforeground = 'black')
+            else:
+                self.tracing_obj_Flag=True
+                self.button_trace_obj.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')
+        else:
+            if self.tracing_obj_Flag == False:
+                self.button_trace_obj.config(bg='white',fg='black', activebackground = 'white', activeforeground = 'black')
+            else:
+                self.button_trace_obj.config(bg='blue',fg='red', activebackground = 'blue', activeforeground = 'red')
 
     def snap_n(self, event = None, color_only = None):
         if not color_only:
@@ -1731,12 +1760,12 @@ class Graphics:
                 list_command = DXF.command_list
             if list_command:
                 for i in list_command:
-                    #try:
-                    exec(i)
-                    #except:
-                        #print 'Error in opened file!'
-                        #print repr(i)
-                        #continue
+                    try:
+                        exec(i)
+                    except:
+                        print 'Error in opened file!'
+                        print i
+                        continue
             f.close()
             if self.s_dxf == False:
                 self.saveFlag = True

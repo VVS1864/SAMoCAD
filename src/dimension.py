@@ -552,7 +552,6 @@ def c_dimR(par,x1,y1,x2,y2, text=None, sloy = None,
             L1 = [x1+i*R,y1,x1+i*(R-arrow_s),y1-arrow_s/10.0]
             L2 = [x1+i*R,y1,x1+i*(R-arrow_s),y1+arrow_s/10.0]
             list_arrow.extend([L1, L2])
-        print x1, y1, list_text_lines.nabor
         list_text_lines.nabor = rotate_lines(x1, y1, list_text_lines.nabor, angle)
         list_arrow = rotate_lines(x1, y1, list_arrow, angle)
         list_lines = rotate_lines(x1, y1, list_lines, angle)

@@ -47,8 +47,11 @@ class Line:
         self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
         self.par.ex2,self.par.ey2 = self.par.commer(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
         self.par.set_coord()
-        if self.par.tracingFlag:
-            self.par.trace_on = True
+        if self.par.tracingFlag or self.par.tracing_obj_Flag:
+            if self.par.tracingFlag:
+                self.par.trace_on = True
+            if self.par.tracing_obj_Flag:
+                self.par.trace_obj_on = True
             self.par.trace_x1, self.par.trace_y1 = self.par.ex,self.par.ey
             self.par.trace_x2, self.par.trace_y2 = self.par.ex2,self.par.ey2
         if self.par.ortoFlag == True and self.par.com == None:
