@@ -1594,7 +1594,7 @@ class Graphics:
 
     def enumerator_p(self):
         self.enumerator +=1
-        if self.enumerator == 20:
+        if self.enumerator == 2:
             self.enumerator = 0
             self.fileCurSave()
 

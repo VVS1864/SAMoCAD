@@ -4,8 +4,6 @@ class saver:
     def __init__(self, parent):
         self.parent = parent
         self.AL = self.parent.ALLOBJECT.copy()
-        if 'trace' in self.AL:
-            del self.AL['trace']
         self.write_list = []
         self.config_dict = {}
         dxf = self.parent.s_dxf
@@ -22,6 +20,10 @@ class saver:
             return color_tab[color]
         
         for obj in self.AL:
+            if obj == 'trace':
+                continue
+            if obj == 'trace_o':
+                continue
             if obj[0] == 'L':
                 coord = get_line_coord(obj, self.parent)
                 config = {'x1' : coord[0],#Взять свойства из канваса

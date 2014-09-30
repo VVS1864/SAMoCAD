@@ -5,7 +5,7 @@ from math import sqrt
 import calc
 
 
-#ЛИНИЯ
+#ПРОДЛЕНИЕ РАЗМЕРНОЙ ЛИНИИ
 class Trim_dim:
     def __init__(self, par):
         self.par = par
@@ -41,11 +41,13 @@ class Trim_dim:
         self.par.ex3,self.par.ey3 = self.par.coordinator(self.par.ex3,self.par.ey3)
         x1, y1, x2, y2, x3, y3, ort, size, fill, text, sloy, text_change, text_place, s, vr_s, vv_s, arrow_s, type_arrow, s_s, w_text, font = self.par.get_dim_conf(self.par.col)
         if ort == 'horizontal':
+            #print 111
             x12 = x3
             y12 = y1
             x22 = x3
             y22 = y2
         else:
+            #print 222
             x12 = x1
             y12 = y3
             x22 = x2
@@ -55,11 +57,13 @@ class Trim_dim:
         md1 = sqrt((self.par.ex3-mdx1)**2 + (self.par.ey3-mdy1)**2)
         md2 = sqrt((self.par.ex3-mdx2)**2 + (self.par.ey3-mdy2)**2)
         if md1<md2:
-            self.par.ex = x1
-            self.par.ey = y1
+            #print 333
+            self.par.ex = x12
+            self.par.ey = y12
         else:
-            self.par.ex = x2
-            self.par.ey = y2
+            #print 444
+            self.par.ex = x22
+            self.par.ey = y22
         self.par.set_coord()
         if event:
             dimension.c_dim(self.par, self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x3, y3,
