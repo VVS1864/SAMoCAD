@@ -4,8 +4,8 @@ from math import sin, cos, degrees, radians
 def get_conf(obj, par):
     o = obj[0]
     if o == 'L':
-        fill, width, sloy, stipple, coord = get_line_conf(obj, par)
-        e = ['line', fill, width, sloy, stipple, coord]
+        fill, width, sloy, stipple, coord, factor_stip = get_line_conf(obj, par)
+        e = ['line', fill, width, sloy, stipple, coord, factor_stip]
     elif o == 'r':
         xc, yc, x1, y1, size, fill, text, sloy, s, vr_s, arrow_s, type_arrow, s_s_dim, w_text_dim, font_dim, R = get_dimR_conf(obj, par)
         e = ['dimr', xc, yc, x1, y1, size, fill, text, sloy, s, vr_s, arrow_s, type_arrow, s_s_dim, w_text_dim, font_dim, R]
@@ -73,10 +73,11 @@ def get_line_conf(obj, par):#Принимает объект - линия, во�
     width = par.ALLOBJECT[obj]['width']
     sloy = par.ALLOBJECT[obj]['sloy']
     stipple = par.ALLOBJECT[obj]['stipple']
+    factor_stip = par.ALLOBJECT[obj]['factor_stip']
     for i in par.ALLOBJECT[obj]['id']: #par.c.find_withtag(obj):
         if 'lin' in par.ALLOBJECT[obj]['id'][i]:#all(x in par.ALLOBJECT[obj]['id'][i] for x in ('line', 'priv')):#par.c.gettags(i):
             coord = par.c.coords(i)
-    return fill, width, sloy, stipple, coord
+    return fill, width, sloy, stipple, coord, factor_stip
 
 def get_line_coord(obj, par):#Принимает объект - линия, возвращает все его свойства
     for i in par.ALLOBJECT[obj]['id']:#par.c.find_withtag(obj):

@@ -17,9 +17,10 @@ def undo(fact, parent):
                 sloy = i[3]
                 stipple = i[4]
                 c = i[5]
+                factor_stip=i[6]
                 x1, y1 = parent.coordinator(c[0], c[1], zoomOLDres = el[2], xynachres = el[1])
                 x2, y2 = parent.coordinator(c[2], c[3], zoomOLDres = el[2], xynachres = el[1])
-                parent.c_line(x1, y1, x2, y2, fill = fill, width = width, stipple = stipple, sloy = sloy)
+                parent.c_line(x1, y1, x2, y2, fill = fill, width = width, stipple = stipple, factor_stip=factor_stip, sloy = sloy)
 
             elif i[0] == 'circle':
                 xc, yc = parent.coordinator(i[1], i[2], zoomOLDres = el[2], xynachres = el[1])

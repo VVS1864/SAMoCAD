@@ -13,6 +13,7 @@ import trace_object
 import save_file
 import undo_redo
 import to_dxf
+import to_svg
 import from_dxf
 import copy_prop
 import trim_extend
@@ -97,9 +98,10 @@ class Graphics:
         self.font_dim = 'Architectural'
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
         self.angle_s = 15.0
+        self.auto_save_step = 30 #Количество действий между автосохранениями
         
         self.old_func = 'self.copyEvent()'
-        self.prog_version = 'SAMoCAD - v0.0.8.2 alpha'
+        self.prog_version = 'SAMoCAD - v0.0.8.4 alpha'
         self.old_text = self.prog_version
         self.old_offset = 0
         self.old_fillet_R = 0
@@ -190,11 +192,11 @@ class Graphics:
 
 #Начало коорданат
         self.nachCoordy = self.c.create_line(10,10,100,10,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
-        self.c.create_line(100,10,80,5,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
-        self.c.create_line(100,10,80,15,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
-        self.nachCoordx = self.c.create_line(10,10,10,100,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
-        self.c.create_line(10,100,5,80,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
-        self.c.create_line(10,100,15,80,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
+        #self.c.create_line(100,10,80,5,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
+        #self.c.create_line(100,10,80,15,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
+        #self.nachCoordx = self.c.create_line(10,10,10,100,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
+        #self.c.create_line(10,100,5,80,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
+        #self.c.create_line(10,100,15,80,fill='white',width=3,tags=['line', 'obj'], state = HIDDEN)
     
 #Перехват закрытия окна
         self.col = 0
@@ -239,7 +241,7 @@ class Graphics:
             j+=1
 
     def tt(self, event):
-        print self.ALLOBJECT.keys()
+        print self.ALLOBJECT
         print self.collection
         #print self.ALLOBJECT
         #print self.ALLOBJECT[self.collection[0]]['text_change']
@@ -1496,8 +1498,8 @@ class Graphics:
         self.curent_class = arc.Arc(graf)
 
 #ЛИНИЯ
-    def c_line(self, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple = None, tip = 'norm'):
-        self.curent_class = line.c_line(graf, x1, y1, x2, y2, width, sloy, fill, stipple, tip)
+    def c_line(self, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple = None, factor_stip = None, tip = 'norm'):
+        self.curent_class = line.c_line(graf, x1, y1, x2, y2, width, sloy, fill, stipple, factor_stip, tip)
 
     def copy_line(self, content):
         self.Nlined += 1
@@ -1594,7 +1596,7 @@ class Graphics:
 
     def enumerator_p(self):
         self.enumerator +=1
-        if self.enumerator == 2:
+        if self.enumerator == self.auto_save_step:
             self.enumerator = 0
             self.fileCurSave()
 
@@ -1606,9 +1608,10 @@ class Graphics:
     def fileSave(self):
         opt = options = {}
         if self.s_dxf == False:
-            options['defaultextension'] = '.txt'
-            options['filetypes'] = [('text files', '.txt'),
-                                ('all files', '.*')]
+            options['defaultextension'] = '.svg'
+            options['filetypes'] = [('SVG files', '.svg'),
+                                    ('text files', '.txt'),
+                                    ('all files', '.*')]
         else:
             options['defaultextension'] = '.dxf'
             options['filetypes'] = [('text files', '.dxf'),
@@ -1630,11 +1633,14 @@ class Graphics:
             dy=-xynach[1]
             self.c.move('obj',dx+10,dy+10)
             if self.s_dxf == False:
-                save = save_file.saver(graf)
+                #save = save_file.saver(graf)
+                save = to_svg.Svger(graf)
                 for i in save.write_list:
-                    if i[:8] == 'self.c_t' or i[:8] == 'self.dim':
-                        f.write(codecs.BOM_UTF8)
-                    f.writelines("%s\n" % i.encode("utf8"))
+                    
+                    #if i[:8] == 'self.c_t' or i[:8] == 'self.dim':
+                        #f.write(codecs.BOM_UTF8)
+                        
+                    f.writelines("%s\n" % i)#.encode("utf8"))
                 f.close()
                 self.saveFlag = True
                 self.changeFlag = False

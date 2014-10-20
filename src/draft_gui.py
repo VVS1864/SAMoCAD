@@ -31,9 +31,9 @@ class Gui:
                         "red"]
 
         self.stipples = {'_____________':None,
-                         '_ _ _ _ _ _ _':(1,1),
-                         '____ _ ____ _':(4,1,1,1),
-                         '____ _ _ ____':(4,1,1,1,1,1)}
+                         '_ _ _ _ _ _ _':[1.0,1.0],
+                         '____ _ ____ _':[4.0,1.0,1.0,1.0],
+                         '____ _ _ ____':[4.0,1.0,1.0,1.0,1.0,1.0]}
 
         self.parent = parent1
         #self.button_zoom_color = 'grey'#'red'
@@ -380,8 +380,8 @@ limitations under the License.
         def select_stipple(event):
             s = self.combo_s.get()
             stipple = self.stipples[s]
-            if stipple:
-                stipple = map(lambda x: x*self.parent.stipple_size, stipple)
+            #if stipple:
+                #stipple = map(lambda x: x*self.parent.stipple_size, stipple)
             self.parent.stipple =  stipple
             self.parent.param_edit({'stipple':stipple})
             self.command.focus_set()
@@ -919,15 +919,17 @@ class Object_properties(Options):
                 if c[0] == 'L':
                     self.label_stip = Label(self.frame_options1, text = 'Type line:')
                     self.combo_stip = ttk.Combobox(self.frame_options1, values = gui.stipples.keys(), width = 20, state='readonly')
-                    if AL[c]['stipple']:
-                        for i in gui.stipples:
-                            if gui.stipples[i]:
-                                t = map(lambda x: x*float(AL[c]['factor_stip']), gui.stipples[i])
-                                if t == AL[c]['stipple']:
-                                    stip = i
-                                    break
-                    else:
-                        stip = '_____________'
+                    #if AL[c]['stipple']:
+                    for i in gui.stipples:
+                        #if gui.stipples[i]:
+                            
+                            #t = map(lambda x: x*float(AL[c]['factor_stip']), gui.stipples[i])
+                        print i, AL[c]['stipple'], gui.stipples[i]
+                        if gui.stipples[i] == AL[c]['stipple']:
+                            stip = i
+                            break
+                    #else:
+                        #stip = '_____________'
                     self.combo_stip.set(stip)
                     self.label_stip.grid(row = 4, column = 0, sticky = 'w', padx = 3)
                     self.combo_stip.grid(row = 4, column = 1, columnspan = 3, sticky = 'w', padx = 3)
@@ -1106,16 +1108,21 @@ class Object_properties(Options):
                         params['w_text_dim'] = e
                     elif i == 'font':
                         params['font_dim'] = e
+                elif c[0] == 'L':
+                    if i == 'factor_stip':
+                        params['factor_stip'] = float(e)
+                    elif i == 'stipple':
+                        stip = gui.stipples[e]
+                        params[i] = stip
+                    continue
+                        #if stip:
+                            #params[i] = map(lambda x: x*float(self.param['factor_stip'].get()), stip)
                 if e == '':
                     params[i] = AL[c][i]
                     continue
                 if i == 'size':
                     size = float(e) * -100.0
                     params[i] = size
-                elif i == 'stipple':
-                    stip = gui.stipples[e]
-                    if stip:
-                        params[i] = map(lambda x: x*float(self.param['factor_stip'].get()), stip)
                 elif i == 'angle':
                     angle = float(e)*pi/180.0
                     params[i] = angle

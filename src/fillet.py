@@ -70,14 +70,14 @@ class Fillet:
             else:
                 R = self.par.old_fillet_R
         R = self.par.coordinator2(R)
-        fill1, width1, sloy1, stipple1, c1 = get_line_conf(self.par.collection[0], self.par)
-        fill2, width2, sloy2, stipple2, c2 = get_line_conf(self.par.collection[1], self.par)
+        fill1, width1, sloy1, stipple1, c1, factor_stip1 = get_line_conf(self.par.collection[0], self.par)
+        fill2, width2, sloy2, stipple2, c2, factor_stip2 = get_line_conf(self.par.collection[1], self.par)
         xc, yc, xe1, ye1, xe2, ye2, cord = filet_point(c1[0], c1[1], c1[2], c1[3], c2[0], c2[1], c2[2], c2[3], R)
         if xc:
             c_arc(self.par, xc, yc, xe1, ye1, xe2, ye2)
 
-        c_line(self.par, cord[0], cord[1], cord[2], cord[3], fill=fill1, width=width1, sloy=sloy1, stipple=stipple1)
-        c_line(self.par, cord[4], cord[5], cord[6], cord[7], fill=fill2, width=width2, sloy=sloy2, stipple=stipple2)
+        c_line(self.par, cord[0], cord[1], cord[2], cord[3], fill=fill1, width=width1, sloy=sloy1, stipple=stipple1, factor_stip=factor_stip1)
+        c_line(self.par, cord[4], cord[5], cord[6], cord[7], fill=fill2, width=width2, sloy=sloy2, stipple=stipple2, factor_stip=factor_stip2)
         self.par.delete(elements = self.par.collection)
         self.par.collection = []
         self.par.changeFlag = True

@@ -262,5 +262,6 @@ class saver:
             if dxf:
                 self.config_dict[obj] = config
             else:
+                self.config_dict[obj] = config
                 self.write_list.append(e)
                 

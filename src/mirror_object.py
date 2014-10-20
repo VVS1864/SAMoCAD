@@ -98,9 +98,9 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         if delOld == 'No':
             for c in content:
                 if c[0] == 'L':
-                    fill, width, sloy, stipple, coord = get_line_conf(c, par)
+                    fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                     coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
-                    _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple)
+                    _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip)
 
                 elif c[0] == 'c':
                     xc, yc, R, fill, width, sloy = get_circle_conf(c, par)

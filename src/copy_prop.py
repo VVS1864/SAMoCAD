@@ -39,7 +39,7 @@ class Copy_prop:
     def copy_prop3(self, col):
         self.par.prop = {}
         for p in self.par.ALLOBJECT[col]:
-            if p in ('fill', 'width', 'stipple', 'size', 'sloy', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 's_s', 'w_text', 'font', 's_s_dim', 'w_text_dim', 'font_dim'):                       
+            if p in ('fill', 'width', 'stipple', 'factor_stip', 'size', 'sloy', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 's_s', 'w_text', 'font', 's_s_dim', 'w_text_dim', 'font_dim'):                       
                 self.par.prop[p] = copy(self.par.ALLOBJECT[col][p])
 
     def copy_prop4(self, event):

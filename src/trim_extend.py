@@ -78,12 +78,12 @@ class Trim_extent:
                     for el in col:
                         if el[0] == 'L':
                             self.par.c.delete('C'+el)
-                            fill, width, sloy, stipple, c = self.par.get_line_conf(el)
+                            fill, width, sloy, stipple, c, factor_stip = self.par.get_line_conf(el)
                             cNew = trim_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x, y, c)
                             if cNew:
                                 self.par.delete(elements = (el,))
                                 
-                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple)
+                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple, factor_stip=factor_stip)
                 else:
                     for el in col:
                         if el[0] == 'L':
@@ -91,7 +91,7 @@ class Trim_extent:
                             cNew = extend_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, c)
                             if cNew:
                                 self.par.delete(elements = (el,))
-                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple)
+                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple, factor_stip=factor_stip)
                 if cNew:
                     self.par.changeFlag = True
                     self.par.enumerator_p()

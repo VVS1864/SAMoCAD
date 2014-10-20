@@ -74,9 +74,9 @@ class Copy_object:
 def copyer(collection, par, d): #Копирует объекты
     for content in collection:
         if content[0] == 'L':
-            fill, width, sloy, stipple, coord = get_line_conf(content, par)
+            fill, width, sloy, stipple, coord, factor_stip = get_line_conf(content, par)
             coord = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(coord)]
-            _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple)
+            _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip)
 
         elif content[0] == 't':
             fill, text, sloy, angle, anchor, size, line, coord, s_s, w_text, font = get_text_conf(content, par)

@@ -71,12 +71,16 @@ class Line:
         else:
             c_line(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2, temp = 'Yes')
 
-def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple = None, tip = 'norm', temp = None):
+def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple = None, factor_stip = None, tip = 'norm', temp = None):
     if sloy == None:
         fill = par.color
         width = par.width
         sloy = par.sloy
         stipple = par.stipple
+        factor_stip = par.stipple_size
+    if stipple:
+        print type(factor_stip), type(stipple)
+        dash = [x*factor_stip for x in stipple]
     if not temp:
         width = int(width)
         par.Nlined+=1
@@ -87,7 +91,7 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
                 id = par.c.create_line(x1,y1,x2,y2, fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
                 id_dict[id] = ('line', 'priv', 'lin')
             else:
-                id = d_line(par, x1,y1,x2,y2, dash = stipple, fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
+                id = d_line(par, x1,y1,x2,y2, dash = dash, fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
                 if id:
                     id_dict.update(id)
                     id = par.c.create_line(x1,y1,x2,y2, width=3, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', par.Nline, 'sel'))
@@ -100,13 +104,13 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
             fill = 'gray'
             id = par.c.create_line(x1,y1,x2,y2,fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
             id_dict = id_dict[id] = ('line', 'priv', 'temp')
-        par.ALLOBJECT[par.Nline] = {'object':'line', 'fill':fill, 'width':width, 'sloy':sloy, 'stipple':stipple, 'factor_stip':par.stipple_size, 'id':id_dict}
+        par.ALLOBJECT[par.Nline] = {'object':'line', 'fill':fill, 'width':width, 'sloy':sloy, 'stipple':stipple, 'factor_stip':factor_stip, 'id':id_dict}
     else:
         if stipple == None:
             par.c.create_line(x1,y1,x2,y2, fill=fill,width=width,tags = ('obj', 'temp'))
             
         else:
-            d_line(par, x1,y1,x2,y2, dash = stipple, fill=fill,width=width,tags = ('obj', 'temp'))
+            d_line(par, x1,y1,x2,y2, dash = dash, fill=fill,width=width,tags = ('obj', 'temp'))
             
             par.c.create_line(x1,y1,x2,y2, width=3, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', 'temp'))
             

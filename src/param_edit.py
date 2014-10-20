@@ -149,13 +149,16 @@ class Param_edit:
                                     args[4] = int(arg)
                                 elif param == 'stipple':
                                     if arg:
-                                        args[3] = map(lambda x: float(x), arg)
+                                        args[7] = map(lambda x: float(x), arg)
                                     else:
-                                        args[3] = arg
+                                        args[7] = arg
                                 elif param == 'fill':
                                     args[6] = arg
+                                    
+                                elif param == 'factor_stip':                                    
+                                    args[8] = arg
                             else:
-                                fill, width, sloy, stipple, coord = self.par.get_line_conf(i)
+                                fill, width, sloy, stipple, coord, factor_stip = self.par.get_line_conf(i)
                                 if param == 'width':
                                     width = int(arg)
                                 elif param == 'stipple':
@@ -163,7 +166,9 @@ class Param_edit:
                                         stipple = map(lambda x: float(x), arg)
                                 elif param == 'fill':
                                     fill = arg
-                                args = [coord[0], coord[1], coord[2], coord[3],  width, sloy, fill, stipple]
+                                elif param == 'factor_stip':
+                                    factor_stip = arg
+                                args = [coord[0], coord[1], coord[2], coord[3],  width, sloy, fill, stipple, factor_stip]
                                 obj = 'line'
 
                         elif i[0] == 'c':
@@ -241,7 +246,8 @@ class Param_edit:
                         remove_list.append((i,self.par.Ndimr))
 
                     elif obj == 'line':
-                        _line.c_line(self.par, args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7])
+                        print args[8]
+                        _line.c_line(self.par, args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8])
                         remove_list.append((i,self.par.Nline))
 
                     elif obj == 'circle':
