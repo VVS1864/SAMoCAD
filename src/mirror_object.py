@@ -62,7 +62,7 @@ class Mirror_object:
                     elif d == 'Y':
                         mirror(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2, self.par, delOld='Yes', content = col)
                 t2 = time.time()
-                print 'mirror', t2-t1
+                print ('mirror', t2-t1)
                 self.par.changeFlag = True
                 self.par.enumerator_p()
                 self.par.kill()
@@ -178,9 +178,9 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         _line.c_line(par, px1,py1,px2,py2, temp = temp)
         for c in content:
             if c[0] == 'L':
-                fill, width, sloy, stipple, coord = get_line_conf(c, par)
+                fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
-                _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, temp = temp)
+                _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip, temp = temp)
 
             elif c[0] == 'c':
                 xc, yc, R, fill, width, sloy = get_circle_conf(c, par)

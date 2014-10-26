@@ -1,7 +1,6 @@
 # -*- coding: utf-8; -*-
 from math import pi, sqrt, degrees, radians
 from calc import calc_angle
-from Tkinter import ARC
 #ДУГА
 class Arc:
     def __init__(self, par):
@@ -85,6 +84,8 @@ def c_arc(par,x0,y0,xr1=None, yr1=None, xr2=None, yr2=None, width = None, sloy =
         else:
             aa = start
             bb = extent
+        if aa < 0:
+            aa = 360 - abs(aa)
         id = par.c.create_arc(x1,y1,x2,y2, start = aa, extent = bb, outline=fill, full=None,width=width,style = 'arc', tags = ('obj', ID))#['arc', par.Narc, 'a', 'obj', 'priv', sloy])
         id_dict[id] = ('a', 'priv')
         id = par.c.create_line(x0-s,y0-s,x0+s,y0+s,fill=fill,tags = ('obj', ID, 'a_centr'))#['arc', par.Narc, 'line', 'a_centr', 'obj', 'priv',  sloy])
@@ -107,6 +108,8 @@ def c_arc(par,x0,y0,xr1=None, yr1=None, xr2=None, yr2=None, width = None, sloy =
         else:
             aa = start
             bb = extent
+        if aa < 0:
+            aa = 360 - abs(aa)
         par.c.create_arc(x1,y1,x2,y2, start = aa, extent = bb, outline=fill, full=None,width=width,style = 'arc', tags = ('obj', 'temp'))#['arc', par.Narc, 'a', 'obj', 'priv', sloy])
         
         par.c.create_line(x0-s,y0-s,x0+s,y0+s,fill=fill,tags = ('obj', 'temp'))#['arc', par.Narc, 'line', 'a_centr', 'obj', 'priv',  sloy])

@@ -78,14 +78,31 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
         sloy = par.sloy
         stipple = par.stipple
         factor_stip = par.stipple_size
+    if factor_stip == None:
+        factor_stip = par.stipple_size
     if stipple:
-        print type(factor_stip), type(stipple)
-        dash = [x*factor_stip for x in stipple]
+        norm_stipple = False
+        for i in par.stipples:
+            if par.stipples[i] == tuple(stipple):
+                norm_stipple = True
+            if par.stipples[i] and len(par.stipples[i]) == len(stipple):
+                if norm_stipple:
+                    break
+                else:
+                    factor_stip = par.stipples[i][0]*stipple[0]
+                    #print factor_stip, stipple
+                    stipple = [x/factor_stip for x in stipple]
+                    norm_stipple = True
+        if not norm_stipple:
+            stipple = None
+        else:
+            dash = [x*factor_stip for x in stipple]
     if not temp:
         width = int(width)
         par.Nlined+=1
         par.Nline = 'L' + str(par.Nlined)
         id_dict = {}
+        
         if tip == 'norm':
             if stipple == None:
                 id = par.c.create_line(x1,y1,x2,y2, fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))

@@ -1,7 +1,6 @@
 # -*- coding: utf-8; -*-
 import time
-from Tkinter import ARC
-import cProfile as profile
+#import cProfile as profile
 from get_conf import get_circle_conf, get_arc_conf, get_line_conf, get_text_conf, get_dim_conf, get_dimR_conf
 import line as _line
 import text_line, dimension, circle, arc
@@ -53,7 +52,7 @@ class Copy_object:
             dy = self.par.ey2-self.par.ey
             copyer(self.par.collection, self.par, (dx, dy))
             t2 = time.time()
-            print 'copy', t2-t1
+            print ('copy', t2-t1)
             self.par.set_coord()
             self.par.com = None
             self.par.changeFlag = True

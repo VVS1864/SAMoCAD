@@ -27,7 +27,7 @@ class Text:#Общий класс шрифта
         
         self.sx=self.sy/4.0#Ширина символа = четверть высоты
         self.liter = -self.s_s#Позиция первого символа
-        self.Ltext = (len(text) * self.s_s * 2 * self.sx) - self.sx#Длина готовой строки
+        self.Ltext = (len(text) * self.s_s * 2.0 * self.sx) - self.sx  #- self.sx#Длина готовой строки
         axy = tuple(anchor)
         if axy[0] == 's':
             self.nachTextY = y
@@ -1006,7 +1006,7 @@ class Text_TXT(Text):
                     u'Б':self.rb,
                     
                     u'В':self.b,
-                    u'в':self.rbm,
+                    u'в':self.rvm,
                     'B':self.b,
                     'b':self.bm,
 

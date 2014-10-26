@@ -1,4 +1,9 @@
-from Tkinter import *
+import sys
+ver = sys.version_info[0]
+if ver == 2:
+    from Tkinter import*
+else:
+    from tkinter import*
 
 class ValidatingEntry(Entry):
     # base class for validating entry widgets

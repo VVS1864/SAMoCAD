@@ -36,8 +36,12 @@ coords() :          calculates the screen coordinates of the tooltip window
 create_contents() : creates the contents of the tooltip window (by default a Tkinter.Label)
 '''
 # Ideas gleaned from PySol
-
-import Tkinter
+import sys
+ver = sys.version_info[0]
+if ver == 2:
+    from Tkinter import*
+else:
+    from tkinter import*
 
 class ToolTip:
     def __init__(self, master, text='Your text here', delay=1500, **opts):

@@ -41,7 +41,7 @@ class Move_object:
                 self.par.ex2,self.par.ey2 = self.par.orto(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
             mover(self.par.collection, self.par)
             t2 = time.time()
-            print 'move', t2-t1
+            print ('move', t2-t1)
             self.par.changeFlag = True
             self.par.enumerator_p()
             self.par.kill()

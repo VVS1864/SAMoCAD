@@ -69,7 +69,7 @@ class Rotate_object:
                     t1 = time.time()
                     rotate(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,self.par.ex3,self.par.ey3,delOld=de, content = self.par.collection)
                     t2 = time.time()
-                    print 'rotate', t2-t1
+                    print ('rotate', t2-t1)
                 self.par.changeFlag = True
                 self.par.enumerator_p()
                 self.par.kill()
@@ -227,9 +227,9 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
     else:
         for c in content:
             if c[0] == 'L':
-                fill, width, sloy, stipple, coord = get_line_conf(c, par)
+                fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]
-                _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, temp = temp)
+                _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip, temp = temp)
 
             elif c[0] == 't':
                 fill, text, sloy, _angle, anchor, size, line, coord, s_s, w_text, font = get_text_conf(c, par)

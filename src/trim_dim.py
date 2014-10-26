@@ -40,30 +40,24 @@ class Trim_dim:
         self.par.ey2 = self.par.priv_coord[1]
         self.par.ex3,self.par.ey3 = self.par.coordinator(self.par.ex3,self.par.ey3)
         x1, y1, x2, y2, x3, y3, ort, size, fill, text, sloy, text_change, text_place, s, vr_s, vv_s, arrow_s, type_arrow, s_s, w_text, font = self.par.get_dim_conf(self.par.col)
+        xm = min(x1, x2)
+        x = max(x1, x2)
+        ym = min(y1, y2)
+        y = max(x1, y2)
         if ort == 'horizontal':
-            #print 111
-            x12 = x3
-            y12 = y1
-            x22 = x3
-            y22 = y2
+            md1 = abs(y1-self.par.ey3)
+            md2 = abs(y2-self.par.ey3)
         else:
-            #print 222
-            x12 = x1
-            y12 = y3
-            x22 = x2
-            y22 = y3
-        mdx1,mdy1 = calc.min_distanse(x1, y1, x12, y12,self.par.ex3,self.par.ey3)
-        mdx2,mdy2 = calc.min_distanse(x2, y2, x22, y22,self.par.ex3,self.par.ey3)
-        md1 = sqrt((self.par.ex3-mdx1)**2 + (self.par.ey3-mdy1)**2)
-        md2 = sqrt((self.par.ex3-mdx2)**2 + (self.par.ey3-mdy2)**2)
+            md1 = abs(x1-self.par.ex3)
+            md2 = abs(x2-self.par.ex3)
+
         if md1<md2:
-            #print 333
-            self.par.ex = x12
-            self.par.ey = y12
+            self.par.ex = x1
+            self.par.ey = y1
         else:
-            #print 444
-            self.par.ex = x22
-            self.par.ey = y22
+            self.par.ex = x2
+            self.par.ey = y2
+        
         self.par.set_coord()
         if event:
             dimension.c_dim(self.par, self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x3, y3,

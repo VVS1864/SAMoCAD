@@ -246,7 +246,6 @@ class Param_edit:
                         remove_list.append((i,self.par.Ndimr))
 
                     elif obj == 'line':
-                        print args[8]
                         _line.c_line(self.par, args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8])
                         remove_list.append((i,self.par.Nline))
 
@@ -262,7 +261,5 @@ class Param_edit:
                 del_list = [x[0] for x in remove_list]
                 self.par.delete(elements = del_list)
                 for r in remove_list:
-                    #self.par.delete(elements = (r[0],))
                     self.par.collection.remove(r[0])
                     self.par.collection.append(r[1])
-                    #self.par.back_color(self.par.select_color, r[1])

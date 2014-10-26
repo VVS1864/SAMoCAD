@@ -1,5 +1,10 @@
 # -*- coding: utf-8; -*-
-from Tkinter import*
+import sys
+ver = sys.version_info[0]
+if ver == 2:
+    from Tkinter import*
+else:
+    from tkinter import*
 import ttk
 import os
 from entry import*
@@ -117,7 +122,7 @@ class Gui:
 Programm SAMoCAD is open software
 and designed to create simple drawings
 
-Version - 0.0.8.2 alfa
+Version - 0.0.8.5 alfa
 
 Copyright 2014 - VVS1864
 
@@ -355,7 +360,7 @@ limitations under the License.
 #Канвас
         self.canvas=Canvas(self.frame1,bg=self.parent.fon_color)
         self.canvas.config(cursor='crosshair')
-
+        
         self.canvas.pack(side=LEFT, fill=BOTH, expand=YES)
         self.cc = None
 
@@ -924,7 +929,7 @@ class Object_properties(Options):
                         #if gui.stipples[i]:
                             
                             #t = map(lambda x: x*float(AL[c]['factor_stip']), gui.stipples[i])
-                        print i, AL[c]['stipple'], gui.stipples[i]
+                        print (i, AL[c]['stipple'], gui.stipples[i])
                         if gui.stipples[i] == AL[c]['stipple']:
                             stip = i
                             break

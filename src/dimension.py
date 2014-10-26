@@ -104,7 +104,7 @@ def c_dim(par,x1,y1,x2,y2,x3,y3,text=None, sloy = None,
         arrow_s_old = arrow_s
     if not temp:
         if text == 'None':
-            text = None#АХТУНГ
+            text = None
         if not ID:
             par.Ndimd+=1
             ID = par.Ndim = 'd' + str(par.Ndimd)
@@ -208,7 +208,7 @@ def c_dim(par,x1,y1,x2,y2,x3,y3,text=None, sloy = None,
         if text_change == 'unchange':
             e = list_text_lines.Ltext
             #Если текст не вмещается между выносными линиями - нарисовать сбоку
-            if e>dx-arrow_s*2.0: 
+            if e>dx-arrow_s: 
                 list_text_lines.nabor = move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3-s, list_text_lines.nabor)
                 e = list_text_lines.nabor[0][0]
                 line3 = [x+arrow_s, y3, e, y3]
@@ -276,7 +276,7 @@ def c_dim(par,x1,y1,x2,y2,x3,y3,text=None, sloy = None,
 
     else:
         if text == 'None':
-            text = None#АХТУНГ
+            text = None
         #par.Ndimd+=1
         #par.Ndim = 'd' + str(par.Ndimd)
         dx=abs(x1-x2)

@@ -330,7 +330,7 @@ class DXFopener:
                             try:
                                 config = (config % values)
                             except KeyError:
-                                print i
+                                print (i)
                             else:
                                 self.command_list.append(config)
                         line_flag = 0

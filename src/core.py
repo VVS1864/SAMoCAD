@@ -1,4 +1,16 @@
 # -*- coding: utf-8; -*-
+import sys
+ver = sys.version_info[0]
+if ver == 2:
+    from Tkinter import*
+else:
+    from tkinter import*
+
+import os
+print (os.getcwd(), sys.path)
+
+sys.path.append(os.getcwd()+'/src')
+print (sys.path)
 import symbols
 
 import draft_gui
@@ -15,6 +27,7 @@ import undo_redo
 import to_dxf
 import to_svg
 import from_dxf
+import from_svg
 import copy_prop
 import trim_extend
 import trim_dim
@@ -35,9 +48,8 @@ import text_line
 import circle
 import arc
 
-from Tkinter import*
 import math
-import os
+
 import time
 import tkFileDialog
 import tkMessageBox
@@ -99,9 +111,18 @@ class Graphics:
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
         self.angle_s = 15.0
         self.auto_save_step = 30 #Количество действий между автосохранениями
+
+#Типы линий
+        self.stipples = {
+            '_____________':None,
+            '_ _ _ _ _ _ _':(1,1),
+            '____ _ ____ _':(4,1,1,1),
+            '____ _ _ ____':(4,1,1,1,1,1),
+            }
+        
         
         self.old_func = 'self.copyEvent()'
-        self.prog_version = 'SAMoCAD - v0.0.8.4 alpha'
+        self.prog_version = 'SAMoCAD - v0.0.8.5 alpha'
         self.old_text = self.prog_version
         self.old_offset = 0
         self.old_fillet_R = 0
@@ -241,8 +262,12 @@ class Graphics:
             j+=1
 
     def tt(self, event):
-        print self.ALLOBJECT
-        print self.collection
+        for i in self.ALLOBJECT:
+            print ('______________________________')
+            print (i, self.ALLOBJECT[i])
+            
+        #print self.ALLOBJECT
+        #print self.collection
         #print self.ALLOBJECT
         #print self.ALLOBJECT[self.collection[0]]['text_change']
 
@@ -314,8 +339,8 @@ class Graphics:
             self.ex = self.priv_coord[0]#Получить координаты из списка координат привязок (их рассчитывает gpriv)
             self.ey = self.priv_coord[1]
             self.ex3,self.ey3 = self.ex,self.ey
-            self.dialog.config(text = u'Move dim text - new point:')
-            self.info.config(text = u'Escape - stop')
+            self.dialog.config(text = 'Move dim text - new point:')
+            self.info.config(text = 'Escape - stop')
             self.resFlag = True
             self.c.bind_class(self.master1,"<Return>", self.kill)
             self.c.bind('<Button-1>', self.editDimTextPlace2)
@@ -414,8 +439,8 @@ class Graphics:
 
     #РЕДАКТИРОВАНИЕ ТЕКСТА
     def editText(self, Num):
-        self.dialog.config(text = u'Edit text:')
-        self.info.config(text = u'Enter - apply. Escape - stop')
+        self.dialog.config(text = 'Edit text:')
+        self.info.config(text = 'Enter - apply. Escape - stop')
         self.command.delete(0, END)
         self.collection.append(Num)
         select_clone.Select_clone([Num,], graf)
@@ -548,7 +573,7 @@ class Graphics:
         else:#Если заданы элементы для удаления
             map(dele, elements)
         t2 = time.time()
-        print 'delete', t2-t1
+        print ('delete', t2-t1)
 
     def sbros(self):#Сбрасывает коллекцию - переводит список веделенных объектов в collectionBack.
         t1 = time.time()
@@ -556,14 +581,14 @@ class Graphics:
         self.c.delete('clone')
         self.collection = []
         t2 = time.time()
-        print 'sbros', t2-t1
+        print ('sbros', t2-t1)
 
     def BackCol(self, event):#core-feature!!! - Возвращает в коллекцию предыдущий набор
         if self.resFlag == False and (not self.collection):#Если начего не рисуется и коллекция не пуста
             def BC(i):
                 if i in self.ALLOBJECT:#Если объект есть в обхем списке (не был удален)
                     self.collection.append(i)#Добавить в коллекцию
-            print 111
+            print (111)
             map(BC, self.collectionBack)#Перебрать старую коллекцию
             select_clone.Select_clone(self.collection, graf)
             self.colObj()#Посчитать колличество выделенных объектов
@@ -571,7 +596,7 @@ class Graphics:
 
     def colObj(self):#Пишет информацию о количестве выбранных объектов
         if self.collection:
-            self.info.config(text = (u'Selected %s objects') %(len(self.collection)))
+            self.info.config(text = ('Selected %s objects') %(len(self.collection)))
         else:
             self.info.config(text ='')
 
@@ -643,7 +668,7 @@ class Graphics:
         if old_col != self.collection:
             draft_gui.gui.update_prop()
         t2 = time.time()
-        print 'mass_collektor', t2-t1
+        print ('mass_collektor', t2-t1)
 
     def edit_collektor(self, edit_mass): #Добавляет в коллекцию объекты из массы приметивов, если в массе есть размеры - то остальные объекты не попадут в коллекцию
         prov = True #True, пока не попался размер
@@ -747,7 +772,6 @@ class Graphics:
         Num = self.get_obj(event.x, event.y, 'all')
         if Num not in self.collection and Num in self.ALLOBJECT and Num not in ('trace', 'trace_o'):#Если объект отсутствует в коллекции - сменить цвет, включить флаг
             select_clone.Select_clone((Num,), graf)
-            print Num
         if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
             self.c.unbind('<Button-1>')
             self.c.unbind('<Shift-Button-1>')
@@ -871,7 +895,7 @@ class Graphics:
         self.c.unbind_class(self.c,"<Shift-1>")
         self.c.unbind_class(self.master1, "<Motion>")
         self.c.unbind_class(self.c, "<End>")
-        self.dialog.config(text = u'Command:')
+        self.dialog.config(text = 'Command:')
         self.info.config(text = '')
         self.resFlag = False
         self.lappingFlag = False
@@ -904,7 +928,7 @@ class Graphics:
         try:
             com = float(com)
         except ValueError:
-            self.info.config(text = u'Unknow command')
+            self.info.config(text = 'Unknow command')
             self.com = None
         else:
             self.com = com
@@ -976,16 +1000,16 @@ class Graphics:
                     if el and el not in ['trace', 'trace_o']:
                         if el == self.Old_sel:
                             pass
-                        elif el != self.Old_sel:
+                        elif el != self.Old_sel and self.resFlag == False:
                             if self.Old_sel:
                                 self.c.delete('C'+self.Old_sel)
                                 self.Old_sel = None
                             if el not in self.collection and el in self.ALLOBJECT:#Если объект отсутствует в коллекции - сменить цвет, включить флаг
                                 select_clone.Select_clone((el,), graf)
                                 self.Old_sel = el
-                            if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
-                                self.c.bind('<Button-1>', self.collektor_sel)
-                                self.c.bind('<Shift-Button-1>', self.collektor_desel)
+                            #if self.resFlag == False:#Если ничего не рисуется - выключить действия lapping
+                            self.c.bind('<Button-1>', self.collektor_sel)
+                            self.c.bind('<Shift-Button-1>', self.collektor_desel)
                     else:
                         if self.Old_sel:
                             self.c.delete('C'+self.Old_sel)
@@ -1400,7 +1424,7 @@ class Graphics:
               from locale import getdefaultlocale
               lang = getdefaultlocale()
               if lang[0][0:2] != 'ru':
-                  donate_text = u'''
+                  donate_text = '''
             SAMoCAD - open sours program,
             so developers want to eat.
 
@@ -1409,14 +1433,14 @@ class Graphics:
                   feed = 'Feed :-)'
                   away = 'Get away from me!'
               else:
-                  donate_text = u'''
+                  donate_text = '''
             SAMoCAD - бесплатная програма,
             поэтому разработчики хотят кушать.
 
             Вы можете помочь проекту.
             '''
-                  feed = u'Накормить'
-                  away = u'Отстаньте от меня!'
+                  feed = 'Накормить'
+                  away = 'Отстаньте от меня!'
 
               l_donate = Label(eroot, justify = LEFT, text = donate_text)
 
@@ -1669,7 +1693,7 @@ class Graphics:
             try:
                 copyfile(self.current_file, back_file)
             except IOError:
-                print 'Error Back file'
+                print ('Error Back file')
             f = open(self.current_file, 'w')
             if self.zoomOLD != 0:
                 if self.zoomOLD>0:
@@ -1717,7 +1741,7 @@ class Graphics:
 
     def save_change(self):
         if self.ALLOBJECT and self.changeFlag == True:
-            save_yes_no = tkMessageBox.askyesno('Save draft?', u'Save drawing?')
+            save_yes_no = tkMessageBox.askyesno('Save draft?', 'Save drawing?')
             if save_yes_no == True:
                 self.fileCurSave()
 
@@ -1730,8 +1754,9 @@ class Graphics:
         self.save_change()
         opt = options = {}
         if self.s_dxf == False:
-            options['defaultextension'] = '.txt'
-            options['filetypes'] = [('text files', '.txt'),
+            options['defaultextension'] = '.svg'
+            options['filetypes'] = [('SVG files', '.svg'),
+                                    ('text files', '.txt'),
                                     ('all files', '.*')]
             options['title'] = 'Open file'
         else:
@@ -1744,6 +1769,7 @@ class Graphics:
 
         f = tkFileDialog.askopenfile(**opt)
         if f:
+            
             if self.ALLOBJECT:
                 self.delete(elements = self.ALLOBJECT.keys())
             if self.zoomOLD != 0:
@@ -1759,19 +1785,31 @@ class Graphics:
             dy=-xynach[1]
             self.c.move('obj',dx+10,dy+10)
             if self.s_dxf == False:
-                list_command = f.readlines()
+                fileName, fileExt = os.path.splitext(f.name)
+                if fileExt == '.svg':
+                    text = f.read()
+                    SVG = from_svg.SVGopener(text, graf)
+                    list_command = SVG.command_list
+                elif fileExt == '.txt':
+                    list_command = f.readlines()
             else:
                 text = f.read()
                 DXF = from_dxf.DXFopener(text)
                 list_command = DXF.command_list
             if list_command:
+                errors = ''
                 for i in list_command:
                     try:
                         exec(i)
                     except:
-                        print 'Error in opened file!'
-                        print i
+                        errors += (i+'\n')
                         continue
+                if errors:
+                    print ('Errors in opened file!')
+                    print ('___________________________')
+                    print (errors)
+                    print ('___________________________')
+                    
             f.close()
             if self.s_dxf == False:
                 self.saveFlag = True
@@ -1794,6 +1832,7 @@ class Graphics:
                 else:
                     zoomOLDx=zoomOLD*(-1)
                     self.c.scale('obj',0,0,zoomm**zoomOLDx,zoomm**zoomOLDx)
+            
 
 
     def zoomP(self,x,y):

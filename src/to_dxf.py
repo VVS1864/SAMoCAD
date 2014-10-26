@@ -2607,7 +2607,7 @@ DSTYLE
 1070
     41
 1040
-%size_arrow)s
+%(size_arrow)s
 1070
    147
 1040

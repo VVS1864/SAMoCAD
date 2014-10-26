@@ -66,12 +66,13 @@ def c_circle(par, x0, y0, xr = None, yr = None, width = None, sloy = None, fill 
         R = par.n_coordinator(R)
         id = par.c.create_oval(x1,y1,x2,y2,outline=fill, full=None,width=width,tags = ('obj', ID))
         id_dict[id] = ('cir', 'priv')
+        #print par.c.itemcget(id, 'full')
         id = par.c.create_line(x0-s,y0-s,x0+s,y0+s,fill=fill,tags = ('obj', ID, 'cir_centr'))
         id_dict[id] = ('line', 'priv', 'cir_centr')
         id = par.c.create_line(x0+s,y0-s,x0-s,y0+s,fill=fill,tags = ('obj', ID, 'cir_centr'))
         id_dict[id] = ('line', 'priv', 'cir_centr')
         par.ALLOBJECT[ID] = {'object':'circle', 'fill':fill, 'width':width, 'sloy':sloy, 'R':R, 'id':id_dict}
-
+        
     else:
         if R == None:
             R = sqrt((xr-x0)*(xr-x0) + (yr-y0)*(yr-y0))
