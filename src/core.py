@@ -1,16 +1,9 @@
 # -*- coding: utf-8; -*-
 import sys
-ver = sys.version_info[0]
-if ver == 2:
-    from Tkinter import*
-else:
-    from tkinter import*
+from Tkinter import*
+
 
 import os
-print (os.getcwd(), sys.path)
-
-sys.path.append(os.getcwd()+'/src')
-print (sys.path)
 import symbols
 
 import draft_gui
@@ -1706,12 +1699,25 @@ class Graphics:
             dy=-xynach[1]
             self.c.move('obj',dx+10,dy+10)
 
+            fileName, fileExt = os.path.splitext(f.name)
+            if fileExt == '.svg':
+                save = to_svg.Svger(graf)
+                for i in save.write_list:
+                    f.writelines("%s\n" % i)
+            elif fileExt == '.txt':
+                save = save_file.saver(graf)
+                for i in save.write_list:
+                    if i[:8] == 'self.c_t' or i[:8] == 'self.dim':
+                        f.write(codecs.BOM_UTF8)
+                    f.writelines("%s\n" % i.encode("utf8"))
+            '''
             save = save_file.saver(graf)
             for i in save.write_list:
                 if i[:8] == 'self.c_t' or i[:8] == 'self.dim':
                     f.write(codecs.BOM_UTF8)
 
                 f.writelines("%s\n" % i.encode("utf8"))
+            '''
             f.close()
             self.changeFlag = False
 

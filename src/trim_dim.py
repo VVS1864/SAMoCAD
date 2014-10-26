@@ -40,10 +40,6 @@ class Trim_dim:
         self.par.ey2 = self.par.priv_coord[1]
         self.par.ex3,self.par.ey3 = self.par.coordinator(self.par.ex3,self.par.ey3)
         x1, y1, x2, y2, x3, y3, ort, size, fill, text, sloy, text_change, text_place, s, vr_s, vv_s, arrow_s, type_arrow, s_s, w_text, font = self.par.get_dim_conf(self.par.col)
-        xm = min(x1, x2)
-        x = max(x1, x2)
-        ym = min(y1, y2)
-        y = max(x1, y2)
         if ort == 'horizontal':
             md1 = abs(y1-self.par.ey3)
             md2 = abs(y2-self.par.ey3)
@@ -61,13 +57,13 @@ class Trim_dim:
         self.par.set_coord()
         if event:
             dimension.c_dim(self.par, self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x3, y3,
-                        text = text,
+                        #text = text,
                         sloy = sloy,
                         fill = fill,
                         size = size,
                         ort = ort,
-                        text_change = text_change,
-                        text_place = text_place,
+                        #text_change = text_change,
+                        #text_place = text_place,
                         s = s,
                         vr_s = vr_s,
                         vv_s = vv_s,
@@ -85,13 +81,13 @@ class Trim_dim:
             
         else:
             dimension.c_dim(self.par, self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x3, y3,
-                        text = text,
+                        #text = text,
                         sloy = sloy,
                         fill = fill,
                         size = size,
                         ort = ort,
-                        text_change = text_change,
-                        text_place = text_place,
+                        #text_change = text_change,
+                        #text_place = text_place,
                         s = s,
                         vr_s = vr_s,
                         vv_s = vv_s,

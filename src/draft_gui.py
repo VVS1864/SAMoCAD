@@ -1,10 +1,7 @@
 # -*- coding: utf-8; -*-
 import sys
-ver = sys.version_info[0]
-if ver == 2:
-    from Tkinter import*
-else:
-    from tkinter import*
+
+from Tkinter import*
 import ttk
 import os
 from entry import*
