@@ -1,6 +1,8 @@
 # -*- coding: utf-8; -*-
 import symbols
 from os import path
+from object_object import Root_object
+list_prop = ('fill', 'text', 'sloy', 'angle', 'anchor', 'size', 's_s', 'w_text', 'font')
 #ТЕКСТ
 #События
 class Text:
@@ -84,19 +86,32 @@ def c_text(par, x, y, text, anchor = 'sw', sloy = None, fill = None, angle = 0, 
         #Линия привязки
         id = par.c.create_line(tt.nabor[0][0],tt.nabor[0][1],tt.nabor[0][2],tt.nabor[0][3], width=8, fill = fill, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', par.Ntext, 'snap_text', 'sel'))#'ltext', par.Ntext, 'line', 'obj', 'priv', par.Ntext+'xy'#, sloy])
         id_dict[id] = ('line', 'priv')
+        object_text = Object_text()
+        '''
+        'anchor':anchor,
+        'text':text,
+        
+        'fill':fill,
+        
+        'angle':angle,
+        'size':size,
+        'sloy':sloy,
+        's_s':s_s,
+        'w_text':w_text,
+        'font':font,
+        '''
+        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}
+        dict_prop = {}
+        for k,v in locals().iteritems():
+            if k in list_prop:
+                dict_prop[k] = v
         par.ALLOBJECT[par.Ntext]={
-                                'anchor':anchor,
-                                'text':text,
                                 'object':'text',
-                                'fill':fill,
                                 'Ltext':tt.Ltext,
-                                'angle':angle,
-                                'size':size,
-                                'sloy':sloy,
-                                's_s':s_s,
-                                'w_text':w_text,
-                                'font':font,
-                                'id':id_dict}
+                                'id':id_dict,
+                                'class':object_text,
+                                }
+        par.ALLOBJECT[par.Ntext].update(dict_prop)
         return id_dict
 
     else:
@@ -106,12 +121,44 @@ def c_text(par, x, y, text, anchor = 'sw', sloy = None, fill = None, angle = 0, 
         tt = symbols.font(x, y, text, size, par.zoomOLD, s_s, w_text, anchor, font, angle)
         # Не брать первую линию - это привязка
         id_dict = {}
-        for i in tt.nabor[1:]: #Перебрать координаты линий текста, нарисовать линии
+        #Перебрать координаты линий текста, нарисовать линии
+        for i in tt.nabor[1:]: 
             try:
-                par.c.create_line(i[0],i[1],i[2],i[3],fill=fill, tags = ('obj', 'temp'))#['ltext', par.Ntext, 'line', 'obj',  sloy])
-                
+                par.c.create_line(i[0],i[1],i[2],i[3],fill=fill, tags = ('obj', 'temp'))
             except:
                 pass
         #Линия привязки
-        par.c.create_line(tt.nabor[0][0],tt.nabor[0][1],tt.nabor[0][2],tt.nabor[0][3], width=8, fill = fill, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', 'temp'))#'ltext', par.Ntext, 'line', 'obj', 'priv', par.Ntext+'xy'#, sloy])
+        par.c.create_line(tt.nabor[0][0],tt.nabor[0][1],tt.nabor[0][2],tt.nabor[0][3], width=8, fill = fill, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', 'temp'))
         
+class Object_text(Root_object):
+    def copy(self, par, content, d):
+        cd = self.get_conf(content, par)
+        cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'][0:2])]
+        c_text(par, cd['coord'][0], cd['coord'][1],
+               cd['text'],
+               cd['anchor'],
+               cd['sloy'],
+               cd['fill'],
+               cd['angle'],
+               cd['size'],
+               cd['s_s'],
+               cd['w_text'],
+               cd['font'])
+
+    def get_conf(self, obj, par):#Принимает объект - текст, возвращает все его свойства
+         
+        Root_object.from_AL(self, par.ALLOBJECT, obj, list_prop)
+        '''
+        fill = par.ALLOBJECT[obj]['fill']
+        text = par.ALLOBJECT[obj]['text']
+        sloy = par.ALLOBJECT[obj]['sloy']
+        angle = par.ALLOBJECT[obj]['angle']
+        anchor = par.ALLOBJECT[obj]['anchor']
+        size = par.ALLOBJECT[obj]['size']
+        s_s = par.ALLOBJECT[obj]['s_s']
+        w_text = par.ALLOBJECT[obj]['w_text']
+        font = par.ALLOBJECT[obj]['font']
+        '''
+        line = par.get_snap_line(obj)[0]
+        self.conf_dict['coord'] = par.c.coords(line)
+        return self.conf_dict

@@ -1,7 +1,11 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 from os import path
+#from object_object import Root_object 
+#from get_conf import get_line_conf
 #ЛИНИЯ
+list_prop = ('fill', 'width', 'sloy', 'stipple', 'factor_stip')
+#dp = {'fill':0, 'width', 'sloy':0, 'stipple':0, 'factor_stip':0}
 class Line:
     def __init__(self, par):
         self.par = par
@@ -121,7 +125,19 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
             fill = 'gray'
             id = par.c.create_line(x1,y1,x2,y2,fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
             id_dict = id_dict[id] = ('line', 'priv', 'temp')
-        par.ALLOBJECT[par.Nline] = {'object':'line', 'fill':fill, 'width':width, 'sloy':sloy, 'stipple':stipple, 'factor_stip':factor_stip, 'id':id_dict}
+        object_line = Object_line()
+        dict_prop = {}
+        for k,v in locals().iteritems():
+            if k in list_prop:
+                dict_prop[k] = v
+        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}        
+        par.ALLOBJECT[par.Nline] = {
+                                    'object':'line',
+                                    'id':id_dict,
+                                    'class':object_line,
+                                    }
+        par.ALLOBJECT[par.Nline].update(dict_prop)
+        
     else:
         if stipple == None:
             par.c.create_line(x1,y1,x2,y2, fill=fill,width=width,tags = ('obj', 'temp'))
@@ -201,8 +217,39 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
                 id_dict[id] = ('line',)
             if cor == True:
                 return id_dict 
-                #break
+                
         else:
             return id_dict 
-            #break
+            
 
+class Object_line:
+    def copy(self, par, content, d):
+        cd = self.get_line_conf(content, par)
+        cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
+        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+               cd['width'],
+               cd['sloy'],
+               cd['fill'],
+               cd['stipple'],
+               cd['factor_stip'],
+               )
+    #Принимает объект - линия, возвращает все его свойства
+    def get_line_conf(self, obj, par):
+        #Root_object.from_AL(self, par.ALLOBJECT, obj, list_prop)
+        self.conf_dict = {}
+        for i in par.ALLOBJECT[obj]:
+            if i in list_prop:
+                self.conf_dict[i] = par.ALLOBJECT[obj][i]
+                
+        for i in par.ALLOBJECT[obj]['id']:
+            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:#all(x in par.ALLOBJECT[obj]['id'][i] for x in ('line', 'priv')):
+                self.conf_dict['coord'] = par.c.coords(i)
+        #self.conf_dict['coord'] = self.get_line_coord(obj, par)
+        return self.conf_dict
+
+    #Принимает объект - линия, возвращает координаты
+    def get_line_coord(self, obj, par):
+        for i in par.ALLOBJECT[obj]['id']:
+            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:#all(x in par.ALLOBJECT[obj]['id'][i] for x in ('line', 'priv')):
+                coord = par.c.coords(i)
+        return coord

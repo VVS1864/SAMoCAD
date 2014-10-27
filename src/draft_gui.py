@@ -1113,10 +1113,11 @@ class Object_properties(Options):
                 elif c[0] == 'L':
                     if i == 'factor_stip':
                         params['factor_stip'] = float(e)
+                        continue
                     elif i == 'stipple':
                         stip = gui.stipples[e]
                         params[i] = stip
-                    continue
+                        continue
                         #if stip:
                             #params[i] = map(lambda x: x*float(self.param['factor_stip'].get()), stip)
                 if e == '':
@@ -1139,7 +1140,7 @@ class Object_properties(Options):
                     params['R'] = float(e)
                 else:
                     params[i] = e
-
+            print params
             gui.parent.c.delete('C' + gui.parent.collection[0])
             gui.parent.param_edit(params)
             select_clone.Select_clone([gui.parent.collection[0],], gui.parent)

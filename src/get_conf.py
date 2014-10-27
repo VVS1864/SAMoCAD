@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from math import sin, cos, degrees, radians
+
+        
 #Дать все параметры:     
 def get_conf(obj, par):
     o = obj[0]
