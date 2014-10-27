@@ -224,6 +224,27 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### Trim methods ###
+    def trim_extend(self, par, content, x, y, trim_extend):
+        cd = self.get_line_conf(content, par)
+        if trim_extend == 'Trim':
+            par.c.delete('C'+content)
+            cNew = calc.trim_line(par.ex, par.ey, par.ex2, par.ey2, x, y, cd['coord'])
+        else:
+            cNew = calc.extend_line(par.ex, par.ey, par.ex2, par.ey2, cd['coord'])
+            
+        if cNew:
+            par.delete(elements = (content,))
+            c_line(par, cNew[0], cNew[1], cNew[2], cNew[3],
+                cd['width'],
+                cd['sloy'],
+                cd['fill'],
+                cd['stipple'],
+                cd['factor_stip'],
+                            )
+            
+        return cNew
+    
     ### Edit methods ###
     def edit(self, par, content, event):
         cd = self.get_line_conf(content, par)
