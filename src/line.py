@@ -1,7 +1,7 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 from os import path
-from calc import mirrorCalc, mirror_lines, mirror_points, calc_angle
+from calc import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
 #from object_object import Root_object 
 #from get_conf import get_line_conf
 #ЛИНИЯ
@@ -224,6 +224,12 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### Offlet methods ###
+    def offset(self, par, content, pd, x3, y3):
+        c = self.get_line_coord(content, par)
+        x1i, y1i, x2i, y2i = offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
+        c_line(par, x1i, y1i, x2i, y2i)
+        
     ### Mirror methods ###
     def base_mirror(self, par, content, px1, py1, sin, cos):
         cd = self.get_line_conf(content, par)
@@ -259,7 +265,7 @@ class Object_line:
                factor_stip = None,
                temp = 'Yes',
                )
-    ### Copy methods ###    
+    ### Copy method ###    
     def copy(self, par, content, d):
         cd = self.get_line_conf(content, par)
         cd['coord'][0] += d[0]

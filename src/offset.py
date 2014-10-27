@@ -84,9 +84,12 @@ class Offset:
         y3 = event.y
         i = self.par.collection[0]
         if i[0] == 'L':
+            self.par.ALLOBJECT[i]['class'].offset(self.par, i, pd, x3, y3)
+            '''
             c = get_line_coord(i, self.par)
             x1i, y1i, x2i, y2i = offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
             self.par.c_line(x1i, y1i, x2i, y2i)
+            '''
         elif i[0] == 'c':
             x0, y0, R, fill, width, sloy = get_circle_conf(i, self.par)
             r = sqrt((x0-x3)**2 + (y0-y3)**2)
