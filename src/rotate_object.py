@@ -101,10 +101,12 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
         if delOld == 'No':
             for c in content:
                 if c[0] == 'L':
+                    par.ALLOBJECT[c]['class'].rotateN(par, c, x0,y0, msin, mcos)
+                    '''
                     fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                     coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]
                     _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip)
-
+                    '''
                 elif c[0] == 't':
                     fill, text, sloy, _angle, anchor, size, line, coord, s_s, w_text, font = get_text_conf(c, par)
                     coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]
@@ -163,14 +165,23 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
 
         else:
             for c in content:
-                if c[0] in ('L', 't'):
-                    if c[0] == 't':
-                        par.ALLOBJECT[c]['angle'] += angle 
+                if c[0] == 't':
+                    par.ALLOBJECT[c]['angle'] += angle
                     find = par.ALLOBJECT[c]['id']
                     for i in find:
                         coord = par.c.coords(i)
                         coord = tuple(rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0])
                         par.c.coords(i, coord)
+                elif c[0] == 'L':
+                    par.ALLOBJECT[c]['class'].rotateY(par, c, x0,y0, msin, mcos)
+                    '''
+                    
+                    find = par.ALLOBJECT[c]['id']
+                    for i in find:
+                        coord = par.c.coords(i)
+                        coord = tuple(rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0])
+                        par.c.coords(i, coord)
+                    '''
 
                 elif c[0] == 'd':
                     pass
@@ -227,10 +238,12 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
     else:
         for c in content:
             if c[0] == 'L':
+                par.ALLOBJECT[c]['class'].rotate_temp(par, c, x0,y0, msin, mcos)
+                '''
                 fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]
                 _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip, temp = temp)
-
+                '''
             elif c[0] == 't':
                 fill, text, sloy, _angle, anchor, size, line, coord, s_s, w_text, font = get_text_conf(c, par)
                 coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]

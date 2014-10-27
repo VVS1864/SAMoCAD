@@ -1,7 +1,7 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 from os import path
-from calc import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
+import calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
 #from object_object import Root_object 
 #from get_conf import get_line_conf
 #ЛИНИЯ
@@ -224,16 +224,52 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### Rotate methods ###
+    def base_rotate(self, par, content, x0, y0, msin, mcos):
+        cd = self.get_line_conf(content, par)
+        cd['coord'] = calc.rotate_lines(x0, y0, [cd['coord'],], msin = msin, mcos = mcos)[0]
+        return cd
+    
+    def rotateN(self, par, content, x0, y0, msin, mcos):
+        cd = self.base_rotate(par, content, x0, y0, msin = msin, mcos = mcos)
+        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+               cd['width'],
+               cd['sloy'],
+               cd['fill'],
+               cd['stipple'],
+               cd['factor_stip'],
+               )
+
+    def rotateY(self, par, content, x0, y0, msin, mcos):
+        find = par.ALLOBJECT[content]['id']
+        for i in find:
+            coord = par.c.coords(i)
+            coord = tuple(calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0])
+            par.c.coords(i, coord)
+
+    def rotate_temp(self, par, content, x0, y0, msin, mcos):
+        #cd = self.base_mirror(par, content, px1, py1, sin, cos)
+        coord = self.get_line_coord(content, par)
+        coord = calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0]
+        c_line(par, coord[0], coord[1], coord[2], coord[3],
+               width = 1,
+               sloy = 't',
+               fill = 'yellow',
+               stipple = None,
+               factor_stip = None,
+               temp = 'Yes',
+               )
+    
     ### Offlet methods ###
     def offset(self, par, content, pd, x3, y3):
         c = self.get_line_coord(content, par)
-        x1i, y1i, x2i, y2i = offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
+        x1i, y1i, x2i, y2i = calc.offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
         c_line(par, x1i, y1i, x2i, y2i)
         
     ### Mirror methods ###
     def base_mirror(self, par, content, px1, py1, sin, cos):
         cd = self.get_line_conf(content, par)
-        cd['coord'] = mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
+        cd['coord'] = calc.mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
         return cd
     
     def mirrorN(self, par, content, px1, py1, sin, cos):
@@ -250,13 +286,13 @@ class Object_line:
         find = par.ALLOBJECT[content]['id']
         for i in find:
             coord = par.c.coords(i)
-            coord = tuple(mirror_lines(px1,py1, [coord,], sin, cos)[0])
+            coord = tuple(calc.mirror_lines(px1,py1, [coord,], sin, cos)[0])
             par.c.coords(i, coord)
 
     def mirror_temp(self, par, content, px1, py1, sin, cos):
         #cd = self.base_mirror(par, content, px1, py1, sin, cos)
         coord = self.get_line_coord(content, par)
-        coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
+        coord = calc.mirror_lines(px1,py1, [coord,], sin, cos)[0]
         c_line(par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
                sloy = 't',
