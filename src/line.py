@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 from os import path
+from calc import mirrorCalc, mirror_lines, mirror_points, calc_angle
 #from object_object import Root_object 
 #from get_conf import get_line_conf
 #ЛИНИЯ
@@ -223,9 +224,14 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
-    def copy(self, par, content, d):
+    ### Mirror methods ###
+    def base_mirror(self, par, content, px1, py1, sin, cos):
         cd = self.get_line_conf(content, par)
-        cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
+        cd['coord'] = mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
+        return cd
+    
+    def mirrorN(self, par, content, px1, py1, sin, cos):
+        cd = self.base_mirror(par, content, px1, py1, sin, cos)
         c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
@@ -233,6 +239,42 @@ class Object_line:
                cd['stipple'],
                cd['factor_stip'],
                )
+
+    def mirrorY(self, par, content, px1, py1, sin, cos):
+        find = par.ALLOBJECT[content]['id']
+        for i in find:
+            coord = par.c.coords(i)
+            coord = tuple(mirror_lines(px1,py1, [coord,], sin, cos)[0])
+            par.c.coords(i, coord)
+
+    def mirror_temp(self, par, content, px1, py1, sin, cos):
+        #cd = self.base_mirror(par, content, px1, py1, sin, cos)
+        coord = self.get_line_coord(content, par)
+        coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
+        c_line(par, coord[0], coord[1], coord[2], coord[3],
+               width = 1,
+               sloy = 't',
+               fill = 'yellow',
+               stipple = None,
+               factor_stip = None,
+               temp = 'Yes',
+               )
+    ### Copy methods ###    
+    def copy(self, par, content, d):
+        cd = self.get_line_conf(content, par)
+        cd['coord'][0] += d[0]
+        cd['coord'][1] += d[1]
+        cd['coord'][2] += d[0]
+        cd['coord'][3] += d[1]
+        #cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
+        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+               cd['width'],
+               cd['sloy'],
+               cd['fill'],
+               cd['stipple'],
+               cd['factor_stip'],
+               )
+    ### Get configure ###
     #Принимает объект - линия, возвращает все его свойства
     def get_line_conf(self, obj, par):
         #Root_object.from_AL(self, par.ALLOBJECT, obj, list_prop)

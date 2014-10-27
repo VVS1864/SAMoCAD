@@ -98,10 +98,12 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         if delOld == 'No':
             for c in content:
                 if c[0] == 'L':
+                    par.ALLOBJECT[c]['class'].mirrorN(par, c, px1,py1, sin, cos)
+                    '''
                     fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                     coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
                     _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip)
-
+                    '''
                 elif c[0] == 'c':
                     xc, yc, R, fill, width, sloy = get_circle_conf(c, par)
                     coord = mirror_points(px1,py1, [[xc, yc],], sin, cos)[0]
@@ -116,11 +118,14 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         else:
             for c in content:
                 if c[0] == 'L':
+                    par.ALLOBJECT[c]['class'].mirrorY(par, c, px1,py1, sin, cos)
+                    '''
                     find = par.ALLOBJECT[c]['id']
                     for i in find:
                         coord = par.c.coords(i)
                         coord = tuple(mirror_lines(px1,py1, [coord,], sin, cos)[0])
                         par.c.coords(i, coord)
+                    '''
 
                 elif c[0] == 'd':
                     pass
@@ -175,13 +180,15 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
                     coord = mirror_points(px1,py1, [[xc, yc], [dx1, dy1], [dx2, dy2]], sin, cos)
                     arc.c_arc(par, coord[0][0], coord[0][1], coord[1][0], coord[1][1], coord[2][0], coord[2][1], width = width, sloy = sloy, fill = fill, ID = c)
     else:
-        _line.c_line(par, px1,py1,px2,py2, temp = temp)
+        _line.c_line(par, px1,py1,px2,py2, width = 2, sloy = 't', fill = 'red', temp = temp)
         for c in content:
             if c[0] == 'L':
+                par.ALLOBJECT[c]['class'].mirror_temp(par, c, px1,py1, sin, cos)
+                '''
                 fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
                 _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip, temp = temp)
-
+                '''
             elif c[0] == 'c':
                 xc, yc, R, fill, width, sloy = get_circle_conf(c, par)
                 coord = mirror_points(px1,py1, [[xc, yc],], sin, cos)[0]

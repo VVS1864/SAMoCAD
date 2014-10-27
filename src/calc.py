@@ -403,8 +403,11 @@ def calc_angle(x0, y0, px1, py1, px2, py2):
     y2 = py2 - y0
     d1 = sqrt(x1*x1 + y1*y1)
     d2 = sqrt(x2*x2 + y2*y2)
-    a = acos((x1 * x2 + y1 * y2) / (d1 * d2))
-   
+    try:
+        a = acos((x1 * x2 + y1 * y2) / (d1 * d2))
+    except ValueError:
+        print 'bad angle! ', '(',x1, '*', x2, '+', y1, '*', y2, ') / (', d1, '*', d2,')'
+        return None
     if x1*y2-x2*y1<=0 :
         return a
     else:

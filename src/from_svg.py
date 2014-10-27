@@ -212,7 +212,11 @@ class SVGopener:
         else:
             config['angle'] = 0.0
         if find_Ltext:
-            Ltext = float(find_Ltext.groups()[0])           
+            Ltext = float(find_Ltext.groups()[0])
+            print config['size']
+            print len(config['text'])
+            if len(config['text']) == 0:
+                return
             config['s_s'] = (Ltext + -float(config['size'])/4.0)/(len(config['text'])*2.0*-float(config['size'])/4.0)                                                                     
                                                                 
             
