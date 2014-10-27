@@ -44,38 +44,8 @@ class Edit_node:
             self.par.ex2,self.par.ey2 = self.par.orto(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
         for content in self.par.collection:
             if content[0] == 'L':
-                fill, width, sloy, stipple, coord, factor_stip = get_conf.get_line_conf(content, self.par)
-                if coord[0] != coord[2]:
-                    if abs(coord[0] - self.par.ex) < self.par.min_e:
-                        if abs(coord[1] - self.par.ey) < self.par.min_e:
-                            coord[0] = self.par.ex2
-                            coord[1] = self.par.ey2
-                            self.par.ex3 = coord[2]
-                            self.par.ey3 = coord[3]
-                    elif abs(coord[2] - self.par.ex) < self.par.min_e:
-                        if abs(coord[3] - self.par.ey) < self.par.min_e:
-                            coord[2] = self.par.ex2
-                            coord[3] = self.par.ey2
-                            self.par.ex3 = coord[0]
-                            self.par.ey3 = coord[1]
-                else:
-                    if abs(coord[1] - self.par.ey) < self.par.min_e:
-                        coord[0] = self.par.ex2
-                        coord[1] = self.par.ey2
-                        self.par.ex3 = coord[2]
-                        self.par.ey3 = coord[3]
-
-                    if abs(coord[3] - self.par.ey) < self.par.min_e:
-                        coord[2] = self.par.ex2
-                        coord[3] = self.par.ey2
-                        self.par.ex3 = coord[0]
-                        self.par.ey3 = coord[1]
                 delete_list.append(content)
-                if event:
-                    line.c_line(self.par, coord[0],coord[1],coord[2],coord[3],width = width, stipple = stipple, factor_stip = factor_stip, fill = fill, sloy = sloy)
-                else:
-                    line.c_line(self.par, coord[0],coord[1],coord[2],coord[3],width = width, stipple = stipple, factor_stip = factor_stip, fill = fill, sloy = sloy, temp = 'Yes')
-
+                self.par.ALLOBJECT[content]['class'].edit(self.par, content, event)
             if content[0] == 'd':
                 text_prov = False
                 fill = self.par.ALLOBJECT[content]['fill']

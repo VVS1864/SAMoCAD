@@ -454,4 +454,19 @@ def mirror_lines(x, y, lines, msin, mcos):
 def mirror_points(x, y, points, msin, mcos):
     for i in points:
         i[0],i[1] = mirrorCalc(x,y,i[0],i[1],mcos,msin) #Пересчитать координаты певернутого
-    return points    
+    return points
+
+def near_far_point(coord, ex, ey):
+    d1 = sqrt((coord[0]-ex)**2 + (coord[1]-ey)**2)
+    d2 = sqrt((coord[2]-ex)**2 + (coord[3]-ey)**2)
+    if d1<d2:
+        xn = coord[0]
+        yn = coord[1]
+        xf = coord[2]
+        yf = coord[3]
+    else:
+        xn = coord[2]
+        yn = coord[3]
+        xf = coord[0]
+        yf = coord[1]
+    return xn, yn, xf, yf

@@ -224,6 +224,31 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### Edit methods ###
+    def edit(self, par, content, event):
+        cd = self.get_line_conf(content, par)
+        xn, yn, xf, yf = calc.near_far_point(cd['coord'], par.ex, par.ey)
+        cd['coord'][0] = xn
+        cd['coord'][1] = yn
+        cd['coord'][2] = xf
+        cd['coord'][3] = yf
+        cd['coord'][0] = par.ex2
+        cd['coord'][1] = par.ey2
+        par.ex3 = xf
+        par.ey3 = yf
+        if event:
+            temp = None
+        else:
+            temp = 'Yes'
+
+        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+               cd['width'],
+               cd['sloy'],
+               cd['fill'],
+               cd['stipple'],
+               cd['factor_stip'],
+               temp = temp)
+    
     ### Rotate methods ###
     def base_rotate(self, par, content, x0, y0, msin, mcos):
         cd = self.get_line_conf(content, par)
