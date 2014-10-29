@@ -7,11 +7,14 @@ def undo(fact, parent):
     if ev == 'c_':
         del parent.history_undo[-1]
         parent.delete(elements = [fact[1],], add_history = 'add')
-    elif ev == 'delete':
+    else:#if ev == 'delete':
         el = fact[1]
         del parent.history_undo[-1]
+        ### el = [[dict properties of deleted objectы], xynachres, zoomOLDres] ###
         for i in el[0]:
-            if i[0] == 'line':
+            if i['object'] == 'line':
+                i['class'].undo(parent, i, el[2], el[1])
+                '''
                 fill = i[1]
                 width = i[2]
                 sloy = i[3]
@@ -21,7 +24,7 @@ def undo(fact, parent):
                 x1, y1 = parent.coordinator(c[0], c[1], zoomOLDres = el[2], xynachres = el[1])
                 x2, y2 = parent.coordinator(c[2], c[3], zoomOLDres = el[2], xynachres = el[1])
                 parent.c_line(x1, y1, x2, y2, fill = fill, width = width, stipple = stipple, factor_stip=factor_stip, sloy = sloy)
-
+                '''
             elif i[0] == 'circle':
                 xc, yc = parent.coordinator(i[1], i[2], zoomOLDres = el[2], xynachres = el[1])
                 R = parent.m_coordinator(i[3], zoomOLDres = el[2])

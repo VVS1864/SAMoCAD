@@ -227,26 +227,25 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### History_undo methods ###
+    def undo(self, par, cd, zoomOLDres, xynachres):
+        cd['coord'][0], cd['coord'][1] = par.coordinator(cd['coord'][0], cd['coord'][1], zoomOLDres = zoomOLDres, xynachres = xynachres)
+        cd['coord'][2], cd['coord'][3] = par.coordinator(cd['coord'][2], cd['coord'][3], zoomOLDres = zoomOLDres, xynachres = xynachres)
+        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+               cd['width'],
+               cd['sloy'],
+               cd['fill'],
+               cd['stipple'],
+               cd['factor_stip'],
+                   )
+        
     ### Edit_prop methods ###
     def save(self, par, obj, dxf):
-        #coord = get_line_coord(obj, self.parent)
-        cd = self.get_line_conf(obj, par)
+        cd = self.get_conf(obj, par)
         cd['x1'] = cd['coord'][0]
         cd['y1'] = cd['coord'][1]
         cd['x2'] = cd['coord'][2]
         cd['y2'] = cd['coord'][3]
-        
-        '''
-        config = {'x1' : coord[0],#Взять свойства из канваса
-                  'y1' : coord[1],
-                  'x2' : coord[2],
-                  'y2' : coord[3],
-                  'fill' : self.AL[obj]['fill'],#Взять свойства из ALLOBJECT
-                  'width' : self.AL[obj]['width'],
-                  'sloy' : self.AL[obj]['sloy'],
-                  'stipple' : self.AL[obj]['stipple'],
-                  'factor_stip' : self.AL[obj]['factor_stip']}
-        '''
         e = "self.c_line(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, width = %(width)s, stipple = %(stipple)s, fill = '%(fill)s', sloy = %(sloy)s)"
         e = (e % cd)
         if dxf:
@@ -257,7 +256,7 @@ class Object_line:
     def edit_prop(self, par, content, params):
         param_changed = False
         r_list = None
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         for param in params:
             if param in cd:
                 param_changed = True
@@ -275,7 +274,7 @@ class Object_line:
                    
     ### Trim methods ###
     def trim_extend(self, par, content, x, y, trim_extend):
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         if trim_extend == 'Trim':
             par.c.delete('C'+content)
             cNew = calc.trim_line(par.ex, par.ey, par.ex2, par.ey2, x, y, cd['coord'])
@@ -296,7 +295,7 @@ class Object_line:
     
     ### Edit methods ###
     def edit(self, par, content, event):
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         xn, yn, xf, yf = calc.near_far_point(cd['coord'], par.ex, par.ey)
         cd['coord'][0] = xn
         cd['coord'][1] = yn
@@ -321,7 +320,7 @@ class Object_line:
     
     ### Rotate methods ###
     def base_rotate(self, par, content, x0, y0, msin, mcos):
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         cd['coord'] = calc.rotate_lines(x0, y0, [cd['coord'],], msin = msin, mcos = mcos)[0]
         return cd
     
@@ -343,8 +342,7 @@ class Object_line:
             par.c.coords(i, coord)
 
     def rotate_temp(self, par, content, x0, y0, msin, mcos):
-        #cd = self.base_mirror(par, content, px1, py1, sin, cos)
-        coord = self.get_line_coord(content, par)
+        coord = self.get_coord(content, par)
         coord = calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0]
         c_line(par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
@@ -357,13 +355,13 @@ class Object_line:
     
     ### Offlet methods ###
     def offset(self, par, content, pd, x3, y3):
-        c = self.get_line_coord(content, par)
+        c = self.get_coord(content, par)
         x1i, y1i, x2i, y2i = calc.offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
         c_line(par, x1i, y1i, x2i, y2i)
         
     ### Mirror methods ###
     def base_mirror(self, par, content, px1, py1, sin, cos):
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         cd['coord'] = calc.mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
         return cd
     
@@ -385,8 +383,7 @@ class Object_line:
             par.c.coords(i, coord)
 
     def mirror_temp(self, par, content, px1, py1, sin, cos):
-        #cd = self.base_mirror(par, content, px1, py1, sin, cos)
-        coord = self.get_line_coord(content, par)
+        coord = self.get_coord(content, par)
         coord = calc.mirror_lines(px1,py1, [coord,], sin, cos)[0]
         c_line(par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
@@ -396,9 +393,10 @@ class Object_line:
                factor_stip = None,
                temp = 'Yes',
                )
+        
     ### Copy method ###    
     def copy(self, par, content, d):
-        cd = self.get_line_conf(content, par)
+        cd = self.get_conf(content, par)
         cd['coord'][0] += d[0]
         cd['coord'][1] += d[1]
         cd['coord'][2] += d[0]
@@ -413,22 +411,21 @@ class Object_line:
                )
     ### Get configure ###
     #Принимает объект - линия, возвращает все его свойства
-    def get_line_conf(self, obj, par):
-        #Root_object.from_AL(self, par.ALLOBJECT, obj, list_prop)
+    def get_conf(self, obj, par):
         self.conf_dict = {}
         for i in par.ALLOBJECT[obj]:
             if i in list_prop:
                 self.conf_dict[i] = par.ALLOBJECT[obj][i]
-                
+        self.conf_dict['class'] = par.ALLOBJECT[obj]['class']
+        self.conf_dict['object'] = par.ALLOBJECT[obj]['object'] #Потом нужно будет удалить!!!
         for i in par.ALLOBJECT[obj]['id']:
-            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:#all(x in par.ALLOBJECT[obj]['id'][i] for x in ('line', 'priv')):
+            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:
                 self.conf_dict['coord'] = par.c.coords(i)
-        #self.conf_dict['coord'] = self.get_line_coord(obj, par)
         return self.conf_dict
 
     #Принимает объект - линия, возвращает координаты
-    def get_line_coord(self, obj, par):
+    def get_coord(self, obj, par):
         for i in par.ALLOBJECT[obj]['id']:
-            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:#all(x in par.ALLOBJECT[obj]['id'][i] for x in ('line', 'priv')):
+            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:
                 coord = par.c.coords(i)
         return coord

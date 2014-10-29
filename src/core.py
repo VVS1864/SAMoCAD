@@ -257,8 +257,9 @@ class Graphics:
     def tt(self, event):
         for i in self.ALLOBJECT:
             print ('______________________________')
-            print (i, self.ALLOBJECT[i])
-            
+            #print (i, self.ALLOBJECT[i])
+            print self.e_list
+            print 'undo', self.history_undo
         #print self.ALLOBJECT
         #print self.collection
         #print self.ALLOBJECT
@@ -546,7 +547,7 @@ class Graphics:
         
         def dele(i, h = None):#Удаляет пришедший объект с канваса и из ALLOBJECT
             if h:
-                e = self.get_conf(i)
+                e = self.ALLOBJECT[i]['class'].get_conf(i, graf)#self.get_conf(i)
                 self.e_list.append(e)
             self.c.delete(i)
             del self.ALLOBJECT[i]
