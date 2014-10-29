@@ -46,8 +46,12 @@ class Param_edit:
             
 
             for i in self.par.collection:
-                args = None
-                obj = None
+                #args = None
+                #obj = None
+                r_list = self.par.ALLOBJECT[i]['class'].edit_prop(self.par, i, params)
+                if r_list:
+                    remove_list.append(r_list)
+                '''
                 for param in params:
                     if param in self.par.ALLOBJECT[i]:
                         arg = params[param]
@@ -144,6 +148,8 @@ class Param_edit:
                                 obj = 'dimr'
 
                         elif i[0] == 'L':
+                            self.par.ALLOBJECT[i]['class'].edit_prop(self.par, i, param, )
+                            
                             if args:
                                 if param == 'width':
                                     args[4] = int(arg)
@@ -170,7 +176,7 @@ class Param_edit:
                                     factor_stip = arg
                                 args = [coord[0], coord[1], coord[2], coord[3],  width, sloy, fill, stipple, factor_stip]
                                 obj = 'line'
-
+                            
                         elif i[0] == 'c':
                             if args:
                                 if param == 'R':
@@ -256,10 +262,11 @@ class Param_edit:
                     elif obj == 'arc':
                         arc.c_arc(self.par, args[0],args[1],args[2], args[3],args[4],args[5],fill =  args[6],width = args[7],sloy = args[8])
                         remove_list.append((i,self.par.Narc))
-
-            if remove_list:
-                del_list = [x[0] for x in remove_list]
-                self.par.delete(elements = del_list)
-                for r in remove_list:
-                    self.par.collection.remove(r[0])
-                    self.par.collection.append(r[1])
+            '''
+        if remove_list:
+            del_list = [x[0] for x in remove_list]
+            self.par.delete(elements = del_list)
+            for r in remove_list:
+                self.par.collection.remove(r[0])
+                self.par.collection.append(r[1])
+            

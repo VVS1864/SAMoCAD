@@ -553,7 +553,7 @@ class Graphics:
             if ('c_', i) in self.history_undo:
                 self.history_undo.remove(('c_', i))
         
-        t1 = time.time()
+        #t1 = time.time()
         if elements == None:#Если не заданы элементы для удаления
             self.set_coord()
             self.e_list = []
@@ -565,8 +565,8 @@ class Graphics:
             self.kill()
         else:#Если заданы элементы для удаления
             map(dele, elements)
-        t2 = time.time()
-        print ('delete', t2-t1)
+        #t2 = time.time()
+        #print ('delete', t2-t1)
 
     def sbros(self):#Сбрасывает коллекцию - переводит список веделенных объектов в collectionBack.
         t1 = time.time()

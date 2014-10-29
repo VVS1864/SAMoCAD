@@ -7,6 +7,7 @@ import calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_
 #ЛИНИЯ
 list_prop = ('fill', 'width', 'sloy', 'stipple', 'factor_stip')
 #dp = {'fill':0, 'width', 'sloy':0, 'stipple':0, 'factor_stip':0}
+### Действия создания линии ###
 class Line:
     def __init__(self, par):
         self.par = par
@@ -76,6 +77,7 @@ class Line:
         else:
             c_line(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2, temp = 'Yes')
 
+### Отрисовка линии ###
 def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple = None, factor_stip = None, tip = 'norm', temp = None):
     if sloy == None:
         fill = par.color
@@ -147,7 +149,8 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
             d_line(par, x1,y1,x2,y2, dash = dash, fill=fill,width=width,tags = ('obj', 'temp'))
             
             par.c.create_line(x1,y1,x2,y2, width=3, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', 'temp'))
-            
+
+### Отрисовка линии сложного типа ###    
 def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
     id_dict = {}
     dash = map(par.coordinator2, dash)
@@ -224,6 +227,28 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
+    ### Edit_prop methods ###
+    def edit_prop(self, par, content, params):
+        param_changed = False
+        r_list = None
+        cd = self.get_line_conf(content, par)
+        for param in params:
+            if param in cd:
+                param_changed = True
+                cd[param] = params[param]
+        if param_changed == True:
+            c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+                cd['width'],
+                cd['sloy'],
+                cd['fill'],
+                cd['stipple'],
+                cd['factor_stip'],
+                            )
+            #par.collection.remove(content)
+            #par.collection.append(par.Nline)
+            #par.delete(elements = [content,])
+            r_list = (content, par.Nline)
+        return r_list
     ### Trim methods ###
     def trim_extend(self, par, content, x, y, trim_extend):
         cd = self.get_line_conf(content, par)

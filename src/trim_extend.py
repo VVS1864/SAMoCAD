@@ -73,68 +73,19 @@ class Trim_extent:
             
             if self.par.collection:
                 col = self.find_rline()
-                '''
-                col = self.par.collection
-                self.par.collection = []
-                self.par.c.delete('clone')
-                #self.par.sbros()
-                select_clone.Select_clone([self.par.rline,], self.par, color = 'red')
-                if self.par.rline in col:
-                    col.remove(self.par.rline)
-                '''
-            
                 for el in col:
                     if el[0] == 'L':
                         cNew = self.par.ALLOBJECT[el]['class'].trim_extend(self.par, el, x, y, self.par.trim_extend)
-                
-                '''
-                #if self.par.trim_extend == 'Trim':
-                    #for el in col:
-                        #if el[0] == 'L':
-                            
-                            #cNew = par.ALLOBJECT[c]['class'].trim_extend(par, el, x, y, 'trim')
-                            
-                            self.par.c.delete('C'+el)
-                            fill, width, sloy, stipple, c, factor_stip = self.par.get_line_conf(el)
-                            cNew = trim_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x, y, c)
-                            if cNew:
-                                self.par.delete(elements = (el,))
-                                
-                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple, factor_stip=factor_stip)
-                            
-                #else:
-                    #for el in col:
-                        #if el[0] == 'L':
-                            
-                            
-                            fill, width, sloy, stipple, c = self.par.get_line_conf(el)
-                            cNew = extend_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, c)
-                            if cNew:
-                                self.par.delete(elements = (el,))
-                                self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple, factor_stip=factor_stip)
-                            
-                '''
                 if cNew:
                     self.par.changeFlag = True
-                    self.par.enumerator_p()
-                            
+                    self.par.enumerator_p()         
         else:
             el = self.par.get_obj(x, y)
             self.par.collection = [el,]
             col = self.find_rline()
             if col:
-                #fill, width, sloy, stipple, c = self.par.get_line_conf(el)
                 cNew = self.par.ALLOBJECT[el]['class'].trim_extend(self.par, el, x, y, self.par.trim_extend)
-                #if self.par.trim_extend == 'Trim':
-                    #cNew = trim_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x, y, c)
-                #else:
-                    #cNew = extend_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, c)
-                
                 if cNew:
-                    '''
-                    self.par.delete(elements = (el,))
-                    self.par.c_line(cNew[0], cNew[1], cNew[2], cNew[3], fill=fill, width=width, sloy=sloy, stipple=stipple)
-                    '''
                     self.par.changeFlag = True
                     self.par.enumerator_p()
             else:
