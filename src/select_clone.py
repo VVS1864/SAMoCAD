@@ -12,8 +12,11 @@ class Select_clone:
                     if 'priv' in ids[i]:
                         ids2[i] = ids[i]
                 ids = ids2
+
+            
             if Num[0] in ('L', 't', 'd', 'r'):
                 for i in ids:
+                    
                     par.c.create_line(par.c.coords(i), fill = color, width = 3, tags = ('obj', Nclone, 'clone'))
             elif Num[0] == 'a':
                 for i in ids:

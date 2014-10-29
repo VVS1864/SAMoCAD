@@ -28,7 +28,7 @@ def get_obj(x, y, par, t_obj):
             if 'dim' in t_obj:
                 if Num[0] == 'd':
                     if 'dim_text' in tag:
-                        print ('get')
+                        #print ('get')
                         c = par.c.coords(i)
                         xi, yi = min_distanse(c[0],c[1],c[2],c[3], x, y)
                         e = sqrt((xi-x)**2+(yi-y)**2)
@@ -38,7 +38,7 @@ def get_obj(x, y, par, t_obj):
             if 'text' in t_obj:
                 if Num[0] == 't':
                     #if 'dim_text' in tag:
-                    print ('get')
+                    #print ('get')
                     c = par.c.coords(i)
                     xi, yi = min_distanse(c[0],c[1],c[2],c[3], x, y)
                     e = sqrt((xi-x)**2+(yi-y)**2)

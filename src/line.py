@@ -228,6 +228,32 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
 
 class Object_line:
     ### Edit_prop methods ###
+    def save(self, par, obj, dxf):
+        #coord = get_line_coord(obj, self.parent)
+        cd = self.get_line_conf(obj, par)
+        cd['x1'] = cd['coord'][0]
+        cd['y1'] = cd['coord'][1]
+        cd['x2'] = cd['coord'][2]
+        cd['y2'] = cd['coord'][3]
+        
+        '''
+        config = {'x1' : coord[0],#Взять свойства из канваса
+                  'y1' : coord[1],
+                  'x2' : coord[2],
+                  'y2' : coord[3],
+                  'fill' : self.AL[obj]['fill'],#Взять свойства из ALLOBJECT
+                  'width' : self.AL[obj]['width'],
+                  'sloy' : self.AL[obj]['sloy'],
+                  'stipple' : self.AL[obj]['stipple'],
+                  'factor_stip' : self.AL[obj]['factor_stip']}
+        '''
+        e = "self.c_line(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, width = %(width)s, stipple = %(stipple)s, fill = '%(fill)s', sloy = %(sloy)s)"
+        e = (e % cd)
+        if dxf:
+            cd['fill'] = dxf_colorer(config['fill'])
+        return e, cd
+            
+    ### Edit_prop methods ###
     def edit_prop(self, par, content, params):
         param_changed = False
         r_list = None
@@ -243,12 +269,10 @@ class Object_line:
                 cd['fill'],
                 cd['stipple'],
                 cd['factor_stip'],
-                            )
-            #par.collection.remove(content)
-            #par.collection.append(par.Nline)
-            #par.delete(elements = [content,])
+                   )
             r_list = (content, par.Nline)
         return r_list
+                   
     ### Trim methods ###
     def trim_extend(self, par, content, x, y, trim_extend):
         cd = self.get_line_conf(content, par)
