@@ -101,7 +101,7 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
         if delOld == 'No':
             for c in content:
                 if c[0] == 'L':
-                    par.ALLOBJECT[c]['class'].rotateN(par, c, x0,y0, msin, mcos)
+                    par.ALLOBJECT[c]['class'].rotateN(x0,y0, msin, mcos)
                     '''
                     fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                     coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]
@@ -173,7 +173,7 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
                         coord = tuple(rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0])
                         par.c.coords(i, coord)
                 elif c[0] == 'L':
-                    par.ALLOBJECT[c]['class'].rotateY(par, c, x0,y0, msin, mcos)
+                    par.ALLOBJECT[c]['class'].rotateY(x0,y0, msin, mcos)
                     '''
                     
                     find = par.ALLOBJECT[c]['id']
@@ -238,7 +238,7 @@ def rotate(par, x0 = None, y0 = None, px1 = None, py1 = None, px2 = None, py2 = 
     else:
         for c in content:
             if c[0] == 'L':
-                par.ALLOBJECT[c]['class'].rotate_temp(par, c, x0,y0, msin, mcos)
+                par.ALLOBJECT[c]['class'].rotate_temp(x0,y0, msin, mcos)
                 '''
                 fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = rotate_lines(x0, y0, [coord,], msin = msin, mcos = mcos)[0]

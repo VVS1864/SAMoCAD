@@ -75,7 +75,7 @@ class Trim_extent:
                 col = self.find_rline()
                 for el in col:
                     if el[0] == 'L':
-                        cNew = self.par.ALLOBJECT[el]['class'].trim_extend(self.par, el, x, y, self.par.trim_extend)
+                        cNew = self.par.ALLOBJECT[el]['class'].trim_extend(x, y, self.par.trim_extend)
                 if cNew:
                     self.par.changeFlag = True
                     self.par.enumerator_p()         
@@ -84,7 +84,7 @@ class Trim_extent:
             self.par.collection = [el,]
             col = self.find_rline()
             if col:
-                cNew = self.par.ALLOBJECT[el]['class'].trim_extend(self.par, el, x, y, self.par.trim_extend)
+                cNew = self.par.ALLOBJECT[el]['class'].trim_extend(x, y, self.par.trim_extend)
                 if cNew:
                     self.par.changeFlag = True
                     self.par.enumerator_p()

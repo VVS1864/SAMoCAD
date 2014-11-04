@@ -128,7 +128,7 @@ def c_line(par, x1, y1, x2, y2, width = None, sloy = None, fill = None, stipple 
             fill = 'gray'
             id = par.c.create_line(x1,y1,x2,y2,fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
             id_dict = id_dict[id] = ('line', 'priv', 'temp')
-        object_line = Object_line()
+        object_line = Object_line(par, par.Nline)
         dict_prop = {}
         for k,v in locals().iteritems():
             if k in list_prop:
@@ -227,11 +227,15 @@ def d_line(par, x1,y1,x2,y2, dash, fill, width, tags):
             
 
 class Object_line:
-    ### History_undo methods ###
-    def undo(self, par, cd, zoomOLDres, xynachres):
-        cd['coord'][0], cd['coord'][1] = par.coordinator(cd['coord'][0], cd['coord'][1], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['coord'][2], cd['coord'][3] = par.coordinator(cd['coord'][2], cd['coord'][3], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+    def __init__(self, par, obj):
+        self.par = par
+        self.obj = obj
+        
+    ### History_undo method ###
+    def undo(self, cd, zoomOLDres, xynachres):
+        cd['coord'][0], cd['coord'][1] = self.par.coordinator(cd['coord'][0], cd['coord'][1], zoomOLDres = zoomOLDres, xynachres = xynachres)
+        cd['coord'][2], cd['coord'][3] = self.par.coordinator(cd['coord'][2], cd['coord'][3], zoomOLDres = zoomOLDres, xynachres = xynachres)
+        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
                cd['fill'],
@@ -239,9 +243,9 @@ class Object_line:
                cd['factor_stip'],
                    )
         
-    ### Edit_prop methods ###
-    def save(self, par, obj, dxf):
-        cd = self.get_conf(obj, par)
+    ### Edit_prop method ###
+    def save(self, dxf):
+        cd = self.get_conf()
         cd['x1'] = cd['coord'][0]
         cd['y1'] = cd['coord'][1]
         cd['x2'] = cd['coord'][2]
@@ -252,38 +256,38 @@ class Object_line:
             cd['fill'] = dxf_colorer(config['fill'])
         return e, cd
             
-    ### Edit_prop methods ###
-    def edit_prop(self, par, content, params):
+    ### Edit_prop method ###
+    def edit_prop(self, params):
         param_changed = False
         r_list = None
-        cd = self.get_conf(content, par)
+        cd = self.get_conf()
         for param in params:
             if param in cd:
                 param_changed = True
                 cd[param] = params[param]
         if param_changed == True:
-            c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+            c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                 cd['width'],
                 cd['sloy'],
                 cd['fill'],
                 cd['stipple'],
                 cd['factor_stip'],
                    )
-            r_list = (content, par.Nline)
+            r_list = (self.obj, self.par.Nline)
         return r_list
                    
-    ### Trim methods ###
-    def trim_extend(self, par, content, x, y, trim_extend):
-        cd = self.get_conf(content, par)
+    ### Trim method ###
+    def trim_extend(self, x, y, trim_extend):
+        cd = self.get_conf()
         if trim_extend == 'Trim':
-            par.c.delete('C'+content)
-            cNew = calc.trim_line(par.ex, par.ey, par.ex2, par.ey2, x, y, cd['coord'])
+            self.par.c.delete('C'+self.obj)
+            cNew = calc.trim_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x, y, cd['coord'])
         else:
-            cNew = calc.extend_line(par.ex, par.ey, par.ex2, par.ey2, cd['coord'])
+            cNew = calc.extend_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, cd['coord'])
             
         if cNew:
-            par.delete(elements = (content,))
-            c_line(par, cNew[0], cNew[1], cNew[2], cNew[3],
+            self.par.delete(elements = (self.obj,))
+            c_line(self.par, cNew[0], cNew[1], cNew[2], cNew[3],
                 cd['width'],
                 cd['sloy'],
                 cd['fill'],
@@ -293,24 +297,24 @@ class Object_line:
             
         return cNew
     
-    ### Edit methods ###
-    def edit(self, par, content, event):
-        cd = self.get_conf(content, par)
-        xn, yn, xf, yf = calc.near_far_point(cd['coord'], par.ex, par.ey)
+    ### Edit method ###
+    def edit(self, event):
+        cd = self.get_conf()
+        xn, yn, xf, yf = calc.near_far_point(cd['coord'], self.par.ex, self.par.ey)
         cd['coord'][0] = xn
         cd['coord'][1] = yn
         cd['coord'][2] = xf
         cd['coord'][3] = yf
-        cd['coord'][0] = par.ex2
-        cd['coord'][1] = par.ey2
-        par.ex3 = xf
-        par.ey3 = yf
+        cd['coord'][0] = self.par.ex2
+        cd['coord'][1] = self.par.ey2
+        self.par.ex3 = xf
+        self.par.ey3 = yf
         if event:
             temp = None
         else:
             temp = 'Yes'
 
-        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
                cd['fill'],
@@ -319,14 +323,14 @@ class Object_line:
                temp = temp)
     
     ### Rotate methods ###
-    def base_rotate(self, par, content, x0, y0, msin, mcos):
-        cd = self.get_conf(content, par)
+    def base_rotate(self, x0, y0, msin, mcos):
+        cd = self.get_conf()
         cd['coord'] = calc.rotate_lines(x0, y0, [cd['coord'],], msin = msin, mcos = mcos)[0]
         return cd
     
-    def rotateN(self, par, content, x0, y0, msin, mcos):
-        cd = self.base_rotate(par, content, x0, y0, msin = msin, mcos = mcos)
-        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+    def rotateN(self, x0, y0, msin, mcos):
+        cd = self.base_rotate(x0, y0, msin = msin, mcos = mcos)
+        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
                cd['fill'],
@@ -334,17 +338,17 @@ class Object_line:
                cd['factor_stip'],
                )
 
-    def rotateY(self, par, content, x0, y0, msin, mcos):
-        find = par.ALLOBJECT[content]['id']
+    def rotateY(self, x0, y0, msin, mcos):
+        find = self.par.ALLOBJECT[self.obj]['id']
         for i in find:
-            coord = par.c.coords(i)
+            coord = self.par.c.coords(i)
             coord = tuple(calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0])
-            par.c.coords(i, coord)
+            self.par.c.coords(i, coord)
 
-    def rotate_temp(self, par, content, x0, y0, msin, mcos):
-        coord = self.get_coord(content, par)
+    def rotate_temp(self, x0, y0, msin, mcos):
+        coord = self.get_coord()
         coord = calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0]
-        c_line(par, coord[0], coord[1], coord[2], coord[3],
+        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
                sloy = 't',
                fill = 'yellow',
@@ -353,21 +357,21 @@ class Object_line:
                temp = 'Yes',
                )
     
-    ### Offlet methods ###
-    def offset(self, par, content, pd, x3, y3):
-        c = self.get_coord(content, par)
+    ### Offlet method ###
+    def offset(self, pd, x3, y3):
+        c = self.get_coord()
         x1i, y1i, x2i, y2i = calc.offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
-        c_line(par, x1i, y1i, x2i, y2i)
+        c_line(self.par, x1i, y1i, x2i, y2i)
         
     ### Mirror methods ###
-    def base_mirror(self, par, content, px1, py1, sin, cos):
-        cd = self.get_conf(content, par)
+    def base_mirror(self, px1, py1, sin, cos):
+        cd = self.get_conf()
         cd['coord'] = calc.mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
         return cd
     
-    def mirrorN(self, par, content, px1, py1, sin, cos):
-        cd = self.base_mirror(par, content, px1, py1, sin, cos)
-        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+    def mirrorN(self, px1, py1, sin, cos):
+        cd = self.base_mirror(px1, py1, sin, cos)
+        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
                cd['fill'],
@@ -375,17 +379,17 @@ class Object_line:
                cd['factor_stip'],
                )
 
-    def mirrorY(self, par, content, px1, py1, sin, cos):
-        find = par.ALLOBJECT[content]['id']
+    def mirrorY(self, px1, py1, sin, cos):
+        find = self.par.ALLOBJECT[self.obj]['id']
         for i in find:
-            coord = par.c.coords(i)
+            coord = self.par.c.coords(i)
             coord = tuple(calc.mirror_lines(px1,py1, [coord,], sin, cos)[0])
-            par.c.coords(i, coord)
+            self.par.c.coords(i, coord)
 
-    def mirror_temp(self, par, content, px1, py1, sin, cos):
-        coord = self.get_coord(content, par)
+    def mirror_temp(self, px1, py1, sin, cos):
+        coord = self.get_coord()
         coord = calc.mirror_lines(px1,py1, [coord,], sin, cos)[0]
-        c_line(par, coord[0], coord[1], coord[2], coord[3],
+        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
                sloy = 't',
                fill = 'yellow',
@@ -395,14 +399,14 @@ class Object_line:
                )
         
     ### Copy method ###    
-    def copy(self, par, content, d):
-        cd = self.get_conf(content, par)
+    def copy(self, d):
+        cd = self.get_conf()
         cd['coord'][0] += d[0]
         cd['coord'][1] += d[1]
         cd['coord'][2] += d[0]
         cd['coord'][3] += d[1]
         #cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
-        c_line(par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
+        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
                cd['width'],
                cd['sloy'],
                cd['fill'],
@@ -411,21 +415,21 @@ class Object_line:
                )
     ### Get configure ###
     #Принимает объект - линия, возвращает все его свойства
-    def get_conf(self, obj, par):
+    def get_conf(self):
         self.conf_dict = {}
-        for i in par.ALLOBJECT[obj]:
+        for i in self.par.ALLOBJECT[self.obj]:
             if i in list_prop:
-                self.conf_dict[i] = par.ALLOBJECT[obj][i]
-        self.conf_dict['class'] = par.ALLOBJECT[obj]['class']
-        self.conf_dict['object'] = par.ALLOBJECT[obj]['object'] #Потом нужно будет удалить!!!
-        for i in par.ALLOBJECT[obj]['id']:
-            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:
-                self.conf_dict['coord'] = par.c.coords(i)
+                self.conf_dict[i] = self.par.ALLOBJECT[self.obj][i]
+        self.conf_dict['class'] = self.par.ALLOBJECT[self.obj]['class']
+        self.conf_dict['object'] = self.par.ALLOBJECT[self.obj]['object'] #Потом нужно будет удалить!!!
+        for i in self.par.ALLOBJECT[self.obj]['id']:
+            if 'line' in self.par.ALLOBJECT[self.obj]['id'][i] and 'priv' in self.par.ALLOBJECT[self.obj]['id'][i]:
+                self.conf_dict['coord'] = self.par.c.coords(i)
         return self.conf_dict
 
     #Принимает объект - линия, возвращает координаты
-    def get_coord(self, obj, par):
-        for i in par.ALLOBJECT[obj]['id']:
-            if 'line' in par.ALLOBJECT[obj]['id'][i] and 'priv' in par.ALLOBJECT[obj]['id'][i]:
-                coord = par.c.coords(i)
+    def get_coord(self):
+        for i in self.par.ALLOBJECT[self.obj]['id']:
+            if 'line' in self.par.ALLOBJECT[self.obj]['id'][i] and 'priv' in self.par.ALLOBJECT[self.obj]['id'][i]:
+                coord = self.par.c.coords(i)
         return coord

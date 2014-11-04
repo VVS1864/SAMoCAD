@@ -45,7 +45,7 @@ class Edit_node:
         for content in self.par.collection:
             if content[0] == 'L':
                 delete_list.append(content)
-                self.par.ALLOBJECT[content]['class'].edit(self.par, content, event)
+                self.par.ALLOBJECT[content]['class'].edit(event)
             if content[0] == 'd':
                 text_prov = False
                 fill = self.par.ALLOBJECT[content]['fill']

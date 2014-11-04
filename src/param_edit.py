@@ -48,7 +48,7 @@ class Param_edit:
             for i in self.par.collection:
                 #args = None
                 #obj = None
-                r_list = self.par.ALLOBJECT[i]['class'].edit_prop(self.par, i, params)
+                r_list = self.par.ALLOBJECT[i]['class'].edit_prop(params)
                 if r_list:
                     remove_list.append(r_list)
                 '''

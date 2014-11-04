@@ -26,7 +26,7 @@ class saver:
             if obj == 'trace_o':
                 continue
             if obj[0] == 'L':
-                e, config = self.parent.ALLOBJECT[obj]['class'].save(self.parent, obj, dxf)
+                e, config = self.parent.ALLOBJECT[obj]['class'].save(dxf)
                 '''
                 coord = get_line_coord(obj, self.parent)
                 config = {'x1' : coord[0],#Взять свойства из канваса

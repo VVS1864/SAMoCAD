@@ -73,7 +73,7 @@ class Copy_object:
 def copyer(collection, par, d): 
     for content in collection:
         if content[0] in ['L', 't']:
-            par.ALLOBJECT[content]['class'].copy(par, content, d)
+            par.ALLOBJECT[content]['class'].copy(d)
             '''
             fill, width, sloy, stipple, coord, factor_stip = get_line_conf(content, par)
             coord = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(coord)]

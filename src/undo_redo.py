@@ -13,7 +13,7 @@ def undo(fact, parent):
         ### el = [[dict properties of deleted objectы], xynachres, zoomOLDres] ###
         for i in el[0]:
             if i['object'] == 'line':
-                i['class'].undo(parent, i, el[2], el[1])
+                i['class'].undo(i, el[2], el[1])
                 '''
                 fill = i[1]
                 width = i[2]

@@ -98,7 +98,7 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         if delOld == 'No':
             for c in content:
                 if c[0] == 'L':
-                    par.ALLOBJECT[c]['class'].mirrorN(par, c, px1,py1, sin, cos)
+                    par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
                     '''
                     fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                     coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
@@ -118,7 +118,7 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         else:
             for c in content:
                 if c[0] == 'L':
-                    par.ALLOBJECT[c]['class'].mirrorY(par, c, px1,py1, sin, cos)
+                    par.ALLOBJECT[c]['class'].mirrorY(px1,py1, sin, cos)
                     '''
                     find = par.ALLOBJECT[c]['id']
                     for i in find:
@@ -183,7 +183,7 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
         _line.c_line(par, px1,py1,px2,py2, width = 2, sloy = 't', fill = 'red', temp = temp)
         for c in content:
             if c[0] == 'L':
-                par.ALLOBJECT[c]['class'].mirror_temp(par, c, px1,py1, sin, cos)
+                par.ALLOBJECT[c]['class'].mirror_temp(px1,py1, sin, cos)
                 '''
                 fill, width, sloy, stipple, coord, factor_stip = get_line_conf(c, par)
                 coord = mirror_lines(px1,py1, [coord,], sin, cos)[0]
