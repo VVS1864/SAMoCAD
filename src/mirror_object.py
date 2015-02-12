@@ -1,8 +1,8 @@
 # -*- coding: utf-8; -*-
 from calc import mirrorCalc, mirror_lines, mirror_points, calc_angle
-from get_conf import get_circle_conf, get_arc_conf, get_line_conf, get_text_conf, get_dim_conf, get_dimR_conf
+#from get_conf import get_circle_conf, get_arc_conf, get_line_conf, get_text_conf, get_dim_conf, get_dimR_conf
 from math import sqrt, pi
-import text_line, dimension, circle, arc
+#import text_line, dimension, circle, arc
 import line as _line
 import time
 #ЗЕРКАЛО (не применятеся к сложным объектам, содержащим текст)
@@ -12,23 +12,38 @@ class Mirror_object:
         self.mirrorEvent()
     def mirrorEvent(self):
         if self.par.collection:
-            self.par.standart_unbind()
-            self.par.old_func = 'self.mirrorEvent()'
-            self.par.resFlag = True
-            self.par.info.config(text = (u'Selected %s objects. Escape - stop') %(len(self.par.collection)))
-            self.par.dialog.config(text = u'Mirror - point 1:')
-            self.par.c.bind('<Button-1>', self.mirrorEvent2)
-            
+            #self.par.standart_unbind()
+            self.par.old_func = (self.par.action, Mirror_object)
+            #self.par.info.config(text = (u'Selected %s objects. Escape - stop') %(len(self.par.collection)))
+            #self.par.dialog.config(text = u'Mirror - point 1:')
+            #self.par.c.bind('<Button-1>', self.mirrorEvent2)
+            self.par.c.Unbind(wx.EVT_LEFT_DOWN)
+            self.par.c.Bind(wx.EVT_LEFT_DOWN, self.mirrorEvent2)            
         else:
-            self.par.info.config(text = u'Objects do not selected')
+            pass
+            #self.par.info.config(text = u'Objects do not selected')
     def mirrorEvent2(self, event):
-        self.par.dialog.config(text = u'Mirror - point 2:')
-        self.par.ex=self.par.priv_coord[0]
-        self.par.ey=self.par.priv_coord[1]
-        self.par.set_coord()
-        self.par.c.bind('<Button-1>', self.mirrorEvent3)
-        self.par.mirror_clone = True
+        #self.par.dialog.config(text = u'Mirror - point 2:')
+        #self.par.ex=self.par.priv_coord[0]
+        #self.par.ey=self.par.priv_coord[1]
+        self.par.ex = self.par.x_priv
+        self.par.ey = self.par.y_priv
+        self.par.c.Unbind(wx.EVT_LEFT_DOWN)
+        self.par.c.Unbind(wx.EVT_MOTION)
+        self.par.c.Bind(wx.EVT_LEFT_DOWN, self.mirrorEvent3)
+        self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
+        #self.par.set_coord()
+        #self.par.c.bind('<Button-1>', self.mirrorEvent3)
+        #self.par.mirror_clone = True
 
+    def dynamic(self, e):
+        if not self.par.motion_flag:
+            self.par.dynamic_data = []
+            self.par.dynamic_color = []
+            self.mirrorEvent3()
+        self.par.motion(e)
+        e.Skip()
+    #??????????????? __ ?????????????????
     def mirrorEvent3(self, event):
         self.par.ex2=self.par.priv_coord[0]
         self.par.ey2=self.par.priv_coord[1]
@@ -94,8 +109,8 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
     sin=b/sqrt(a*a+b*b)
     
     if not temp:
-        
         if delOld == 'No':
+            """
             for c in content:
                 if c[0] == 'L':
                     par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
@@ -105,17 +120,22 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
                     _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip)
                     '''
                 elif c[0] == 'c':
+                    par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
+                    '''
                     xc, yc, R, fill, width, sloy = get_circle_conf(c, par)
                     coord = mirror_points(px1,py1, [[xc, yc],], sin, cos)[0]
                     circle.c_circle(par, coord[0], coord[1], width = width, sloy = sloy, fill = fill, R = R)
-
+                    '''
                 elif c[0] == 'a':
+                    par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
+                    '''
                     xc, yc, dx1, dy1, dx2, dy2, fill, width, sloy = get_arc_conf(c, par)
                     coord = mirror_points(px1,py1, [[xc, yc], [dx1, dy1], [dx2, dy2]], sin, cos)
                     arc.c_arc(par, coord[0][0], coord[0][1], coord[1][0], coord[1][1], coord[2][0], coord[2][1], width = width, sloy = sloy, fill = fill)
-
-
+                    '''
+            """
         else:
+            """
             for c in content:
                 if c[0] == 'L':
                     par.ALLOBJECT[c]['class'].mirrorY(px1,py1, sin, cos)
@@ -169,18 +189,30 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
                     '''
 
                 elif c[0] == 'c':
+                    
+                    par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
+                    par.c.delete(c)
+                    '''
                     xc, yc, R, fill, width, sloy = get_circle_conf(c, par)
                     par.c.delete(c)
                     coord = mirror_points(px1,py1, [[xc, yc],], sin, cos)[0]
                     circle.c_circle(par, coord[0], coord[1], width = width, sloy = sloy, fill = fill, R = R, ID = c)
-                
+                    '''
+                    
                 elif c[0] == 'a':
+                    
+                    par.ALLOBJECT[c]['class'].mirrorN(px1,py1, sin, cos)
+                    par.c.delete(c)
+                    '''
                     xc, yc, dx1, dy1, dx2, dy2, fill, width, sloy = get_arc_conf(c, par)
                     par.c.delete(c)
                     coord = mirror_points(px1,py1, [[xc, yc], [dx1, dy1], [dx2, dy2]], sin, cos)
                     arc.c_arc(par, coord[0][0], coord[0][1], coord[1][0], coord[1][1], coord[2][0], coord[2][1], width = width, sloy = sloy, fill = fill, ID = c)
+                    '''
+            """
     else:
         _line.c_line(par, px1,py1,px2,py2, width = 2, sloy = 't', fill = 'red', temp = temp)
+        """
         for c in content:
             if c[0] == 'L':
                 par.ALLOBJECT[c]['class'].mirror_temp(px1,py1, sin, cos)
@@ -190,12 +222,18 @@ def mirror(px1,py1,px2,py2, par, delOld='No', content = None, temp = None):
                 _line.c_line(par, coord[0], coord[1], coord[2], coord[3], width, sloy, fill, stipple, factor_stip, temp = temp)
                 '''
             elif c[0] == 'c':
+                par.ALLOBJECT[c]['class'].mirror_temp(px1,py1, sin, cos)
+                '''
                 xc, yc, R, fill, width, sloy = get_circle_conf(c, par)
                 coord = mirror_points(px1,py1, [[xc, yc],], sin, cos)[0]
                 circle.c_circle(par, coord[0], coord[1], width = width, sloy = sloy, fill = fill, R = R, temp = temp)
-
+                '''
             elif c[0] == 'a':
+                par.ALLOBJECT[c]['class'].mirror_temp(px1,py1, sin, cos)
+                '''
                 xc, yc, dx1, dy1, dx2, dy2, fill, width, sloy = get_arc_conf(c, par)
                 coord = mirror_points(px1,py1, [[xc, yc], [dx1, dy1], [dx2, dy2]], sin, cos)
                 arc.c_arc(par, coord[0][0], coord[0][1], coord[1][0], coord[1][1], coord[2][0], coord[2][1], width = width, sloy = sloy, fill = fill, temp = temp)
-            
+                '''
+        """
+                
