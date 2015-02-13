@@ -57,6 +57,15 @@ class Copy_object:
         #self.par.ey2=self.par.priv_coord[1]
         self.par.ex2 = self.par.x_priv
         self.par.ey2 = self.par.y_priv
+        data = self.par.from_cmd(float)
+        self.par.ex2, self.par.ey2 = calc.cmd_coorder(
+            self.par.ex,
+            self.par.ey,
+            self.par.ex2,
+            self.par.ey2,
+            data,
+            self.par.ortoFlag,
+            )
         #self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
         if self.par.trace_flag:
             self.par.trace_on = True

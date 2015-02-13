@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, acos, sin, cos
 import copy
+min_e = 0.00001
 def intersection_l_l(x1,y1, x2,y2, x3, y3, x4, y4):#Пересечение векторов. Принимает координаты 2 линий, проверяет их на параллельность, если не параллельны - ищет точку пересечения, если такая есть - возвращает ее координаты, иначе вернет None, None
     ua1 = (x4 - x3)*(y1 - y3) - (y4 - y3)*(x1 - x3)
     ub1 = (x2 - x1)*(y1 - y3) - (y2 - y1)*(x1 - x3)
@@ -470,3 +471,42 @@ def near_far_point(coord, ex, ey):
         xf = coord[0]
         yf = coord[1]
     return xn, yn, xf, yf
+
+def cmd_coorder(x1, y1, x2, y2, data, ortoFlag):
+    #Принимает координаты линии и требуемую длинну, возвращает координаты второй точки линии с учетом заданной длинны
+    
+    #if data:
+    dx = x1 - x2
+    dy = y1 - y2
+    if not ortoFlag and abs(dx) > min_e and  abs(dy) > min_e:#and x1 != x2 and y1 != y2:
+        dx0 = sqrt((data*data * dx*dx)/(dy*dy + dx*dx))
+        dy0 = dx0 * dy/dx
+        i = 1
+        if x1<x2:
+            i=-1
+        x2=x1 - i * dx0
+        y2=y1 - i * dy0
+    
+    else:
+        x2,y2 = ortho(x1, y1, x2, y2, data)
+        #c = self.orto(x1, y1, x2, y2)
+        #x2,y2 = self.ortoRes(x1, y1, x2, y2)
+        
+    return x2,y2
+
+def ortho(x1, y1, x2, y2, data):
+    i = 1
+    dx = x1 - x2
+    dy = y1 - y2
+    if abs(dx) > abs(dy):
+        if y1 > y2:
+            i =- 1
+        y2 = y1 + i * data
+    else:
+        if x1 > x2:
+            i =- 1
+        x2 = x1 + i * data
+        
+    return x2, y2
+
+

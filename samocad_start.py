@@ -122,7 +122,7 @@ class Graphics:
         self.trace_obj_flag = False
         self.snap_flag = True
 
-        #self.ortoFlag=False #Если True - значит орто вкл
+        self.ortoFlag=False #Если True - значит орто вкл
         self.trace_on = False
         self.trace_obj_on = False
         #self.tracingFlag = True
@@ -304,6 +304,16 @@ class Graphics:
     def action(self, object_class):
         self.curent_class = object_class(self)
         #self.resFlag = True
+
+    def from_cmd(self, type_data):
+        data = self.cmd.GetValue()
+        try:
+            data = type_data(data)
+        except:
+            data = None
+        return data
+
+    
         
 
     def get_world_coords(self, e):
