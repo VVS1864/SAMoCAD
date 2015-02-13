@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 import src.sectors_alg as sectors_alg
+from base import Base
 from os import path
 import wx
 import copy
@@ -11,13 +12,16 @@ import calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_
 list_prop = ('color', 'width', 'layer', 'stipple', 'factor_stipple')
 #dp = {'fill':0, 'width', 'layer':0, 'stipple':0, 'factor_stipple':0}
 ### Действия создания линии ###
-class Line:
+class Line(Base):
     def __init__(self, par):
-        self.par = par
+        super(Line, self).__init__(par)
+        #self.par = par
         self.risLine()
         
     def risLine(self):
         self.par.kill()
+        super(Line, self).func_1(Line, self.line, 'Line - point 1:', 'Enter - stop')
+        '''
         self.par.resFlag = True
         self.par.old_func = (self.par.action, Line)
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
@@ -25,23 +29,21 @@ class Line:
 
         self.par.info.SetValue('Line - point 1:')
         self.par.info2.SetValue('Enter - stop')
+        '''
 
     def line(self, e):
-        #self.par.ex, self.par.ey = self.par.get_world_coords(e)
+        super(Line, self).func_2(self.line2)
+        '''
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
         self.par.c.Unbind(wx.EVT_MOTION)
         self.par.c.Bind(wx.EVT_LEFT_DOWN, self.line2)
         self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
-        #self.par.command.focus_set()
-        #self.par.set_coord()
+
         self.par.ex = self.par.x_priv
         self.par.ey = self.par.y_priv
-        #self.par.c.bind_class(self.par.c,"<1>", self.line2)
-        #self.par.c.bind_class(self.par.c,"<Shift-1>", self.line2_shift)
-        #self.par.dialog.config(text = u'Line - next point:')
         self.par.info.SetValue('Line - next point:')
-        #self.par.line_clone = True
-
+        '''
+    '''
     def dynamic(self, e):
         if not self.par.motion_flag:
             self.par.dynamic_data = []
@@ -49,7 +51,8 @@ class Line:
             self.line2()
         self.par.motion(e)
         e.Skip()
-
+    '''
+    '''
     def line2_shift(self, event):#Ести нажат Shift если не режим орто - чертится в режиме орто + ловит не точку привязки, а ее проекцию на ось, если режим орто - чертится как без орто
         #self.par.command.focus_set()
         #self.par.ex2 = self.par.priv_coord[0]
@@ -67,14 +70,27 @@ class Line:
         self.par.enumerator_p()
         self.par.com = None
         self.par.command.delete(0, 'end')
+    '''
 
     def line2(self, event = None):
+        kwargs = {
+            'par' : self.par,
+            'x1' : self.par.ex,
+            'y1' : self.par.ey,
+            'x2' : self.par.ex2,
+            'y2' : self.par.ey2,        
+            'width' : self.par.width,
+            'layer' : self.par.layer,
+            'color' : self.par.color,
+            'stipple' : self.par.stipple,
+            'factor_stipple' : self.par.factor_stipple,
+            'in_mass' : False,
+            'temp' : False,
+            }
+        super(Line, self).func_3(event, c_line, kwargs)
+        """
         self.par.ex2 = self.par.x_priv
         self.par.ey2 = self.par.y_priv
-        #self.par.ex2 = self.par.priv_coord[0]
-        #self.par.ey2 = self.par.priv_coord[1]
-        #self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
-        #self.par.ex2,self.par.ey2 = self.par.commer(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
         data = self.par.from_cmd(float)
         if data:
             self.par.ex2, self.par.ey2 = calc.cmd_coorder(
@@ -104,6 +120,7 @@ class Line:
             self.par.dynamic_color = []
             #self.par.command.focus_set()
             '''
+        '''
             c_line(
                 self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,
                 width = self.par.width,
@@ -129,6 +146,7 @@ class Line:
             ex = self.par.ex
             ey = self.par.ey
         #print temp
+        
         c_line(
             self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,
             width = self.par.width,
@@ -139,12 +157,18 @@ class Line:
             in_mass = False,
             temp = temp,
                )
-        self.par.ex = ex
-        self.par.ey = ey
+        """
+        if event:
+            self.par.ex = self.par.ex2
+            self.par.ey = self.par.ey2
+        
 
 ### Отрисовка линии ###
-def c_line(
-            par, x1, y1, x2, y2,
+def c_line(par,
+            x1,
+            y1,
+            x2,
+            y2,
             width,
             layer,
             color,
@@ -152,7 +176,8 @@ def c_line(
             factor_stipple,
             in_mass,
             temp = False,
-            ):
+           ):
+
     #print x1, y1, x2, y2
     #if factor_stipple == None:
         #factor_stipple = par.factor_stipple

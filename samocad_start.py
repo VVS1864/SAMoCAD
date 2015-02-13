@@ -15,16 +15,12 @@ import time as t
 import wx
 from random import random, randint, uniform
 import copy
-import ctypes #import #sizeof, c_float, c_void_p, c_uint
 import os
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from OpenGL.GL.ARB.vertex_buffer_object import *
-
-#mouse_x = 0
-#mouse_y = 0       
+from OpenGL.GL.ARB.vertex_buffer_object import *      
     
 class Graphics:
     def __init__(self):
@@ -149,6 +145,7 @@ class Graphics:
         self.current_select = False #True если объект под курсором можно выбрать
         self.current_change = False #True если объект под курсором можно редактировать
         self.current = None #Текущий объект под курсором
+        self.temp = False #True, если работает "резиновость" - временное рисавание объекта
 
         self.func_collection = [] #Объекты из коллекции, над которыми уже было проведено действие
         self.collection = [] #Выделенные объекты
