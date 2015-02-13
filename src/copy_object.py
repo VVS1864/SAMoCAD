@@ -7,19 +7,30 @@ import src.sectors_alg as sectors_alg
 #import line as _line
 #import text_line, dimension, circle, arc
 #from move_object import mover
-class Copy_object:
+from base import Base
+class Copy_object(Base):
     def __init__(self, par):
-        self.par = par
+        #self.par = par
+        super(Copy_object, self).__init__(par)
         self.copyEvent()
         
     def copyEvent(self):
         if self.par.collection:
+            super(Copy_object, self).func_1(
+                Copy_object,
+                self.copyEvent2,
+                'Copy - base point:',
+                'Enter - stop'
+                )
+            self.par.amount_of_select()
+            '''
             self.par.resFlag = True
             self.par.old_func = (self.par.action, Copy_object)
             self.par.c.Unbind(wx.EVT_LEFT_DOWN)
             self.par.c.Bind(wx.EVT_LEFT_DOWN, self.copyEvent2)
             self.par.info.SetValue('Copy - base point:')
             self.par.amount_of_select()
+            '''
         else:
             self.par.kill()
             
@@ -27,6 +38,8 @@ class Copy_object:
             #self.par.info.config(text = u'Objects do not selected')
 
     def copyEvent2(self, event):
+        super(Copy_object, self).func_2(self.copyEvent3)
+        '''
         #self.par.dialog.config(text = u'Copy - insertion point:')
         self.par.info.SetValue('Copy - insertion point:')
         #self.par.command.focus_set()
@@ -42,6 +55,7 @@ class Copy_object:
         self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
         self.par.ex3, self.par.ey3 = self.par.ex, self.par.ey
         #self.par.copy_clone = True
+        '''
 
     def dynamic(self, e):
         if not self.par.motion_flag:
@@ -53,6 +67,19 @@ class Copy_object:
 
     def copyEvent3(self, event = None):
         t1 = time.time()
+        kwargs = {
+            'x1' : self.par.ex,
+            'y1' : self.par.ey,
+            'x2' : self.par.ex2,
+            'y2' : self.par.ey2,
+            'objects' : self.par.collection,
+            'par' : self.par,
+            'temp' : False,
+            }
+        #dx = self.par.ex2 - self.par.ex
+        #dy = self.par.ey2 - self.par.ey
+        super(Copy_object, self).func_3(event, copyer, kwargs)
+        """
         #self.par.ex2=self.par.priv_coord[0]
         #self.par.ey2=self.par.priv_coord[1]
         self.par.ex2 = self.par.x_priv
@@ -98,6 +125,7 @@ class Copy_object:
             #self.par.set_coord()
             self.par.ex3 = self.par.ex2
             self.par.ey3 = self.par.ey2
+            
             '''
             self.par.ex3, self.par.ey3 = self.par.coordinator(self.par.ex3, self.par.ey3)
             self.par.ex2,self.par.ey2 = self.par.commer(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
@@ -110,9 +138,11 @@ class Copy_object:
             self.par.ex3 = self.par.ex2
             self.par.ey3 = self.par.ey2
             self.par.set_coord()
-           '''
+            '''
+        """
     #Копирует объекты
-def copyer(objects, par, d, temp):
+def copyer(x1, y1, x2, y2, objects, par, temp):
+    d = (x2 - x1, y2 - y1)
     if not temp:
         start = par.total_N
         for content in objects:
