@@ -76,14 +76,15 @@ class Line:
         #self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
         #self.par.ex2,self.par.ey2 = self.par.commer(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
         data = self.par.from_cmd(float)
-        self.par.ex2, self.par.ey2 = calc.cmd_coorder(
-            self.par.ex,
-            self.par.ey,
-            self.par.ex2,
-            self.par.ey2,
-            data,
-            self.par.ortoFlag,
-            )
+        if data:
+            self.par.ex2, self.par.ey2 = calc.cmd_coorder(
+                self.par.ex,
+                self.par.ey,
+                self.par.ex2,
+                self.par.ey2,
+                data,
+                self.par.ortoFlag,
+                )
         #self.par.set_coord()
         
         if self.par.trace_flag or self.par.trace_obj_flag:
