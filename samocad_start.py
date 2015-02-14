@@ -217,7 +217,7 @@ class Graphics:
         print 'Create sectors', t.time() - t1
         t1 = t.time()
         
-        for i in xrange(800): #Количество вершин
+        for i in xrange(8000): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             x2,y2 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             line.c_line(
@@ -225,10 +225,10 @@ class Graphics:
                 width = self.width,
                 layer = self.layer,
                 color = self.color,
-                stipple = None,
-                factor_stipple = None,
-                #stipple = (1,1),
-                #factor_stipple = 10,
+                #stipple = None,
+                #factor_stipple = None,
+                stipple = (1,1),
+                factor_stipple = 10,
                 in_mass = True,
                         )
         

@@ -69,10 +69,6 @@ class Base(object):
             #self.par.command.delete(0, 'end')
         else:
             target_kwargs['temp'] = True
-            #ex = self.par.ex
-            #ey = self.par.ey
         target_kwargs['x2'] = self.par.ex2
         target_kwargs['y2'] = self.par.ey2
         target_c_func(**target_kwargs)
-        #self.par.ex = ex
-        #self.par.ey = ey

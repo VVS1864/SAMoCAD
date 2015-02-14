@@ -88,50 +88,8 @@ class Line(Base):
             'temp' : False,
             }
         super(Line, self).func_3(event, c_line, kwargs)
+        
         """
-        self.par.ex2 = self.par.x_priv
-        self.par.ey2 = self.par.y_priv
-        data = self.par.from_cmd(float)
-        if data:
-            self.par.ex2, self.par.ey2 = calc.cmd_coorder(
-                self.par.ex,
-                self.par.ey,
-                self.par.ex2,
-                self.par.ey2,
-                data,
-                self.par.ortoFlag,
-                )
-        #self.par.set_coord()
-        
-        if self.par.trace_flag or self.par.trace_obj_flag:
-            if self.par.trace_flag:
-                self.par.trace_on = True
-            #if self.par.tracing_obj_Flag:
-                #self.par.trace_obj_on = True
-            self.par.trace_x1, self.par.trace_y1 = self.par.ex, self.par.ey
-            self.par.trace_x2, self.par.trace_y2 = self.par.ex2, self.par.ey2
-        
-        #if self.par.ortoFlag == True and self.par.com == None:
-            #if len(self.par.find_privs) == 1:
-                #self.par.ex2,self.par.ey2=self.par.orto(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
-        if event:
-            temp = False
-            self.par.dynamic_data = []
-            self.par.dynamic_color = []
-            #self.par.command.focus_set()
-            '''
-        '''
-            c_line(
-                self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,
-                width = self.par.width,
-                layer = self.par.layer,
-                fill = self.par.color,
-                stipple = self.par.stipple,
-                factor_stipe = self.par.factor_stipe,
-                in_mass = False,
-                temp = False,
-                   )
-            '''
             #self.par.history_undo.append(('c_', self.par.Nline))
             ex = self.par.ex2
             ey = self.par.ey2
@@ -141,22 +99,6 @@ class Line(Base):
             #self.par.enumerator_p()
             #self.par.com = None
             #self.par.command.delete(0, 'end')
-        else:
-            temp = True
-            ex = self.par.ex
-            ey = self.par.ey
-        #print temp
-        
-        c_line(
-            self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,
-            width = self.par.width,
-            layer = self.par.layer,
-            color = self.par.color,
-            stipple = self.par.stipple,
-            factor_stipple = self.par.factor_stipple,
-            in_mass = False,
-            temp = temp,
-               )
         """
         if event:
             self.par.ex = self.par.ex2
@@ -164,7 +106,8 @@ class Line(Base):
         
 
 ### Отрисовка линии ###
-def c_line(par,
+def c_line(
+            par,
             x1,
             y1,
             x2,
@@ -181,7 +124,9 @@ def c_line(par,
     #print x1, y1, x2, y2
     #if factor_stipple == None:
         #factor_stipple = par.factor_stipple
-
+    if stipple:
+        dash = [x*factor_stipple for x in stipple]
+    '''
     if stipple:
         norm_stipple = False
         for i in par.stipples:
@@ -192,65 +137,40 @@ def c_line(par,
                     break
                 else:
                     factor_stipple = par.stipples[i][0]*stipple[0]
-                    #print factor_stip, stipple
+                    print factor_stip, stipple
                     stipple = [x/factor_stipple for x in stipple]
                     norm_stipple = True
         if not norm_stipple:
             stipple = None
         else:
             dash = [x*factor_stipple for x in stipple]
+    '''
     if not temp:
-        #width = int(width)
         par.total_N+=1
-        #id_dict = {}
-        #list_coords = []
-        #list_colors = []
-        #list_width = []
         
-        #if tip == 'norm':
         if not stipple:
-            
             lines = ((x1,y1,x2,y2),)
             par.pointdata.extend([x1,y1,x2,y2])
             par.colordata.extend(color * 2)
             par.IDs.append(par.total_N)
-            #list_width.extend(width)
-            
-            #tags = ('obj', par.Nline, 'sel'))
-            #id_dict[id] = ('line', 'priv', 'lin')
-            
+                        
         else:
-            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash = dash, color = color, width = width)
+            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
             if not lines:
-                
-            #id_dict.update(id)
-            ##id = par.c.create_line(x1,y1,x2,y2, width=3, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', par.Nline, 'sel'))
-            #id_dict[id] = ('line', 'priv', 'lin')
-            #else:
                 return
             else:
                 par.pointdata.extend(pointdata)
                 par.colordata.extend(colordata)
                 par.IDs.extend(IDs)
-        '''
-        elif tip == 'temp':
-            width = 1
-            layer = 'temp'
-            color = 'gray'
-            id = par.c.create_line(x1,y1,x2,y2,fill=fill,width=width,tags = ('obj', par.Nline, 'sel'))
-            id_dict = id_dict[id] = ('line', 'priv', 'temp')
-        '''
+       
         object_line = Object_line(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():
             if k in list_prop:
                 dict_prop[k] = v
-        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}
-        #points = #par.coordinator_to_global([x1, y1, x2, y2])
-        
+        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}        
         par.ALLOBJECT[par.total_N] = {
                                     'object':'line',
-                                    #'tags':id_dict,
                                     'class':object_line,
                                     'sectors':[],
                                     'coords': ([x1,y1,x2,y2],),
@@ -266,23 +186,17 @@ def c_line(par,
     else:
         if stipple == None:
             par.dynamic_data.extend([x1,y1,x2,y2])
-            par.dynamic_color.extend(color * 2)
-            
-            #par.c.create_line(x1,y1,x2,y2, fill=fill,width=width,tags = ('obj', 'temp'))
-            
+            par.dynamic_color.extend(color * 2)            
         else:
-            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash = dash, color = color, width = width)
-            #d_line(par, x1,y1,x2,y2, dash = dash, fill=fill,width=width,tags = ('obj', 'temp'))
-            
-            ##par.c.create_line(x1,y1,x2,y2, width=3, stipple = ('@'+path.join(par.appPath, 'res', '00.xbm')), tags = ('obj', 'temp'))
-
+            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
+            par.dynamic_data.extend(pointdata)
+            par.dynamic_color.extend(colordata)
 ### Отрисовка линии сложного типа ###    
 def stipple_line(par, x1,y1,x2,y2, dash, color, width):
     lines = []
     pointdata = []
     colordata = []
     IDs = []
-    #dash = map(par.coordinator2, dash)
     xm = min(x1, x2)
     ym = min(y1, y2)
     xb = max(x1, x2)
@@ -291,40 +205,58 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
     dy = y1 - y2
     d_dx = x1
     d_dy = y1
+    len_dash = len(dash)
+    try:
+        den_x = sqrt((dx*dx)/(dy*dy + dx*dx))
+        den_y = sqrt((dy*dy)/(dy*dy + dx*dx))
+    except ZeroDivisionError:
+        return [], [], [], []
+    i = 1
+    j = 1
+    if x1 < x2:
+        i =- 1
+    if y1 < y2:
+        j =- 1
     pos = 0
     one = 0
     while 1:
         pos+=1
-        if pos == len(dash)+1:
+        if pos == len_dash + 1:
             pos = 1
         d = dash[pos-1]
-        try:
-            dx0 = sqrt((d*d * dx*dx)/(dy*dy + dx*dx))
-        except ZeroDivisionError:
-            return None
-        if dy == 0:
-            dy0 = 0
-        elif dx == 0:
-            dy0 = d * copysign(1, dy)
-        else:
-            dy0 = dx0 * dy / dx
-        i = 1
-        if x1 < x2:
-            i =- 1
+        dx0 = d * den_x
+        dy0 = d * den_y
+        
         xi1 = d_dx
         yi1 = d_dy
         xi2 = xi1 - i * dx0
-        yi2 = yi1 - i * dy0
+        yi2 = yi1 - j * dy0
         d_dx = xi2
         d_dy = yi2
-        ex = [xi1, xi2]
-        ey = [yi1, yi2]
         cor = False
-        for u in ex:
+        
+        if xm > xi2:
+            xi2 = xm
+            cor = True
+        elif xi2 > xb:
+            xi2 = xb
+            cor = True
+        if ym > yi2:
+            yi2 = ym
+            cor = True
+        elif yi2 > yb:
+            yi2 = yb
+            cor = True
+            
+        #ex = [xi1, xi2]
+        #ey = [yi1, yi2]
+        
+        '''
+        for ind, u in enumerate(ex):
             if xm <= u <= xb:
                 pass
             else:
-                ind = ex.index(u)
+                #ind = ex.index(u)
                 del ex[ind]
                 if u < xm:
                     u = xm
@@ -332,11 +264,11 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
                     u = xb
                 ex.insert(ind, u)
                 cor = True
-        for u in ey:
+        for ind, u in enumerate(ey):
             if ym <= u <= yb:
                 pass
             else:
-                ind = ey.index(u)
+                #ind = ey.index(u)
                 del ey[ind]
                 if u < ym:
                     u = ym
@@ -344,24 +276,23 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
                     u = yb
                 ey.insert(ind, u)
                 cor = True
+        '''
 
-        if xm <= ex[1] <= xb and xm <= ex[0] <= xb and ym <= ey[1] <= yb and ym <= ey[0] <= yb:
-            if pos % 2 != 0:
-                lines.append([ex[0],ey[0],ex[1],ey[1]])
-                pointdata.extend([ex[0],ey[0],ex[1],ey[1]])
-                colordata.extend(color * 2)
-                if one:
-                    IDs.append(0)
-                else:
-                    IDs.append(par.total_N)
-                    one = 1
-                #id = par.c.create_line(ex[0],ey[0],ex[1],ey[1], fill=fill,width=width,tags=tags)
-                #id_dict[id] = ('line',)
-            if cor:
-                return lines, pointdata, colordata, IDs
-                
-        else:
+        #if xm <= xi2 <= xb and xm <= xi1 <= xb and ym <= xi2 <= yb and ym <= xi1 <= yb:
+        if pos % 2 != 0:
+            lines.append([xi1,yi1,xi2,yi2])
+            pointdata.extend([xi1,yi1,xi2,yi2])
+            colordata.extend(color * 2)
+            if one:
+                IDs.append(0)
+            else:
+                IDs.append(par.total_N)
+                one = 1
+        if cor:
             return lines, pointdata, colordata, IDs
+                
+        #else:
+            #return lines, pointdata, colordata, IDs
             
 
 class Object_line:
