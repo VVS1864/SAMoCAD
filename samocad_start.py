@@ -213,7 +213,7 @@ class Graphics:
         wx.EVT_PAINT(self.c, self.OnDraw) 
         wx.EVT_SIZE(self.c, self.OnSize)
         #self.interface.Bind(wx.EVT_CLOSE, self.destroy)
-        self.interface.cmd.Bind(wx.EVT_KEY_DOWN, self.key, self.interface.cmd)
+        
         self.interface.cmd.Bind(wx.EVT_KILL_FOCUS, self.focus_cmd, self.interface.cmd)
         #wx.EVT_KEY_DOWN(self.c, self.key)
         #События мыши
@@ -234,7 +234,7 @@ class Graphics:
         print 'Create sectors', t.time() - t1
         t1 = t.time()
         
-        for i in xrange(8): #Количество вершин
+        for i in xrange(800): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             x2,y2 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             line.c_line(
@@ -242,12 +242,13 @@ class Graphics:
                 width = self.width,
                 layer = self.layer,
                 color = self.color,
-                #stipple = None,
-                #factor_stipple = None,
-                stipple = (1,1),
-                factor_stipple = 10,
+                stipple = None,
+                factor_stipple = None,
+                #stipple = (1,1),
+                #factor_stipple = 10,
                 in_mass = True,
                         )
+        
         
         line.c_line(
             graf, 50, 50, 50, 300,
@@ -284,8 +285,11 @@ class Graphics:
     def standart_binds(self):
         self.c.Unbind(wx.EVT_LEFT_DOWN)
         self.c.Unbind(wx.EVT_MOTION)
+        self.interface.cmd.Unbind(wx.EVT_KEY_DOWN)
+        
         self.c.Bind(wx.EVT_LEFT_DOWN, self.left_mouse_event)
         self.c.Bind(wx.EVT_MOTION, self.motion)
+        self.interface.cmd.Bind(wx.EVT_KEY_DOWN, self.key)
 
 
     def standart_state(self):

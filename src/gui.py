@@ -2,6 +2,7 @@
 import src.line as line
 
 import src.copy_object as copy_object
+import src.mirror_object as mirror_object
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -167,6 +168,7 @@ class Window(wx.Frame):
         self.image_mir = wx.Image(os.path.join(appPath, 'res', 'mirror2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_mir = wx.BitmapButton(self, wx.NewId(), self.image_mir)
         self.sizer_buttons_right.Add(self.button_mir)
+        self.button_mir.Bind(wx.EVT_BUTTON, self.mirror)
 
         self.image_rot = wx.Image(os.path.join(appPath, 'res', 'rotate2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_rot = wx.BitmapButton(self, wx.NewId(), self.image_rot)
@@ -293,7 +295,10 @@ class Window(wx.Frame):
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def copy(self, e):
-        self.par.action(copy_object.Copy_object)
+        self.par.action(copy_object.Object)
+
+    def mirror(self, e):
+        self.par.action(mirror_object.Object)
     
 # ОБРАБОТЧИКИ МЕНЮ
     def OnOpen(self, e):

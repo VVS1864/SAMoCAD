@@ -15,62 +15,14 @@ list_prop = ('color', 'width', 'layer', 'stipple', 'factor_stipple')
 class Line(Base):
     def __init__(self, par):
         super(Line, self).__init__(par)
-        #self.par = par
         self.risLine()
         
     def risLine(self):
         self.par.kill()
         super(Line, self).func_1(Line, self.line, 'Line - point 1:', 'Enter - stop')
-        '''
-        self.par.resFlag = True
-        self.par.old_func = (self.par.action, Line)
-        self.par.c.Unbind(wx.EVT_LEFT_DOWN)
-        self.par.c.Bind(wx.EVT_LEFT_DOWN, self.line)
-
-        self.par.info.SetValue('Line - point 1:')
-        self.par.info2.SetValue('Enter - stop')
-        '''
 
     def line(self, e):
-        super(Line, self).func_2(self.line2)
-        '''
-        self.par.c.Unbind(wx.EVT_LEFT_DOWN)
-        self.par.c.Unbind(wx.EVT_MOTION)
-        self.par.c.Bind(wx.EVT_LEFT_DOWN, self.line2)
-        self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
-
-        self.par.ex = self.par.x_priv
-        self.par.ey = self.par.y_priv
-        self.par.info.SetValue('Line - next point:')
-        '''
-    '''
-    def dynamic(self, e):
-        if not self.par.motion_flag:
-            self.par.dynamic_data = []
-            self.par.dynamic_color = []
-            self.line2()
-        self.par.motion(e)
-        e.Skip()
-    '''
-    '''
-    def line2_shift(self, event):#Ести нажат Shift если не режим орто - чертится в режиме орто + ловит не точку привязки, а ее проекцию на ось, если режим орто - чертится как без орто
-        #self.par.command.focus_set()
-        #self.par.ex2 = self.par.priv_coord[0]
-        #self.par.ey2 = self.par.priv_coord[1]
-        self.par.ex2 = self.par.x_priv
-        self.par.ey2 = self.par.y_priv
-        #self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
-        #if self.par.ortoFlag == False:
-            #self.par.ex2,self.par.ey2 = self.par.orto(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
-        c_line(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2,fill='white',width=3)
-        self.par.ex = self.par.ex2
-        self.par.ey = self.par.ey2
-        self.par.set_coord()
-        self.par.changeFlag = True
-        self.par.enumerator_p()
-        self.par.com = None
-        self.par.command.delete(0, 'end')
-    '''
+        super(Line, self).func_2(self.line2, 'Line - next point:')
 
     def line2(self, event = None):
         kwargs = {
@@ -293,7 +245,6 @@ class Object_line:
             en = ' '
             for prop in SVG_prop.keys():
                 if cd[prop] != layer_prop[prop] and cd[prop]:   
-                    #cd[ SVG_prop[prop][0] ] = SVG_prop[prop][1]
                     SVG_style_list.append("%s: %s;" %(SVG_prop[prop][0], SVG_prop[prop][1]))
 
             if SVG_style_list:
@@ -390,33 +341,30 @@ class Object_line:
         c_line(self.par, x1i, y1i, x2i, y2i)
         
     ### Mirror methods ###   
-    def mirrorN(self, px1, py1, sin, cos):
-        cd = self.get_conf()
-        cd['coord'] = calc.mirror_lines(px1,py1, [cd['coord'],], sin, cos)[0]
-        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
-               cd['width'],
-               cd['layer'],
-               cd['color'],
-               cd['stipple'],
-               cd['factor_stipple'],
+    def mirror(self, x1, y1, sin, cos):
+        cd = self.par.ALLOBJECT[self.obj]
+        coord = list(cd['coords'][0])
+        coord = calc.mirror_lines(x1,y1, [coord,], sin, cos)[0]
+        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
+               width = cd['width'],
+               layer = cd['layer'],
+               color = cd['color'],
+               stipple = cd['stipple'],
+               factor_stipple = cd['factor_stipple'],
+               in_mass = True,
+               temp = False,
                )
 
-    def mirrorY(self, px1, py1, sin, cos):
-        find = self.par.ALLOBJECT[self.obj]['id']
-        for i in find:
-            coord = self.par.c.coords(i)
-            coord = tuple(calc.mirror_lines(px1,py1, [coord,], sin, cos)[0])
-            self.par.c.coords(i, coord)
-
-    def mirror_temp(self, px1, py1, sin, cos):
-        coord = self.get_coord()
-        coord = calc.mirror_lines(px1,py1, [coord,], sin, cos)[0]
+    def mirror_temp(self, x1, y1, sin, cos):
+        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
+        coord = calc.mirror_lines(x1,y1, [coord,], sin, cos)[0]
         c_line(self.par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
                layer = 't',
-               color = 'yellow',
+               color = [255, 255, 0],
                stipple = None,
                factor_stipple = None,
+               in_mass = True,
                temp = True,
                )
         
