@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import wx
-import Image, ImageDraw
+from PIL import Image, ImageDraw
+
 
 import reportlab
 from reportlab.lib.units import cm, mm
