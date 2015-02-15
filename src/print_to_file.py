@@ -41,7 +41,7 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
             for line in ALLOBJECT[i]['lines']:
                 x1 = ((line[0] - rect2[0])/scale)*mm
                 y1 = ((line[1] - rect2[1])/scale)*mm
-                x2 =( (line[2] - rect2[0])/scale)*mm
+                x2 = ((line[2] - rect2[0])/scale)*mm
                 y2 = ((line[3] - rect2[1])/scale)*mm
                 im.setLineWidth(width)
                 im.setStrokeColorRGB(*color)

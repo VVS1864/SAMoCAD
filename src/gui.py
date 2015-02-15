@@ -4,6 +4,7 @@ import src.line as line
 import src.copy_object as copy_object
 
 import src.print_to_file as print_to_file
+import src.save_file as save_file
 
 import wx
 from wx.lib.masked import NumCtrl
@@ -29,6 +30,7 @@ class Window(wx.Frame):
         self.menubar = wx.MenuBar()
         menu = wx.Menu()
         self.open_p = menu.Append(wx.ID_OPEN, "&Open")
+        self.save_p = menu.Append(wx.ID_OPEN, "&Save as")
         self.print_p = menu.Append(wx.ID_PRINT, "&Print\tCtrl+P")
         #aboutItem = menu.Append(wx.ID_ABOUT,"About")
         self.exit_p = menu.Append(wx.ID_ANY,"&Exit")
@@ -36,6 +38,7 @@ class Window(wx.Frame):
         bar.Append(menu,"File")
         self.SetMenuBar(bar)
         self.Bind(wx.EVT_MENU, self.OnOpen, self.open_p)
+        self.Bind(wx.EVT_MENU, self.OnSave, self.save_p)
         self.Bind(wx.EVT_MENU, self.OnPrint, self.print_p)
         #self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
         self.Bind(wx.EVT_MENU, self.OnExit, self.exit_p)
@@ -52,6 +55,7 @@ class Window(wx.Frame):
         self.image_save = wx.Image(os.path.join(appPath, 'res', 'saveas.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_save = wx.BitmapButton(self, wx.NewId(), self.image_save)
         self.sizer_toolbar.Add(self.button_save)
+        self.button_save.Bind(wx.EVT_BUTTON, self.OnSave)
 
         self.image_open = wx.Image(os.path.join(appPath, 'res', 'open.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_open = wx.BitmapButton(self, wx.NewId(), self.image_open)
@@ -244,6 +248,7 @@ class Window(wx.Frame):
         #self.Layout()
 
 # ОБРАБОТЧИКИ ТУЛБАРА
+        
     def color(self, e):
         RGB = e.GetColour().Get()
         if RGB == (0, 0, 0):
@@ -304,7 +309,25 @@ class Window(wx.Frame):
             self.print_dialog.Hide()
             self.print_dialog_on = False
         #print_to_file.print_to(self.par)
- 
+
+    def OnSave(self, e):
+        head, tail = os.path.split(self.par.current_save_path)
+        self.file_dialog =  wx.FileDialog(self, "Save drawing", head, tail,
+                                    "SVG files (*.svg)|*.svg",
+                                    style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if self.file_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+        self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
+        self.par.current_file = self.par.current_save_path
+        save_file.Save_to_SVG(
+                            self.par.current_file,
+                            'svg',
+                            self.par.ALLOBJECT,
+                            self.par.layers,
+                            self.par.drawing_w,
+                            self.par.drawing_h,
+                            )
+        
     def OnAbout(self, e):
         pass
     

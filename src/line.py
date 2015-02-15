@@ -120,31 +120,12 @@ def c_line(
             in_mass,
             temp = False,
            ):
-
-    #print x1, y1, x2, y2
-    #if factor_stipple == None:
-        #factor_stipple = par.factor_stipple
+    
     if stipple:
         dash = [x*factor_stipple for x in stipple]
-    '''
-    if stipple:
-        norm_stipple = False
-        for i in par.stipples:
-            if par.stipples[i] == tuple(stipple):
-                norm_stipple = True
-            if par.stipples[i] and len(par.stipples[i]) == len(stipple):
-                if norm_stipple:
-                    break
-                else:
-                    factor_stipple = par.stipples[i][0]*stipple[0]
-                    print factor_stip, stipple
-                    stipple = [x/factor_stipple for x in stipple]
-                    norm_stipple = True
-        if not norm_stipple:
-            stipple = None
-        else:
-            dash = [x*factor_stipple for x in stipple]
-    '''
+    else:
+        dash = None
+        
     if not temp:
         par.total_N+=1
         
@@ -191,6 +172,7 @@ def c_line(
             lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
             par.dynamic_data.extend(pointdata)
             par.dynamic_color.extend(colordata)
+            
 ### Отрисовка линии сложного типа ###    
 def stipple_line(par, x1,y1,x2,y2, dash, color, width):
     lines = []
@@ -247,38 +229,7 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
         elif yi2 > yb:
             yi2 = yb
             cor = True
-            
-        #ex = [xi1, xi2]
-        #ey = [yi1, yi2]
-        
-        '''
-        for ind, u in enumerate(ex):
-            if xm <= u <= xb:
-                pass
-            else:
-                #ind = ex.index(u)
-                del ex[ind]
-                if u < xm:
-                    u = xm
-                else:
-                    u = xb
-                ex.insert(ind, u)
-                cor = True
-        for ind, u in enumerate(ey):
-            if ym <= u <= yb:
-                pass
-            else:
-                #ind = ey.index(u)
-                del ey[ind]
-                if u < ym:
-                    u = ym
-                else:
-                    u = yb
-                ey.insert(ind, u)
-                cor = True
-        '''
 
-        #if xm <= xi2 <= xb and xm <= xi1 <= xb and ym <= xi2 <= yb and ym <= xi1 <= yb:
         if pos % 2 != 0:
             lines.append([xi1,yi1,xi2,yi2])
             pointdata.extend([xi1,yi1,xi2,yi2])
@@ -289,11 +240,7 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
                 IDs.append(par.total_N)
                 one = 1
         if cor:
-            return lines, pointdata, colordata, IDs
-                
-        #else:
-            #return lines, pointdata, colordata, IDs
-            
+            return lines, pointdata, colordata, IDs            
 
 class Object_line:
     def __init__(self, par, obj):
@@ -317,18 +264,48 @@ class Object_line:
         cd['temp'] = False
         self.create_object(cd)
         
-    ### Edit_prop method ###
-    def save(self, dxf):
-        cd = self.get_conf()
-        cd['x1'] = cd['coord'][0]
-        cd['y1'] = cd['coord'][1]
-        cd['x2'] = cd['coord'][2]
-        cd['y2'] = cd['coord'][3]
-        e = "self.c_line(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, width = %(width)s, stipple = %(stipple)s, color = '%(color)s', layer = %(layer)s)"
-        e = (e % cd)
-        if dxf:
-            cd['color'] = dxf_colorer(cd['color'])
-        return e, cd
+    ### Save method ###
+    def save(self, file_format, layers, drawing_w, drawing_h):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['x1'] = cd['coords'][0][0]
+        cd['y1'] = drawing_h - cd['coords'][0][1]
+        cd['x2'] = cd['coords'][0][2] 
+        cd['y2'] = drawing_h - cd['coords'][0][3]
+
+        if file_format == 'svg':
+            try:
+                dash_str = ', '.join([str(x*cd['factor_stipple']) for x in cd['stipple']])
+            except:
+                dash_str = None
+            color_rgb_str = 'rgb(' + ', '.join([str(x) for x in cd['color']]) + ')'
+
+                                               
+            # Перебрать свойства слоя объекта
+            SVG_prop = {
+                # cd_name : (SVG_name, cd_value)
+                'color' : ('stroke', color_rgb_str),
+                'width' : ('stroke-width', cd['width']),
+                'stipple' : ('stroke-dasharray', dash_str),
+                'factor_stipple' : ('stroke-dasharray', dash_str),
+                        }
+            layer_prop = layers[cd['layer']]
+            SVG_style_list = []
+            en = ' '
+            for prop in SVG_prop.keys():
+                if cd[prop] != layer_prop[prop] and cd[prop]:   
+                    #cd[ SVG_prop[prop][0] ] = SVG_prop[prop][1]
+                    SVG_style_list.append("%s: %s;" %(SVG_prop[prop][0], SVG_prop[prop][1]))
+
+            if SVG_style_list:
+                SVG_style_list.insert(0, '''style="''')
+                SVG_style_list.append('''"''')
+                en += ''.join(SVG_style_list)
+                
+            e = '''<line class="st0" x1="%(x1)s" y1="%(y1)s" x2="%(x2)s" y2="%(y2)s"''' + en + "/>"
+            e = (e % cd)
+            cd['svg_strings'] = [e,]
+            
+        return cd
             
     ### Edit_prop method ###
     def edit_prop(self, params):

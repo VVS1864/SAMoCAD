@@ -27,11 +27,16 @@ class Graphics:
        
         self.init = False
         self.scale_size = 1.5
+        
         self.vbo = None
         self.color_vbo = None
 
         self.vbo_col = None
         self.color_vbo_col = None
+
+        # Ширина и высота рабочей области
+        self.drawing_w = 10000.0
+        self.drawing_h = 10000.0
 
         self.ex = 0.0
         self.ey = 0.0
@@ -47,11 +52,22 @@ class Graphics:
 
         #переменные для отображениия
         self.zoomOLD = 0
+        
         self.layer = '1' #Текущий слой
         self.color = [255, 255, 255] #Текущий цвет
         self.width = 2 #Текущая толщина
         self.stipple = None
         self.factor_stipple = 200 #размер типа линий
+        self.layers = {
+            self.layer:{
+                'color':self.color,
+                'width':self.width,
+                'stipple':self.stipple,
+                'factor_stipple':self.factor_stipple,
+                },
+            }
+        print self.layers
+        
         self.select_color = [0, 255, 0] #Цвет выделяемых объектов
         self.priv_color = [0, 255, 255] #Цвет привязки
         self.back_color = 'black'
@@ -132,6 +148,7 @@ class Graphics:
         
         self.current_print_file = os.path.join(os.getcwd(), 'print_1')
         self.current_file = 'New draft'
+        self.current_save_path = os.path.join(os.getcwd(), self.current_file)
         
         self.s_dxf = False
         self.curent_class = None
@@ -158,10 +175,10 @@ class Graphics:
         self.history_undo = [] #Список событий
 
         self.drawing_rect_data = [
-            0.0, 0.0, 10000.0, 0.0,
-            0.0, 0.0, 0.0, 10000.0,
-            10000.0, 10000.0, 10000.0, 0.0,
-            10000.0, 10000.0, 0.0, 10000.0
+            0.0, 0.0, self.drawing_w, 0.0,
+            0.0, 0.0, 0.0, self.drawing_h,
+            self.drawing_w, self.drawing_h, self.drawing_w, 0.0,
+            self.drawing_w, self.drawing_h, 0.0, self.drawing_h
                                   ]
         self.drawing_rect_color = [255, 255, 255]*(len(self.drawing_rect_data)//2)
         self.pointdata = []
@@ -210,14 +227,14 @@ class Graphics:
         
         t1 = t.time()
         #Разбивка поля на сектора
-        for i in xrange(10000//self.q_scale):
-            for j in xrange(10000//self.q_scale):
+        for i in xrange(int(self.drawing_w//self.q_scale)):
+            for j in xrange(int(self.drawing_h//self.q_scale)):
                 c = str(i) +' '+ str(j)
                 self.sectors[c] = []
         print 'Create sectors', t.time() - t1
         t1 = t.time()
         
-        for i in xrange(8000): #Количество вершин
+        for i in xrange(8): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             x2,y2 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             line.c_line(
