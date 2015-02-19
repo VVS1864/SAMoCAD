@@ -66,6 +66,7 @@ class Graphics:
                 'factor_stipple':self.factor_stipple,
                 },
             }
+        self.default_layer = copy.copy(self.layers['1'])
         print self.layers
         
         self.select_color = [0, 255, 0] #Цвет выделяемых объектов
@@ -192,8 +193,8 @@ class Graphics:
         self.activIDs = set() #Массив активных ID (которые в активных секторах)
         self.activSectors = [] #Активные сектора
         self.IDs = []
-        self.q_scale = 200
-        self.sectors = {}
+        self.q_scale = 1000
+        
         
         self.trace_x1 = 0
         self.trace_y1 = 0
@@ -224,17 +225,10 @@ class Graphics:
         #self.c.Bind(wx.EVT_MOTION, self.motion)
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
         self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom)
-        
+        self.create_sectors()
+       
         t1 = t.time()
-        #Разбивка поля на сектора
-        for i in xrange(int(self.drawing_w//self.q_scale)):
-            for j in xrange(int(self.drawing_h//self.q_scale)):
-                c = str(i) +' '+ str(j)
-                self.sectors[c] = []
-        print 'Create sectors', t.time() - t1
-        t1 = t.time()
-        
-        for i in xrange(800): #Количество вершин
+        for i in xrange(1): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             x2,y2 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
             line.c_line(
@@ -278,6 +272,19 @@ class Graphics:
         
         print 'Create lines', t.time() - t1
         self.interface.Show(True)
+
+    def create_sectors(self):
+        t1 = t.time()
+        self.sectors = {}
+        #Разбивка поля на сектора
+        for i in xrange(int(self.drawing_w//self.q_scale)):
+            for j in xrange(int(self.drawing_h//self.q_scale)):
+                c = str(i) +' '+ str(j)
+                self.sectors[c] = []
+        print int(self.drawing_w//self.q_scale)
+        print int(self.drawing_h//self.q_scale)
+        print 'Create sectors', t.time() - t1
+        
 
     def focus_cmd(self, e):
         self.cmd.SetFocus()

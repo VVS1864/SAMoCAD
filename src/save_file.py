@@ -73,13 +73,12 @@ path,
 text {
   vector-effect: non-scaling-stroke;
 }
-.st0 {
+.st1 {
   fill: none;
   stroke: black;
   stroke-width: 2;
   }
 }
-.stt0 {}
 ]]></style>
 </defs>"""
         self.write_list.append(e)

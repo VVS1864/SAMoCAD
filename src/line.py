@@ -72,7 +72,8 @@ def c_line(
             in_mass,
             temp = False,
            ):
-    
+    if not (0 < x1 < par.drawing_w and 0 < y1 < par.drawing_h and 0 < x2 < par.drawing_w and 0 < y2 < par.drawing_h):
+        return
     if stipple:
         dash = [x*factor_stipple for x in stipple]
     else:
@@ -240,7 +241,11 @@ class Object_line:
                 'stipple' : ('stroke-dasharray', dash_str),
                 'factor_stipple' : ('stroke-dasharray', dash_str),
                         }
-            layer_prop = layers[cd['layer']]
+            try:
+                layer_prop = layers[cd['layer']]
+            except:
+                print layers
+                print cd['layer']
             SVG_style_list = []
             en = ' '
             for prop in SVG_prop.keys():
@@ -252,7 +257,7 @@ class Object_line:
                 SVG_style_list.append('''"''')
                 en += ''.join(SVG_style_list)
                 
-            e = '''<line class="st0" x1="%(x1)s" y1="%(y1)s" x2="%(x2)s" y2="%(y2)s"''' + en + "/>"
+            e = '''<line class="st1" x1="%(x1)s" y1="%(y1)s" x2="%(x2)s" y2="%(y2)s"''' + en + "/>"
             e = (e % cd)
             cd['svg_strings'] = [e,]
             

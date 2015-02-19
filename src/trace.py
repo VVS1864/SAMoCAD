@@ -5,6 +5,8 @@ import sectors_alg
 import clip
 
 def tracer(par, x1, y1, x2, y2, angle_s):
+    if not (0 < x1 < par.drawing_w and 0 < y1 < par.drawing_h and 0 < x2 < par.drawing_w and 0 < y2 < par.drawing_h):
+        return
     if 'trace' in par.ALLOBJECT:
         par.trace_data = []
         par.trace_color = []

@@ -6,6 +6,7 @@ import src.mirror_object as mirror_object
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
+import src.open_file as open_file
 
 import wx
 from wx.lib.masked import NumCtrl
@@ -31,7 +32,7 @@ class Window(wx.Frame):
         self.menubar = wx.MenuBar()
         menu = wx.Menu()
         self.open_p = menu.Append(wx.ID_OPEN, "&Open")
-        self.save_p = menu.Append(wx.ID_OPEN, "&Save as")
+        self.save_p = menu.Append(wx.ID_SAVEAS, "&Save as")
         self.print_p = menu.Append(wx.ID_PRINT, "&Print\tCtrl+P")
         #aboutItem = menu.Append(wx.ID_ABOUT,"About")
         self.exit_p = menu.Append(wx.ID_ANY,"&Exit")
@@ -61,6 +62,7 @@ class Window(wx.Frame):
         self.image_open = wx.Image(os.path.join(appPath, 'res', 'open.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_open = wx.BitmapButton(self, wx.NewId(), self.image_open)
         self.sizer_toolbar.Add(self.button_open)
+        self.button_open.Bind(wx.EVT_BUTTON, self.OnOpen)
         
         self.color_pick = wx.ColourPickerCtrl(self)
         self.color_pick.SetColour((255, 255, 255))
@@ -301,9 +303,6 @@ class Window(wx.Frame):
         self.par.action(mirror_object.Object)
     
 # ОБРАБОТЧИКИ МЕНЮ
-    def OnOpen(self, e):
-        pass
-
     def OnPrint(self, e):
         if not self.print_dialog:
             self.print_dialog = Print_dialog(self.par)
@@ -332,6 +331,18 @@ class Window(wx.Frame):
                             self.par.drawing_w,
                             self.par.drawing_h,
                             )
+
+    def OnOpen(self, e):
+        print 111
+        head, tail = os.path.split(self.par.current_save_path)
+        self.file_dialog =  wx.FileDialog(self, "Open drawing", head, tail,
+                                    "SVG files (*.svg)|*.svg",
+                                    style = wx.FD_OPEN)
+        if self.file_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+        self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
+        self.par.current_file = self.par.current_save_path
+        open_file.Open_from_SVG(self.par, self.par.current_file,'svg')
         
     def OnAbout(self, e):
         pass

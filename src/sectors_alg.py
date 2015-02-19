@@ -108,7 +108,10 @@ def quadric_mass(ALL, mass, sectors, q_scale):
 
             while True:
                 sector = str(int(x)) + ' ' + str(int(y))
+                #try:
                 sectors[sector].append(i)
+                #except:
+                    #print line
                 ALL[i]['sectors'].append(sector)
                 n -= 1
                 if n == 0:
