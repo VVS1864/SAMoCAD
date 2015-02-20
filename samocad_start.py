@@ -132,7 +132,7 @@ class Graphics:
         
         self.motion_flag = False #True - Если нажата ср. кн. мыши
         self.current_flag = True #True - если можно подсвечивать текущий объект под курсором
-        self.trace_flag = True
+        self.trace_flag = False
         self.trace_obj_flag = False
         self.snap_flag = True
 
