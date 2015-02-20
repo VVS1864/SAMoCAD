@@ -124,6 +124,7 @@ class Window(wx.Frame):
 
         #Создаем GLCanvas и запихиваем его в сайзер
         self.canvas = myGLCanvas(self)
+        self.canvas.SetMinSize((200, 200))
         self.sizer_canvas = wx.BoxSizer()       
         self.sizer_canvas.Add (self.canvas, 1, flag = wx.EXPAND)
 
@@ -246,10 +247,10 @@ class Window(wx.Frame):
         self.sizer_parent.Add(self.sizer_cmd, flag = wx.ALIGN_BOTTOM) #| wx.ALL, border = 4)
         self.sizer_parent.Add(self.sizer_flags, flag = wx.ALIGN_BOTTOM)
         
-        
+        self.SetAutoLayout(True)
         self.SetSizer(self.sizer_parent)
         
-        #self.Layout()
+        
 
 # ОБРАБОТЧИКИ ТУЛБАРА
         
@@ -353,13 +354,13 @@ class Window(wx.Frame):
 
 class myGLCanvas(GLCanvas):
     def __init__(self, parent):
-        GLCanvas.__init__(self, parent,-1, attribList=[])
+        GLCanvas.__init__(self, parent,-1)
+        self.init = False
         self.context = wx.glcanvas.GLContext(self)
         #курсор
         #self.cursor = wx.StockCursor(wx.CURSOR_CROSS)
-        self.cursor = wx.Cursor(os.path.join(appPath, 'res', 'cursor.png'), wx.BITMAP_TYPE_PNG, 64, 64)#wx.StockCursor(wx.CURSOR_POINT_LEFT)
-        self.SetCursor(self.cursor)
-
+        #self.cursor = wx.Cursor(os.path.join(appPath, 'res', 'cursor.png'), wx.BITMAP_TYPE_PNG, 64, 64)#wx.StockCursor(wx.CURSOR_POINT_LEFT)
+        #self.SetCursor(self.cursor)
 
 class Print_dialog(wx.Frame):
 

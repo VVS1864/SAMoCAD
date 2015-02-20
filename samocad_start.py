@@ -211,8 +211,9 @@ class Graphics:
         
         
     def initial(self):
+        wx.EVT_ERASE_BACKGROUND(self.c, self.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.OnDraw) 
-        wx.EVT_SIZE(self.c, self.OnSize)
+        
         #self.interface.Bind(wx.EVT_CLOSE, self.destroy)
         
         self.interface.cmd.Bind(wx.EVT_KILL_FOCUS, self.focus_cmd, self.interface.cmd)
@@ -272,6 +273,10 @@ class Graphics:
         
         print 'Create lines', t.time() - t1
         self.interface.Show(True)
+        wx.EVT_SIZE(self.c, self.OnSize)
+
+    def OnEraseBackground(self, event):
+        pass
 
     def create_sectors(self):
         t1 = t.time()
@@ -288,6 +293,8 @@ class Graphics:
 
     def focus_cmd(self, e):
         self.cmd.SetFocus()
+        e.Skip()
+        
 
     def standart_binds(self):
         self.c.Unbind(wx.EVT_LEFT_DOWN)
@@ -339,8 +346,6 @@ class Graphics:
         return data
 
     
-        
-
     def get_world_coords(self, e):
         x = e.GetX()
         y = e.GetY()
@@ -780,11 +785,10 @@ class Graphics:
             glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
 
     def OnDraw(self,event):
-        
-        self.c.SetCurrent()
-        if not self.init:
+        self.c.SetCurrent(self.c.context)
+        if not self.c.init:
             self.InitGL()
-            self.init = True
+            self.c.init = True
         
         
         glClear(GL_COLOR_BUFFER_BIT)                    # Очищаем экран и заливаем серым цветом
@@ -830,10 +834,11 @@ class Graphics:
         glDisableClientState(GL_VERTEX_ARRAY)           # Отключаем использование массива вершин
         glDisableClientState(GL_COLOR_ARRAY)            # Отключаем использование массива цветов
         #glutSwapBuffers() Не работает                  # Выводим все нарисованное в памяти на экран
-
-        glFinish()
+        self.c.SwapBuffers()
+        #glFinish()
             
     def InitGL(self): # Стандартная инициализация матриц
+        print 'starn init GL...'
         glClearColor(0, 0, 0, 0)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -853,7 +858,7 @@ class Graphics:
             self.GL_version = '3'
         else:
             self.GL_version = '1'
-
+        
         self.draw = self.draw_VBO
             
         if self.GL_version == '3':
@@ -883,7 +888,10 @@ class Graphics:
             
             #self.c_VBO()
         #else:
+        print 'end init GL'
+        print 'start init VBO...'
         self.vbo, self.color_vbo = self.c_VBO(self.pointdata, self.colordata)
+        print 'end init VBO'
             #from OpenGL.GL.ARB.vertex_buffer_object import *
 
     def destroy(self, event):
@@ -891,7 +899,7 @@ class Graphics:
             glDeleteBuffers(1, [self.vbo])
             glDeleteBuffers(1, [self.color_vbo])
         self.interface.Destroy()
-
+    
     def c_collection_VBO(self):
         if self.GL_version == '3':
             #if self.vbo_col: # Если уже есть - удалить
@@ -928,15 +936,10 @@ class Graphics:
             # 2 Параметр - указатель на массив colordata
             glBufferDataARB (GL_ARRAY_BUFFER_ARB, (GLubyte*len(self.collection_color))(*self.collection_color), GL_STATIC_DRAW_ARB)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
+    
         
     def c_VBO(self, pointdata, colordata):
-        if self.GL_version == '3':
-            #self.vbo_data = self.pointdata + self.collection_data
-            #self.vbo_color = self.colordata + self.collection_color
-            #if self.vbo: # Если уже есть - удалить
-                #glDeleteBuffers(1, [self.vbo])
-                #glDeleteBuffers(1, [self.color_vbo])
-            
+        if self.GL_version == '3':            
             ### Стандартная процедура создания VBO ###
             vbo = glGenBuffersARB(1)
             glBindBuffer (GL_ARRAY_BUFFER, vbo)
@@ -951,13 +954,7 @@ class Graphics:
             glBufferData (GL_ARRAY_BUFFER, (GLubyte*len(colordata))(*colordata), GL_STATIC_DRAW)
             glBindBuffer (GL_ARRAY_BUFFER, 0)
 
-        else:
-            #self.vbo_data = self.pointdata + self.collection_data
-            #self.vbo_color = self.colordata + self.collection_color
-            #if self.vbo: # Если уже есть - удалить
-                #glDeleteBuffers(1, [self.vbo])
-                #glDeleteBuffers(1, [self.color_vbo])
-            
+        else:            
             ### Стандартная процедура создания VBO ###
             vbo = glGenBuffersARB(1)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, vbo)
@@ -998,6 +995,7 @@ class Graphics:
         #Перерисовать
         self.c.Refresh()
         #self.c.Update()
+        event.Skip()
 
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
