@@ -249,6 +249,7 @@ class Window(wx.Frame):
         
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer_parent)
+
         
         
 
@@ -294,14 +295,18 @@ class Window(wx.Frame):
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def line(self, e):
+        print 222
         self.par.action(line.Line)
+        self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def copy(self, e):
         self.par.action(copy_object.Object)
+        self.par.focus_cmd()
 
     def mirror(self, e):
         self.par.action(mirror_object.Object)
+        self.par.focus_cmd()
     
 # ОБРАБОТЧИКИ МЕНЮ
     def OnPrint(self, e):

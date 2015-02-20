@@ -10,7 +10,11 @@ def motion(self, e):
 # Обработчик события движения курсора
     x = e.GetX()
     y = e.GetY()
-    size = glGetIntegerv(GL_VIEWPORT)
+    try:
+        size = glGetIntegerv(GL_VIEWPORT)
+    except:
+        print 'Error in motion event - GL Context not be created'
+        return
     y = size[3]-y
     xy = gluUnProject(x, y, 0)
     

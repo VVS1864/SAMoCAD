@@ -16,12 +16,13 @@ import wx
 from random import random, randint, uniform
 import copy
 import os
+import sys
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from OpenGL.GL.ARB.vertex_buffer_object import *      
-    
+from OpenGL.GL.ARB.vertex_buffer_object import *
+
 class Graphics:
     def __init__(self):
        
@@ -208,24 +209,21 @@ class Graphics:
         self.info2 = self.interface.info2
         self.cmd = self.interface.cmd
         self.cmd.SetFocus()
-        
-        
-    def initial(self):
+        #self.interface.Show(True)
         wx.EVT_ERASE_BACKGROUND(self.c, self.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.OnDraw) 
         
-        #self.interface.Bind(wx.EVT_CLOSE, self.destroy)
-        
-        self.interface.cmd.Bind(wx.EVT_KILL_FOCUS, self.focus_cmd, self.interface.cmd)
-        #wx.EVT_KEY_DOWN(self.c, self.key)
+    def initial(self):
         #События мыши
-        self.standart_binds()
         self.c.Bind(wx.EVT_MIDDLE_DOWN, self.move_on)
-        #self.c.Bind(wx.EVT_LEFT_DOWN, self.left_mouse_event)
         self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
-        #self.c.Bind(wx.EVT_MOTION, self.motion)
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
-        self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom)
+        
+        if 'linux' in sys.platform:
+            self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
+        else:
+            self.interface.cmd.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
+            
         self.create_sectors()
        
         t1 = t.time()
@@ -272,8 +270,11 @@ class Graphics:
         self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
         
         print 'Create lines', t.time() - t1
-        self.interface.Show(True)
+        
         wx.EVT_SIZE(self.c, self.OnSize)
+        print 333
+        self.standart_binds()
+        self.interface.Show(True)
 
     def OnEraseBackground(self, event):
         pass
@@ -291,9 +292,8 @@ class Graphics:
         print 'Create sectors', t.time() - t1
         
 
-    def focus_cmd(self, e):
-        self.cmd.SetFocus()
-        e.Skip()
+    def focus_cmd(self, e = None):
+        self.cmd.SetFocus()         
         
 
     def standart_binds(self):
@@ -346,21 +346,25 @@ class Graphics:
         return data
 
     
-    def get_world_coords(self, e):
-        x = e.GetX()
-        y = e.GetY()
+    def get_world_coords(self, x, y):
         size = glGetIntegerv(GL_VIEWPORT)  
         xy = gluUnProject(x, size[3]-y, 0)
 
         return xy[0], xy[1]
         
-
-    def zoom(self, e):
+    def zoom_event(self, e):
+        xy = wx.GetMousePosition()
         w = e.GetWheelRotation()
-        x, y = self.get_world_coords(e)
+        canvas_xy = self.c.GetScreenPosition() 
+        xy = (xy[0] - canvas_xy[0], xy[1] - canvas_xy[1])
+
+        self.zoom(xy, w)        
+        
+    def zoom(self, xy, w):
+        wx.GetMousePosition()
+        x, y = self.get_world_coords(xy[0], xy[1])
         xy1 = gluUnProject(1, 0, 0)
         xy2 = gluUnProject(0, 0, 0)
-        
         glTranslate(x, y, 0)
         if w < 0:
             glScalef(1.0/self.scale_size, 1.0/self.scale_size, 1.0/self.scale_size)
@@ -533,9 +537,12 @@ class Graphics:
         state = wx.GetMouseState()
         if state.ControlDown():
             self.back_collection()
+        self.focus_cmd()
 
     def left_mouse_event(self, e):
-        x, y = self.get_world_coords(e)
+        x = e.GetX()
+        y = e.GetY()
+        x, y = self.get_world_coords(x, y)
         state = wx.GetMouseState()
         #print self.resFlag
         if self.resFlag:
@@ -567,7 +574,8 @@ class Graphics:
                 self.rectx = x
                 self.recty = y
         self.standart_state()
-        e.Skip()
+        #e.Skip()
+        self.focus_cmd()
 
     def move_on(self, e):        
         self.motion_flag = True
@@ -979,7 +987,11 @@ class Graphics:
             width = event.GetSize().width
             height = event.GetSize().height
         #Запомнить модельную матрицу (все перемещения и зуммы)
-        glPushMatrix()
+        try:
+            glPushMatrix()
+        except:
+            print 'Error in OnSize - GL Context not be created'
+            return
         #Установить текущей проекционную матрицу
         glMatrixMode(GL_PROJECTION)
         #Отчистить ее
