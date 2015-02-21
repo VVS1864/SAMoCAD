@@ -312,33 +312,35 @@ class Object_line:
             cd['temp'] = True
         self.create_object(cd)
     
-    ### Rotate methods ###    
-    def rotateN(self, x0, y0, msin, mcos, angle):
-        cd = self.get_conf()
-        cd['coord'] = calc.rotate_lines(x0, y0, [cd['coord'],], msin = msin, mcos = mcos)[0]
-        cd['temp'] = True
-        self.create_object(cd)
-       
+    ### Rotate methods ###
+    def rotate(self, x0, y0, sin, cos, angle):
+        cd = self.par.ALLOBJECT[self.obj]
+        coord = list(cd['coords'][0])
+        coord = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
+        
+        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
+               width = cd['width'],
+               layer = cd['layer'],
+               color = cd['color'],
+               stipple = cd['stipple'],
+               factor_stipple = cd['factor_stipple'],
+               in_mass = True,
+               temp = False,
+               )
 
-    #def rotateY(self, x0, y0, msin, mcos, angle):
-        #find = self.par.ALLOBJECT[self.obj]['id']
-        #for i in find:
-            #coord = self.par.c.coords(i)
-            #coord = tuple(calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0])
-            #self.par.c.coords(i, coord)
-
-    def rotate_temp(self, x0, y0, msin, mcos, angle):
-        coord = self.get_coord()
-        coord = calc.rotate_lines(x0,y0, [coord,], msin = msin, mcos = mcos)[0]
+    def rotate_temp(self, x0, y0, sin, cos, angle):
+        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
+        coord = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
         c_line(self.par, coord[0], coord[1], coord[2], coord[3],
                width = 1,
                layer = 't',
-               color = 'yellow',
+               color = [255, 255, 0],
                stipple = None,
                factor_stipple = None,
+               in_mass = True,
                temp = True,
                )
-    
+            
     ### Offset method ###
     def offset(self, pd, x3, y3):
         c = self.get_coord()

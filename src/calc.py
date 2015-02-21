@@ -406,10 +406,10 @@ def calc_angle(x0, y0, px1, py1, px2, py2):
     d2 = sqrt(x2*x2 + y2*y2)
     try:
         a = acos((x1 * x2 + y1 * y2) / (d1 * d2))
-    except ValueError:
+    except:
         print 'bad angle! ', '(',x1, '*', x2, '+', y1, '*', y2, ') / (', d1, '*', d2,')'
         return None
-    if x1*y2-x2*y1<=0 :
+    if x1*y2 - x2*y1 <= 0:
         return a
     else:
         return -a
@@ -422,10 +422,10 @@ def rotateCalc(x0,y0,xold,yold,mcos,msin): #считает координаты 
     y += y0
     return x,y
 
-def rotate_lines(x, y, lines, angle = None, msin = None, mcos = None):
-    if angle != None:
-        msin = sin(angle)
-        mcos = cos(angle)
+def rotate_lines(x, y, lines, msin, mcos):
+    #if angle != None:
+        #msin = sin(angle)
+        #mcos = cos(angle)
     for i in lines:
         i[0],i[1] = rotateCalc(x,y,i[0],i[1],mcos,msin) #Пересчитать координаты певернутого
         i[2],i[3] = rotateCalc(x,y,i[2],i[3],mcos,msin)

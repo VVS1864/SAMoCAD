@@ -3,6 +3,7 @@ import src.line as line
 
 import src.copy_object as copy_object
 import src.mirror_object as mirror_object
+import src.rotate_object as rotate_object
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -176,6 +177,7 @@ class Window(wx.Frame):
         self.image_rot = wx.Image(os.path.join(appPath, 'res', 'rotate2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_rot = wx.BitmapButton(self, wx.NewId(), self.image_rot)
         self.sizer_buttons_right.Add(self.button_rot)
+        self.button_rot.Bind(wx.EVT_BUTTON, self.rotate)
 
         self.image_offset = wx.Image(os.path.join(appPath, 'res', 'offset2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_offset = wx.BitmapButton(self, wx.NewId(), self.image_offset)
@@ -306,6 +308,10 @@ class Window(wx.Frame):
 
     def mirror(self, e):
         self.par.action(mirror_object.Object)
+        self.par.focus_cmd()
+
+    def rotate(self, e):
+        self.par.action(rotate_object.Object)
         self.par.focus_cmd()
     
 # ОБРАБОТЧИКИ МЕНЮ

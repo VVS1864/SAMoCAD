@@ -91,8 +91,11 @@ text {
         self.write_list.append(e)
 
         f = open(file_name, 'w')
-        for i in self.write_list:                                        
-            f.writelines("%s\n" % i)
+        for i in self.write_list:
+            try:
+                f.writelines("%s\n" % i)
+            except:
+                print i, type(i)
         f.close()
         
         

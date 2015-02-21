@@ -29,24 +29,26 @@ class Base(object):
         self.target_func_2 = target_func
 
     def func_2_r(self, target_func, info):
-        self.par.focus_cmd()
         # для функций типа mirror\rotate
+        self.par.focus_cmd()
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
         self.par.c.Unbind(wx.EVT_MOTION)
         self.par.c.Bind(wx.EVT_LEFT_DOWN, target_func)
         self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
 
-        self.par.ex = self.par.x_priv
-        self.par.ey = self.par.y_priv
+        x = self.par.x_priv
+        y = self.par.y_priv
 
         self.par.info.SetValue(info)
         self.target_func_2 = target_func
+        return x, y
 
     def func_3_r(self):
-        self.par.focus_cmd()
         # для функций типа mirror\rotate
-        self.par.ex2 = self.par.x_priv
-        self.par.ey2 = self.par.y_priv
+        self.par.focus_cmd()
+        x = self.par.x_priv
+        y = self.par.y_priv
+        return x, y
 
     def Y_N(self, target_func, info):
         self.par.focus_cmd()
@@ -136,7 +138,7 @@ class Base(object):
             #self.par.command.delete(0, 'end')
         else:
             target_kwargs['temp'] = True
-        target_kwargs['x2'] = self.par.ex2
-        target_kwargs['y2'] = self.par.ey2
+        #target_kwargs['x2'] = self.par.ex2
+        #target_kwargs['y2'] = self.par.ey2
         target_c_func(**target_kwargs)
         
