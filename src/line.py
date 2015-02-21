@@ -22,7 +22,11 @@ class Line(Base):
         super(Line, self).func_1(Line, self.line, 'Line - point 1:', 'Enter - stop')
 
     def line(self, e):
-        super(Line, self).func_2(self.line2, 'Line - next point:')
+        self.par.ex, self.par.ey = super(Line, self).func_2(
+                                                            self.line2,
+                                                            'Line - next point:',
+                                                            True,
+                                                            )
 
     def line2(self, event = None):
         kwargs = {

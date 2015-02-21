@@ -2,6 +2,7 @@
 import src.line as line
 
 import src.copy_object as copy_object
+import src.move_object as move_object
 import src.mirror_object as mirror_object
 import src.rotate_object as rotate_object
 
@@ -21,6 +22,13 @@ class Window(wx.Frame):
         self.par = par
         self.print_dialog = None
         self.print_dialog_on = False
+
+        self.hot_keys_dict = {
+            'Z' : copy_object,
+            'X' : mirror_object,
+            'A' : move_object,
+            'S' : rotate_object,
+            }
         
         wx.Frame.__init__(self, parent, -1, title = title)
         #self.sizer_panel = wx.BoxSizer()
@@ -168,6 +176,7 @@ class Window(wx.Frame):
         self.image_move = wx.Image(os.path.join(appPath, 'res', 'move2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_move = wx.BitmapButton(self, wx.NewId(), self.image_move)
         self.sizer_buttons_right.Add(self.button_move)
+        self.button_move.Bind(wx.EVT_BUTTON, self.move)
 
         self.image_mir = wx.Image(os.path.join(appPath, 'res', 'mirror2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_mir = wx.BitmapButton(self, wx.NewId(), self.image_mir)
@@ -297,13 +306,16 @@ class Window(wx.Frame):
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def line(self, e):
-        print 222
         self.par.action(line.Line)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def copy(self, e):
         self.par.action(copy_object.Object)
+        self.par.focus_cmd()
+
+    def move(self, e):
+        self.par.action(move_object.Object)
         self.par.focus_cmd()
 
     def mirror(self, e):

@@ -7,14 +7,14 @@ from base import Base
 class Object(Base):
     def __init__(self, par):
         super(Object, self).__init__(par)
-        self.copyEvent()
+        self.moveEvent()
         
-    def copyEvent(self):
+    def moveEvent(self):
         if self.par.collection:
             super(Object, self).func_1(
                 Object,
-                self.copyEvent2,
-                'Copy - base point:',
+                self.moveEvent2,
+                'Move - base point:',
                 'Enter - stop'
                 )
             self.par.amount_of_select()
@@ -24,15 +24,15 @@ class Object(Base):
             
             self.par.info2.SetValue('Objects do not selected')
 
-    def copyEvent2(self, event):
+    def moveEvent2(self, event):
         self.par.ex, self.par.ey = super(Object, self).func_2(
-                                self.copyEvent3,
-                                'Copy - intersect point:',
+                                self.moveEvent3,
+                                'Move - intersect point:',
                                 True,
                                 )
         
 
-    def copyEvent3(self, event = None):
+    def moveEvent3(self, event = None):
         
         kwargs = {
             'x1' : self.par.ex,
@@ -44,11 +44,11 @@ class Object(Base):
             'temp' : False,
             }
         
-        super(Object, self).func_3(event, copyer, kwargs)
+        super(Object, self).func_3(event, mover, kwargs)
         
         
     #Копирует объекты
-def copyer(x1, y1, x2, y2, objects, par, temp):
+def mover(x1, y1, x2, y2, objects, par, temp):
     d = (x2 - x1, y2 - y1)
     if not temp:
         t1 = time.time()
@@ -57,9 +57,11 @@ def copyer(x1, y1, x2, y2, objects, par, temp):
             par.ALLOBJECT[content]['class'].copy(d)
         end = par.total_N
         par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
-        
+
+        par.delete_objects(objects, False)
         par.change_pointdata()
-        print 'copy ', len(par.collection), ' objects', time.time() - t1, 'sec'
+        print 'move ', len(par.collection), ' objects', time.time() - t1, 'sec'
+        par.kill()
     else:
         for content in objects:
             par.ALLOBJECT[content]['class'].copy_temp(d)

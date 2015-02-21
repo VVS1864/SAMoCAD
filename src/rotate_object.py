@@ -26,25 +26,18 @@ class Object(Base):
             self.par.info2.SetValue('Objects do not selected')
 
     def rotateEvent2(self, event):
-        self.par.info.SetValue('Rotate - point 1:')
-        self.par.ex = self.par.x_priv
-        self.par.ey = self.par.y_priv
-        self.par.c.Unbind(wx.EVT_LEFT_DOWN)
-        self.par.c.Bind(wx.EVT_LEFT_DOWN, self.rotateEvent3)
+        self.par.ex, self.par.ey = super(Object, self).func_2(
+                        self.rotateEvent3,
+                        'Rotate - point 2:',
+                        False,
+                        )
 
     def rotateEvent3(self, event):
-        self.par.ex2, self.par.ey2 = super(Object, self).func_2_r(
+        self.par.ex2, self.par.ey2 = super(Object, self).func_2(
                         self.rotateEvent4,
                         'Rotate - point 2:',
+                        True,
                         )
-        '''
-        self.par.info.SetValue('Rotate - point 2:')
-        self.par.ex = self.par.x_priv
-        self.par.ey = self.par.y_priv
-        self.par.c.Unbind(wx.EVT_LEFT_DOWN)
-        self.par.c.Bind(wx.EVT_LEFT_DOWN, self.rotateEvent3)
-        self.par.rotate_clone = True
-       '''
     
     def rotateEvent4(self, event = None):
         self.par.ex3, self.par.ey3 = super(Object, self).func_3_r()

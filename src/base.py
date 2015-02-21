@@ -15,19 +15,22 @@ class Base(object):
         self.par.info.SetValue(info)
         self.par.info2.SetValue(info2)
 
-    def func_2(self, target_func, info):
+    def func_2(self, target_func, info, dynamic):
         self.par.focus_cmd()
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
-        self.par.c.Unbind(wx.EVT_MOTION)
         self.par.c.Bind(wx.EVT_LEFT_DOWN, target_func)
-        self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
 
-        self.par.ex = self.par.x_priv
-        self.par.ey = self.par.y_priv
-
+        if dynamic:
+            self.par.c.Unbind(wx.EVT_MOTION)
+            self.par.c.Bind(wx.EVT_MOTION, self.dynamic)
+            self.target_func_2 = target_func
+            
+        x = self.par.x_priv
+        y = self.par.y_priv
         self.par.info.SetValue(info)
-        self.target_func_2 = target_func
-
+        
+        return x, y
+    '''
     def func_2_r(self, target_func, info):
         # для функций типа mirror\rotate
         self.par.focus_cmd()
@@ -42,6 +45,7 @@ class Base(object):
         self.par.info.SetValue(info)
         self.target_func_2 = target_func
         return x, y
+    '''
 
     def func_3_r(self):
         # для функций типа mirror\rotate

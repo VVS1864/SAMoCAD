@@ -25,9 +25,10 @@ class Object(Base):
             self.par.info2.SetValue('Objects do not selected')
 
     def mirrorEvent2(self, event):
-        self.par.ex, self.par.ey = super(Object, self).func_2_r(
+        self.par.ex, self.par.ey = super(Object, self).func_2(
                         self.mirrorEvent3,
                         'Mirror - point 2:',
+                        True,
                         )
 
     def mirrorEvent3(self, event = None):

@@ -211,7 +211,8 @@ class Graphics:
         self.cmd.SetFocus()
         #self.interface.Show(True)
         wx.EVT_ERASE_BACKGROUND(self.c, self.OnEraseBackground)
-        wx.EVT_PAINT(self.c, self.OnDraw) 
+        wx.EVT_PAINT(self.c, self.OnDraw)
+        
         
     def initial(self):
         #События мыши
@@ -241,7 +242,6 @@ class Graphics:
                 #factor_stipple = 10,
                 in_mass = True,
                         )
-        
         
         line.c_line(
             graf, 50, 50, 50, 300,
@@ -591,14 +591,21 @@ class Graphics:
         key =  e.GetKeyCode()
         if key == wx.WXK_ESCAPE:
             self.kill()
-        elif key == wx.WXK_DELETE and self.collection and not self.resFlag:
-            t1 = t.time()
-            self.delete_objects(self.collection)
-            self.change_pointdata()
-            t2 = t.time()
-            print 'delete ', len(self.collection), ' objects', t2-t1, 'sec'
-            self.collection = []
-            self.kill()
+        elif self.collection and not self.resFlag:
+            chr_key = chr(key)
+            if key == wx.WXK_DELETE:
+                t1 = t.time()
+                self.delete_objects(self.collection)
+                self.change_pointdata()
+                t2 = t.time()
+                print 'delete ', len(self.collection), ' objects', t2-t1, 'sec'
+                self.collection = []
+                self.kill()
+            
+            elif chr_key in self.interface.hot_keys_dict:
+                self.action(self.interface.hot_keys_dict[chr_key].Object)
+                self.focus_cmd()
+                
         elif key == wx.WXK_RETURN:
             if self.resFlag:
                 self.kill()
