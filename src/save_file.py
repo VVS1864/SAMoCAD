@@ -74,9 +74,10 @@ text {
   vector-effect: non-scaling-stroke;
 }
 .st1 {
-  fill: none;
+  fill: black;
   stroke: black;
   stroke-width: 2;
+  stroke-dasharray: none
   }
 }
 ]]></style>
@@ -97,5 +98,26 @@ text {
             except:
                 print i, type(i)
         f.close()
+
+def prop_to_svg_style(layers, cd, SVG_prop):
+    #Принимает словарь слоев из SVG, свойства объекта, словарь вида
+    # cd_name : (SVG_name, cd_value)
+    #Возвращает строку style="..." для вставки в SVG
+    try:
+        layer_prop = layers[cd['layer']]
+    except:
+        print layers
+        print cd['layer']
+    SVG_style_list = []
+    style_string = ' '
+    for prop in SVG_prop.keys():
+        if cd[prop] != layer_prop[prop] and cd[prop]:   
+            SVG_style_list.append("%s: %s;" %(SVG_prop[prop][0], SVG_prop[prop][1]))
+
+    if SVG_style_list:
+        SVG_style_list.insert(0, '''style="''')
+        SVG_style_list.append('''"''')
+        style_string += ''.join(SVG_style_list)
+    return style_string
         
         

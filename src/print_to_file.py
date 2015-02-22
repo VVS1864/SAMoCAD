@@ -37,8 +37,10 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
                 color = (0, 0, 0)
             else:
                 color = tuple(x*1.0/255.0 for x in ALLOBJECT[i]['color'])
-                        
-            width = ALLOBJECT[i]['width']/scale*mm
+            if 'width' in ALLOBJECT[i]:            
+                width = ALLOBJECT[i]['width']/scale*mm
+            else:
+                width = 1/scale*mm
             for line in ALLOBJECT[i]['lines']:
                 x1 = ((line[0] - rect2[0])/scale)*mm
                 y1 = ((line[1] - rect2[1])/scale)*mm

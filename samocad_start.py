@@ -132,9 +132,9 @@ class Graphics:
         
         self.motion_flag = False #True - Если нажата ср. кн. мыши
         self.current_flag = True #True - если можно подсвечивать текущий объект под курсором
-        self.trace_flag = False
-        self.trace_obj_flag = False
-        self.snap_flag = True
+        self.trace_flag = False #Трасировка off-on
+        self.trace_obj_flag = False #объектное отслеживание off-on
+        self.snap_flag = True #Привязка off-on
 
         self.ortoFlag=False #Если True - значит орто вкл
         self.trace_on = False
@@ -484,7 +484,20 @@ class Graphics:
         #Принимает прямоугольную область в мировых координатах, возвращает все примитивы, попадающие в нее
         self.activIDs = set()
         self.activSectors = []
+        for i, j in enumerate(rect):
+            if j < 0:
+                rect[i] = 0
+        if rect[0] > self.drawing_w:
+            rect[0] = self.drawing_w
+        if rect[2] > self.drawing_w:
+            rect[2] = self.drawing_w
+        if rect[1] > self.drawing_h:
+            rect[1] = self.drawing_h
+        if rect[3] > self.drawing_h:
+            rect[3] = self.drawing_h
+             
         
+                
         
         r1 = (int(rect[0]//self.q_scale),
               int(rect[1]//self.q_scale),

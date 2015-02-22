@@ -1,11 +1,12 @@
 # -*- coding: utf-8; -*-
 from math import sqrt, copysign
 import src.sectors_alg as sectors_alg
-from base import Base
+from src.base import Base
+import src.save_file as save_file
 from os import path
 import wx
 import copy
-import calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
+import src.calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
 #from object_object import Root_object 
 #from get_conf import get_line_conf
 #ЛИНИЯ
@@ -246,21 +247,8 @@ class Object_line:
                 'stipple' : ('stroke-dasharray', dash_str),
                 'factor_stipple' : ('stroke-dasharray', dash_str),
                         }
-            try:
-                layer_prop = layers[cd['layer']]
-            except:
-                print layers
-                print cd['layer']
-            SVG_style_list = []
-            en = ' '
-            for prop in SVG_prop.keys():
-                if cd[prop] != layer_prop[prop] and cd[prop]:   
-                    SVG_style_list.append("%s: %s;" %(SVG_prop[prop][0], SVG_prop[prop][1]))
-
-            if SVG_style_list:
-                SVG_style_list.insert(0, '''style="''')
-                SVG_style_list.append('''"''')
-                en += ''.join(SVG_style_list)
+            
+            en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
                 
             e = '''<line class="st1" x1="%(x1)s" y1="%(y1)s" x2="%(x2)s" y2="%(y2)s"''' + en + "/>"
             e = (e % cd)

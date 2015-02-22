@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 import symbols
 import src.sectors_alg as sectors_alg
+import src.save_file as save_file
 from math import sqrt, degrees#, sin, cos
 from os import path
 import wx
@@ -275,22 +276,9 @@ class Object_text:
                 #'stipple' : ('stroke-dasharray', dash_str),
                 #'factor_stipple' : ('stroke-dasharray', dash_str),
                         }
-            try:
-                layer_prop = layers[cd['layer']]
-            except:
-                print layers
-                print cd['layer']
             
-            for prop in SVG_prop.keys():
-                if cd[prop] != layer_prop[prop] and cd[prop]:   
-                    SVG_style_list.append("%s: %s;" %(SVG_prop[prop][0], SVG_prop[prop][1]))
-
-            if SVG_style_list:
-                SVG_style_list.insert(0, '''style="''')
-                SVG_style_list.append('''"''')
-                en += ''.join(SVG_style_list)
-                
-            e = '''<text class="stt0" x="%(x1)s" y="%(y1)s" font-size="%(text_size)spx" textLength="%(Ltext)s" lengthAdjust="spacingAndGlyphs"'''+en+'>%(text)s</text>'
+            en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
+            e = '''<text class="st1" x="%(x1)s" y="%(y1)s" font-size="%(text_size)spx" textLength="%(Ltext)s" lengthAdjust="spacingAndGlyphs"'''+en+'>%(text)s</text>'
             e = (e % cd)
             cd['svg_strings'] = [e,]
             

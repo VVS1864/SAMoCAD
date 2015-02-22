@@ -241,17 +241,26 @@ class Window(wx.Frame):
         self.sizer_cmd.Add(self.sizer_info)
 
         self.button_ortho = wx.Button(self, wx.NewId(), 'Ortho')
-        self.button_ortho.SetBackgroundColour("Blue")
-        self.button_ortho.SetForegroundColour("Red")
+        self.button_ortho.SetBackgroundColour("White")
+        self.button_ortho.SetForegroundColour("Black")
+        #self.button_ortho.SetBackgroundColour("Blue")
+        #self.button_ortho.SetForegroundColour("Red")
         self.sizer_flags.Add(self.button_ortho)
 
         self.button_trace = wx.Button(self, wx.NewId(), 'Trace')
+        self.button_trace.SetBackgroundColour("White")
+        self.button_trace.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_trace)
+        self.button_trace.Bind(wx.EVT_BUTTON, self.trace_off_on)
 
         self.button_trace_obj = wx.Button(self, wx.NewId(), 'Object trace')
+        self.button_trace_obj.SetBackgroundColour("White")
+        self.button_trace_obj.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_trace_obj)
 
         self.button_snap_N = wx.Button(self, wx.NewId(), 'Snap near')
+        self.button_snap_N.SetBackgroundColour("White")
+        self.button_snap_N.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_snap_N)
 
         # Собираем сайзеры в parent
@@ -264,8 +273,6 @@ class Window(wx.Frame):
         self.SetSizer(self.sizer_parent)
 
         
-        
-
 # ОБРАБОТЧИКИ ТУЛБАРА
         
     def color(self, e):
@@ -331,6 +338,18 @@ class Window(wx.Frame):
     def rotate(self, e):
         self.par.action(rotate_object.Object)
         self.par.focus_cmd()
+
+# ОБРАБОТЧИКИ КНОПОК СНИЗУ
+    def trace_off_on(self, e):
+        if self.par.trace_flag:
+            self.par.trace_flag = False
+            self.par.trace_on = False
+            self.par.trace_data = []
+            self.par.trace_color = []
+        else:
+            self.par.trace_flag = True
+
+        self.blue_reder(self.button_trace, self.par.trace_flag)
     
 # ОБРАБОТЧИКИ МЕНЮ
     def OnPrint(self, e):
@@ -380,6 +399,16 @@ class Window(wx.Frame):
        
     def OnExit(self, e):
         pass
+
+# Изменяет цвет кнопок снизу
+    def blue_reder(self, button, flag):
+        if flag:
+            button.SetBackgroundColour("Blue")
+            button.SetForegroundColour("Red")
+        else:
+            button.SetBackgroundColour("White")
+            button.SetForegroundColour("Black")
+    
 
 class myGLCanvas(GLCanvas):
     def __init__(self, parent):
