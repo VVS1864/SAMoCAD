@@ -415,7 +415,7 @@ def calc_angle(x0, y0, px1, py1, px2, py2):
         return -a
         
 
-def rotateCalc(x0,y0,xold,yold,mcos,msin): #считает координаты поворота
+def rotateCalc(x0, y0, xold, yold, mcos, msin): #считает координаты поворота
     x=(xold-x0)*mcos+(yold-y0)*msin
     y=-(xold-x0)*msin+(yold-y0)*mcos
     x += x0
@@ -423,9 +423,6 @@ def rotateCalc(x0,y0,xold,yold,mcos,msin): #считает координаты 
     return x,y
 
 def rotate_lines(x, y, lines, msin, mcos):
-    #if angle != None:
-        #msin = sin(angle)
-        #mcos = cos(angle)
     for i in lines:
         i[0],i[1] = rotateCalc(x,y,i[0],i[1],mcos,msin) #Пересчитать координаты певернутого
         i[2],i[3] = rotateCalc(x,y,i[2],i[3],mcos,msin)

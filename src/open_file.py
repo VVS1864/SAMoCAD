@@ -3,6 +3,7 @@ from math import pi, sqrt, radians, ceil
 import re
 from calc import min_distanse, intersection_stright
 import src.line as line
+import src.text_line as text_line
 import src.sectors_alg as sectors_alg
 import xml.etree.ElementTree as etree
 
@@ -49,6 +50,21 @@ class Open_from_SVG:
                             factor_stipple = obj['factor_stipple'],
                             in_mass = True,
                         )
+
+            if obj['object'] == 'text_line':
+                text_line.c_text(self.par, obj['x'], obj['y'],
+                    text = obj['text'],
+                    anchor = obj['anchor'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    angle = obj['angle'],
+                    text_size = obj['text_size'],
+                    text_s_s = obj['text_s_s'],
+                    text_w = obj['text_w'],
+                    text_font = obj['text_font'],
+                    in_mass = True,
+                    temp = False,
+                    )
 
         self.par.change_pointdata()
         self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
@@ -138,8 +154,112 @@ class Open_from_SVG:
                             name, value = self.proper(prop_n_v)
                             config[name] = value
 
-                
                 self.config_list.append(config)
+
+            elif tag == '{http://www.w3.org/2000/svg}text':
+                attrib = i.attrib
+                config['object'] = 'text_line'
+                config['x'] = float(attrib['x'])
+                config['y'] = self.par.drawing_h - float(attrib['y'])
+                
+                config['layer'] = attrib['class'][2:]
+
+                #from_style = self.styles_dict[config['layer']]
+                #config.update(from_style)
+                config['text'] = i.text
+                config['text_s_s'] = 1.3
+                config['text_size'] = attrib['font-size']
+                if 'px' in config['text_size']:
+                    config['text_size'] = float(config['text_size'][0:-2])
+                elif 'mm' in config['text_size']:
+                    config['text_size'] = float(config['text_size'][0:-2])
+                else:
+                    config['text_size'] = float(config['text_size'])
+
+                if 'transform' in attrib:
+                    re_rotate = re.compile('rotate\(([^",]+)[, ]+([^",]+)[, ]+([^",]+)\)')
+                    find_rotate = re_rotate.search(attrib['transform'])
+                    config['angle'] = radians(-float(find_rotate.groups()[0]))
+                else:
+                    config['angle'] = 0.0
+
+                config['anchor'] = 'sw'
+                config['text_w'] = 1
+                config['color'] = [255, 255, 255]
+                config['text_font'] = 'TXT'
+                self.config_list.append(config)
+                
+                '''
+                if 'style' in attrib:
+                    style_attrib = re_class.findall(attrib['style'])
+                    if style_attrib:
+                        for prop_n_v in style_attrib:
+                            name, value = self.proper(prop_n_v)
+                            config[name] = value
+
+                self.config_list.append(config)
+                '''
+
+
+                '''
+                config = {}
+                re_o = re.compile('x="([^," ]+)" y="([^," ]+)"')
+                config = self.prop_from_style(s, config)
+                coord = re_o.search(s).groups()
+                config['x'] = coord[0]
+                config['y'] = coord[1]
+                re_font_size = re.compile('font-size="([^="]+)"')
+                re_rotate = re.compile('transform="rotate\(([^",]+)[, ]+([^",]+)[, ]+([^",]+)\)"')
+                re_Ltext = re.compile('textLength="([^",]+)" lengthAdjust="spacingAndGlyphs"')
+                re_text = re.compile('<text.*>(.*)</text>')
+                find_size = re_font_size.search(s)
+                find_rotate = re_rotate.search(s)
+                find_text = re_text.search(s)
+                find_Ltext = re_Ltext.search(s)
+                config['text'] = find_text.groups()[0].decode('utf-8')
+                config['s_s'] = 1.3
+                if find_size:
+                    config['size'] = find_size.groups()[0]
+                    if 'px' in config['size']:
+                        config['size'] = -float(config['size'][0:-2])
+                    elif 'mm' in config['size']:
+                        ###
+                        config['size'] = -float(config['size'][0:-2])
+                    else:
+                        config['size'] = -float(config['size'])
+                if find_rotate:
+                    config['angle'] = radians(-float(find_rotate.groups()[0]))
+                else:
+                    config['angle'] = 0.0
+                if find_Ltext:
+                    Ltext = float(find_Ltext.groups()[0])
+                    print config['size']
+                    print len(config['text'])
+                    if len(config['text']) == 0:
+                        return
+                    config['s_s'] = (Ltext + -float(config['size'])/4.0)/(len(config['text'])*2.0*-float(config['size'])/4.0)                                                                     
+                                                                        
+                    
+                if config['angle'] == -0.0:
+                    config['angle'] = 0.0
+                ### Надо будет доделать
+                #config['s_s'] = 1.2
+                config['w_text'] = 1
+                ###
+                
+                e = "self.c_text(x = %(x)s, y = %(y)s, text = u'%(text)s', fill = '%(fill)s', angle = %(angle)s, size = %(size)s, anchor = 'sw', sloy = 1, s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simular TXT')"
+                e = (e % config)
+
+                self.command_list.append(e)
+                '''
+
+
+
+
+
+
+                
+                
         for i in self.config_list:
             if 'stipple' in i and i['stipple']:
                 stipple = i['stipple'][0]

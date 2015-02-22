@@ -79,17 +79,17 @@ class Graphics:
         self.dim_text_size = 350 #Текущий размер шрифта размеров (3.5 мм)
         self.size_simbol_p = 20 #Размер значка привязки
         self.anchor = 'sw' #Текущая привязка текста
-        self.font = 'Architectural'
-        self.s_s = 1.2 #Межбуквенное расстояние
-        self.w_text = 1 #Ширина буквы
+        self.text_font = 'TXT'#'Architectural'
+        self.text_s_s = 1.2 #Межбуквенное расстояние
+        self.text_w = 1 #Ширина буквы
         self.s = 50 #Переменная, определяющая пропорции в размерах
         self.arrow_s = 200
         self.vr_s = 200
         self.vv_s = 200
         self.type_arrow = 'Arch'
-        self.s_s_dim = 1.3
-        self.w_text_dim = 1
-        self.font_dim = 'Architectural'
+        self.dim_s_s = 1.3
+        self.dim_text_w = 1
+        self.dim_font = 'Architectural'
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
         self.angle_s = 15.0
         self.auto_save_step = 30 #Количество действий между автосохранениями
@@ -566,6 +566,7 @@ class Graphics:
                 
             elif self.current_select:
                 self.mass_collector([self.current,], select = select)
+                self.amount_of_select()
                 self.c.Refresh()
                 
             elif not self.current_change:
@@ -592,7 +593,10 @@ class Graphics:
         if key == wx.WXK_ESCAPE:
             self.kill()
         elif self.collection and not self.resFlag:
-            chr_key = chr(key)
+            try:
+                chr_key = chr(key)
+            except:
+                return
             if key == wx.WXK_DELETE:
                 t1 = t.time()
                 self.delete_objects(self.collection)
@@ -606,7 +610,7 @@ class Graphics:
                 self.action(self.interface.hot_keys_dict[chr_key].Object)
                 self.focus_cmd()
                 
-        elif key == wx.WXK_RETURN:
+        if key == wx.WXK_RETURN:
             if self.resFlag:
                 self.kill()
             else:

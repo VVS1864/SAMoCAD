@@ -122,13 +122,14 @@ def c_line(
             par.c.Update()
         
     else:
-        if stipple == None:
-            par.dynamic_data.extend([x1,y1,x2,y2])
-            par.dynamic_color.extend(color * 2)            
-        else:
-            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
-            par.dynamic_data.extend(pointdata)
-            par.dynamic_color.extend(colordata)
+        #if stipple == None:
+        par.dynamic_data.extend([x1,y1,x2,y2])
+        par.dynamic_color.extend(color * 2)
+            
+        #else:
+            #lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
+            #par.dynamic_data.extend(pointdata)
+            #par.dynamic_color.extend(colordata)
             
 ### Отрисовка линии сложного типа ###    
 def stipple_line(par, x1,y1,x2,y2, dash, color, width):
@@ -381,12 +382,11 @@ class Object_line:
         
     ### Copy method ###    
     def copy(self, d):
-        cd = self.par.ALLOBJECT[self.obj]#self.get_conf()
+        cd = self.par.ALLOBJECT[self.obj]
         x1 = cd['coords'][0][0] + d[0]
         y1 = cd['coords'][0][1] + d[1]
         x2 = cd['coords'][0][2] + d[0]
         y2 = cd['coords'][0][3] + d[1]
-        #cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
         c_line(self.par, x1, y1, x2, y2,
                width = cd['width'],
                layer = cd['layer'],

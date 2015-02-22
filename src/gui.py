@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import src.line as line
+import src.text_line as text_line
 
 import src.copy_object as copy_object
 import src.move_object as move_object
@@ -164,6 +165,7 @@ class Window(wx.Frame):
         self.image_text = wx.Image(os.path.join(appPath, 'res', 'text2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_text = wx.BitmapButton(self, wx.NewId(), self.image_text)
         self.sizer_buttons_left.Add(self.button_text)
+        self.button_text.Bind(wx.EVT_BUTTON, self.text)
 
         #Правая колонка кнопок
         self.sizer_buttons_right = wx.BoxSizer(wx.VERTICAL)
@@ -307,6 +309,10 @@ class Window(wx.Frame):
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def line(self, e):
         self.par.action(line.Line)
+        self.par.focus_cmd()
+
+    def text(self, e):
+        self.par.action(text_line.Object)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА

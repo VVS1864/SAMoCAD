@@ -56,12 +56,15 @@ def mover(x1, y1, x2, y2, objects, par, temp):
         for content in objects:
             par.ALLOBJECT[content]['class'].copy(d)
         end = par.total_N
-        par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
+        new_objects = range(start+1, end+1)
+        par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
 
         par.delete_objects(objects, False)
         par.change_pointdata()
         print 'move ', len(par.collection), ' objects', time.time() - t1, 'sec'
         par.kill()
+        par.collectionBack = new_objects
+        
     else:
         for content in objects:
             par.ALLOBJECT[content]['class'].copy_temp(d)

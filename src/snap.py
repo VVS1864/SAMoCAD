@@ -12,7 +12,7 @@ def get_snap(x, y, snap_s, find, par):
     priv_coord_list = [] #Список координат приметивов с тегом привязки
     for i in find:#Перебрать список объектов
         
-        if par.ALLOBJECT[i]['object'] == 'line':
+        if par.ALLOBJECT[i]['object'] in ('line', 'text_line'):
             xy = par.ALLOBJECT[i]['coords'][0]
             a = sqrt((x-xy[0])**2 + (y-xy[1])**2)
             b = sqrt((x-xy[2])**2 + (y-xy[3])**2)
