@@ -4,6 +4,7 @@ from math import sqrt
 #ДАТЬ ТЕКУЩУЮ ПРИВЯЗКУ К ОБЪЕКТУ
 
 def get_snap(x, y, snap_s, find, par):
+    par.find_privs = []
     tip_p = None
     stopFlag = False
     #Приравнять возвращаемые координаты к тем, которые пришли

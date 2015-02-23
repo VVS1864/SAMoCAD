@@ -87,6 +87,8 @@ def motion(self, e):
                         x1,y1+r,x1+r,y1-r,
                         ])
                     self.snap = True
+                    #Объект можно изменять
+                    self.current_change = True 
                     self.snap_color.extend(self.priv_color * (len(self.snap_data)//2))
 
                 elif self.tip_p == 'X': #Если привязка к пересечению - нарисовать знак Х

@@ -10,6 +10,7 @@ import src.sectors_alg as sectors_alg
 import src.grab_object as grab_object
 import src.select_clone as select_clone
 import src.motion_event as motion_event
+import src.edit as edit
 
 import time as t
 import wx
@@ -461,11 +462,89 @@ class Graphics:
 
         self.collection = list(a)
         self.collection_data, self.collection_color = select_clone.select_clone(
-                                                            graf,
+                                                            self,
                                                             self.collection,
                                                             self.select_color,
                                                             )
         self.c_collection_VBO()
+
+    '''
+    def edit_collector(self, objects):
+        catch_dim = False #True, пока не попался размер
+        for i in objects:
+            if self.ALLOBJECT[i]['object'] == 'dim':
+                catch_dim = True
+    '''
+    def edit_collector(self, objects):
+        #Проверяет, какие объекты находятся в коллекции:
+        #если только размеры по линии - оставляет коллекцию неизменной,
+        #если есть другие объекты - оставляет в кол. только те, к которым есть привязка в данный момент
+
+        #delete_list = []#Список объектов из коллекции, к которым привязка нет
+        dim_list = []#Список размеров из коллекции
+        line_dim_edit = True #True - пока не попался НЕразмер
+        for i in objects:#Перебрать пришедшую коллекцию
+            #if content[0] == 'd':#Если объект == размер
+            if self.ALLOBJECT[i]['object'] == 'dim':
+                dim_list.append(i)#Добавить в список размеров
+            else:
+                line_dim_edit = False#Иначе неразмер попался
+        return objects
+        '''
+            undel_obj = False#Если False - убрать объект из коллекции
+            find  = self.ALLOBJECT[content]['id']#self.c.find_withtag(content)#Получить приметивы объекта
+            for i in find:#Перебрать их
+                if i in self.find_privs2:#Если приметив в списке приметивов - привязок
+                    undel_obj = True#Оставить объект в коллекции
+            if undel_obj == False:#Если не удалять - False
+                delete_list.append(content)#Добавить объект в список удаления
+                self.c.delete('C'+content)
+        map(lambda i: self.collection.remove(i), delete_list)#перебрать delete_list, удалить все его объекты из коллекции
+        '''
+        '''
+#!!! - определяет, по одной линии все размеры или нет.
+#Если да - можно радактировать всю размерную цепочку
+        if line_dim_edit == True:#Если ни одного НЕразмера не попалось
+            if len(dim_list) > 1:#Если количество размеров > 1
+                line3_list = []#Список первых координат размерных линий размеров
+                ort1 = None#ориентация первого размера
+                ort2 = None#То же второго
+                bFlag = False#Если False - то все размерные линии имеют одну общую координату (x или y) и лежат по одной линии
+                for i in dim_list:# Перебрать список размеров
+                    if dim_list.index(i) == 0:  #Если размер первый в списке
+                        ort1 = self.ALLOBJECT[i]['ort']#Присвоить его ориентацию первой переменной
+                    else:
+                        ort2 = self.ALLOBJECT[i]['ort']#Иначе второй
+                        if ort1 != ort2:#Если переменные не равны - Вылететь, коллекцию больше не изменять
+                            bFlag = True
+                            break
+                    line3 = self.get_snap_line(i)[2]#Взять размерную линию размера
+                    coord = self.c.coords(line3)#Взять координаты размерной линии
+                    line3_list.append(coord[0:2])#Добавить в список координат только 2 первые координаты
+                if bFlag == False:#Если Вылетания не произошло
+                    for ind, i in enumerate(line3_list):#Перебрать список координат
+                        if ort1 == 'vertical':#Если оринтация вертикальная
+                            if i == line3_list[-1]:#Если элемент последний в списке
+                                ii = -1#Второй элемент - взять предыдущий
+                            else:
+                                ii = 1#Иначе - последующий
+                            if i[1] != line3_list[ind + ii][1]:#Если координата y второго не равна y первого - Вылететь, коллекцию больше не изменять
+                                bFlag = True
+                                break
+                        else:
+                            if i == line3_list[-1]:
+                                ii = -1
+                            else:
+                                ii = 1
+                            if i[0] != line3_list[ind + ii][0]:#Если координата x второго не равна x первого - Вылететь, коллекцию больше не изменять
+                                bFlag = True
+                                break
+                    if bFlag == False:#Если вылетания и теперь не произошло
+                        self.collection = dim_list#Коллекция = списку размеров
+                        for i in self.collection:#Поменять цвет размеров
+                            self.c.delete('C'+i)
+                        select_clone.Select_clone(self.collection, graf)
+        '''
 
     def get_indexes(self, objects):
         begin_list = []
@@ -560,7 +639,7 @@ class Graphics:
         y = e.GetY()
         x, y = self.get_world_coords(x, y)
         state = wx.GetMouseState()
-        #print self.resFlag
+        print self.find_privs
         if self.resFlag:
             pass
         else:
@@ -569,6 +648,7 @@ class Graphics:
                 select = 'deselect'
             else:
                 select = 'select'
+                
             if self.rect:
                 self.rectx2 = x
                 self.recty2 = y
@@ -581,7 +661,6 @@ class Graphics:
                 self.c.Refresh()
                 
             elif self.current_select:
-                print 111
                 self.mass_collector([self.current,], select = select)
                 self.amount_of_select()
                 self.c.Refresh()
@@ -591,6 +670,9 @@ class Graphics:
                 self.rect = True
                 self.rectx = x
                 self.recty = y
+            elif self.current_change:
+                edit.Object(self)
+                
         self.standart_state()
         #e.Skip()
         self.focus_cmd()
@@ -657,7 +739,7 @@ class Graphics:
         self.c_collection_VBO()
         self.collectionBack = self.collection
         self.collection = []
-
+        
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()

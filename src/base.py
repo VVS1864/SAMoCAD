@@ -8,6 +8,7 @@ class Base(object):
     def func_1(self, target_class, target_func, info, info2):
         self.par.focus_cmd()
         self.par.resFlag = True
+        
         self.par.old_func = (self.par.action, target_class)
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
         self.par.c.Bind(wx.EVT_LEFT_DOWN, target_func)

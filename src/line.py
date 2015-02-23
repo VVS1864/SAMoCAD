@@ -296,9 +296,38 @@ class Object_line:
         return cNew
     
     ### Edit method ###
-    def edit(self, event):
-        cd = self.get_conf()
-        xn, yn, xf, yf = calc.near_far_point(cd['coord'], self.par.ex, self.par.ey)
+    def edit(self, x1, y1, x2, y2):
+        cd = self.par.ALLOBJECT[self.obj]
+        xn, yn, xf, yf = calc.near_far_point(cd['coords'][0], x1, y1)
+        xn = x2
+        yn = y2
+        c_line(self.par, xn, yn, xf, yf,
+               width = cd['width'],
+               layer = cd['layer'],
+               color = cd['color'],
+               stipple = cd['stipple'],
+               factor_stipple = cd['factor_stipple'],
+               in_mass = True,
+               temp = False,
+               )
+        
+
+    def edit_temp(self, x1, y1, x2, y2):
+        cd = self.par.ALLOBJECT[self.obj]
+        xn, yn, xf, yf = calc.near_far_point(cd['coords'][0], x1, y1)
+        xn = x2
+        yn = y2
+        c_line(self.par, xn, yn, xf, yf,
+               width = 1,
+               layer = 't',
+               color = [255, 255, 0],
+               stipple = None,
+               factor_stipple = None,
+               in_mass = True,
+               temp = True,
+               )
+        
+        '''
         cd['coord'][0] = xn
         cd['coord'][1] = yn
         cd['coord'][2] = xf
@@ -311,7 +340,10 @@ class Object_line:
             cd['temp'] = False
         else:
             cd['temp'] = True
-        self.create_object(cd)
+        '''
+        
+        
+        #self.create_object(cd)
     
     ### Rotate methods ###
     def rotate(self, x0, y0, sin, cos, angle):
