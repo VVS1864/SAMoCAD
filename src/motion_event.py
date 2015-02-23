@@ -28,6 +28,7 @@ def motion(self, e):
     rect[0], rect[1] = r1[0], r1[1]
     rect[2], rect[3] = r2[0], r2[1]
     
+    
     if self.motion_flag:
         # Навигвция по плану
         self.motion_plane(e)
@@ -41,7 +42,7 @@ def motion(self, e):
                 self.trace_x2 = x_w
                 self.trace_y2 = y_w
                 
-                trace.tracer(self, self.trace_x1, self.trace_y1, self.trace_x2, self.trace_y2, self.angle_s)
+                trace.tracer(self, self.trace_x1, self.trace_y1, self.trace_x2, self.trace_y2, self.angle_s, rect)
             #if self.trace_obj_on:
                 #trace_object.tracer_obj(graf, self.priv_coord[0], self.priv_coord[1], self.snap_s)
 

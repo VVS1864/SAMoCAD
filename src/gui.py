@@ -241,27 +241,32 @@ class Window(wx.Frame):
         self.sizer_cmd.Add(self.sizer_info)
 
         self.button_ortho = wx.Button(self, wx.NewId(), 'Ortho')
-        self.button_ortho.SetBackgroundColour("White")
-        self.button_ortho.SetForegroundColour("Black")
+        self.blue_reder(self.button_ortho, self.par.ortoFlag)
+        #self.button_ortho.SetBackgroundColour("White")
+        #self.button_ortho.SetForegroundColour("Black")
         #self.button_ortho.SetBackgroundColour("Blue")
         #self.button_ortho.SetForegroundColour("Red")
         self.sizer_flags.Add(self.button_ortho)
 
         self.button_trace = wx.Button(self, wx.NewId(), 'Trace')
-        self.button_trace.SetBackgroundColour("White")
-        self.button_trace.SetForegroundColour("Black")
+        self.blue_reder(self.button_trace, self.par.trace_flag)
+        #self.button_trace.SetBackgroundColour("White")
+        #self.button_trace.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_trace)
         self.button_trace.Bind(wx.EVT_BUTTON, self.trace_off_on)
 
         self.button_trace_obj = wx.Button(self, wx.NewId(), 'Object trace')
-        self.button_trace_obj.SetBackgroundColour("White")
-        self.button_trace_obj.SetForegroundColour("Black")
+        self.blue_reder(self.button_trace_obj, self.par.trace_obj_flag)
+        #self.button_trace_obj.SetBackgroundColour("White")
+        #self.button_trace_obj.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_trace_obj)
 
         self.button_snap_N = wx.Button(self, wx.NewId(), 'Snap near')
-        self.button_snap_N.SetBackgroundColour("White")
-        self.button_snap_N.SetForegroundColour("Black")
+        self.blue_reder(self.button_snap_N, self.par.snap_near)
+        #self.button_snap_N.SetBackgroundColour("White")
+        #self.button_snap_N.SetForegroundColour("Black")
         self.sizer_flags.Add(self.button_snap_N)
+        self.button_snap_N.Bind(wx.EVT_BUTTON, self.snap_N_off_on)
 
         # Собираем сайзеры в parent
         self.sizer_parent.Add(self.sizer_toolbar, flag = wx.ALIGN_TOP)
@@ -341,6 +346,7 @@ class Window(wx.Frame):
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ
     def trace_off_on(self, e):
+        self.par.focus_cmd()
         if self.par.trace_flag:
             self.par.trace_flag = False
             self.par.trace_on = False
@@ -350,6 +356,15 @@ class Window(wx.Frame):
             self.par.trace_flag = True
 
         self.blue_reder(self.button_trace, self.par.trace_flag)
+
+    def snap_N_off_on(self, e):
+        self.par.focus_cmd()
+        if self.par.snap_near:
+            self.par.snap_near = False    
+        else:
+            self.par.snap_near = True
+
+        self.blue_reder(self.button_snap_N, self.par.snap_near)
     
 # ОБРАБОТЧИКИ МЕНЮ
     def OnPrint(self, e):

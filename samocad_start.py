@@ -141,7 +141,7 @@ class Graphics:
         self.trace_obj_on = False
         #self.tracingFlag = True
         #self.tracing_obj_Flag = True
-        self.snap_near = True
+        self.snap_near = True #Привязка к ближайшей
         #self.lappingFlag = False #Если True - значит активен квадрат выделения
         self.resFlag = False #Если True - значит рисуем объекты
         #self.anchorFlag = False #Если True - режим выбора привязки текста
