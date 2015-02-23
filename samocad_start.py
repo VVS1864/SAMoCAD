@@ -691,12 +691,12 @@ class Graphics:
         key =  e.GetKeyCode()
         if key == wx.WXK_ESCAPE:
             self.kill()
-        elif self.collection and not self.resFlag:
+        elif not self.resFlag:
             try:
                 chr_key = chr(key)
             except:
                 return
-            if key == wx.WXK_DELETE:
+            if key == wx.WXK_DELETE and self.collection:
                 t1 = t.time()
                 self.delete_objects(self.collection)
                 self.change_pointdata()
@@ -706,7 +706,7 @@ class Graphics:
                 self.kill()
             
             elif chr_key in self.interface.hot_keys_dict:
-                self.action(self.interface.hot_keys_dict[chr_key].Object)
+                self.action(self.interface.hot_keys_dict[chr_key])
                 self.focus_cmd()
                 
         if key == wx.WXK_RETURN:

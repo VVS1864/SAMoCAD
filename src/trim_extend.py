@@ -5,6 +5,16 @@ import src.grab_object as grab_object
 import src.sectors_alg as sectors_alg
 import wx
 
+class Trim:
+    def __init__(self, par):
+        par.trim_extend = 'Trim'
+        c = Object(par)
+
+class Extend:
+    def __init__(self, par):
+        par.trim_extend = 'Extend'
+        c = Object(par)
+
 class Object:
     def __init__(self, par):
         self.par = par
@@ -12,6 +22,7 @@ class Object:
         
     def trimEvent1(self):
         #self.par.red_line = True
+        print 111
         self.par.focus_cmd()
         if self.par.collection and len(self.par.collection)==1:
             self.par.rline = self.par.collection[0]

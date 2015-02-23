@@ -26,10 +26,12 @@ class Window(wx.Frame):
         self.print_dialog_on = False
 
         self.hot_keys_dict = {
-            'Z' : copy_object,
-            'X' : mirror_object,
-            'A' : move_object,
-            'S' : rotate_object,
+            'Z' : copy_object.Object,
+            'X' : mirror_object.Object,
+            'A' : move_object.Object,
+            'S' : rotate_object.Object,
+            'Q' : trim_extend.Trim,
+            'W' : trim_extend.Extend,
             }
         
         wx.Frame.__init__(self, parent, -1, title = title)
@@ -348,13 +350,13 @@ class Window(wx.Frame):
         self.par.focus_cmd()
 
     def extend(self, e):
-        self.par.trim_extend = 'Extend'
-        self.par.action(trim_extend.Object)
+        #self.par.trim_extend = 'Extend'
+        self.par.action(trim_extend.Extend)
         self.par.focus_cmd()
         
     def trim(self, e):
-        self.par.trim_extend = 'Trim'
-        self.par.action(trim_extend.Object)
+        #self.par.trim_extend = 'Trim'
+        self.par.action(trim_extend.Trim)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ
