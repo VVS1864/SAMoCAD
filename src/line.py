@@ -6,7 +6,7 @@ import src.save_file as save_file
 from os import path
 import wx
 import copy
-import src.calc #import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
+import src.calc as calc#import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
 #from object_object import Root_object 
 #from get_conf import get_line_conf
 #ЛИНИЯ
@@ -272,18 +272,26 @@ class Object_line:
         return r_list
                    
     ### Trim method ###
-    def trim_extend(self, x, y, trim_extend):
-        cd = self.get_conf()
+    def trim_extend(self, x, y, x1, y1, x2, y2, trim_extend):
+        cd = self.par.ALLOBJECT[self.obj]
         if trim_extend == 'Trim':
-            self.par.c.delete('C'+self.obj)
-            cNew = calc.trim_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, x, y, cd['coord'])
+            #self.par.c.delete('C'+self.obj)
+            cNew = calc.trim_line(x1, y1, x2, y2, x, y, cd['coords'][0])
         else:
-            cNew = calc.extend_line(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, cd['coord'])
-            
+            cNew = calc.extend_line(x1, y1, x2, y2, cd['coords'][0])
+        print cNew
         if cNew:
-            self.par.delete(elements = (self.obj,))
-            cd['temp'] = False
-            self.create_object(cd)
+            print 'cut'
+            #self.par.delete_objects((self.obj,), False)
+            c_line(self.par, cNew[0], cNew[1], cNew[2], cNew[3],
+               width = cd['width'],
+               layer = cd['layer'],
+               color = cd['color'],
+               stipple = cd['stipple'],
+               factor_stipple = cd['factor_stipple'],
+               in_mass = True,
+               temp = False,
+               )
             
         return cNew
     
@@ -402,28 +410,3 @@ class Object_line:
                in_mass = True,
                temp = True,
                )
-    ### Get configure ###
-    #Принимает объект - линию, возвращает все его свойства
-    def get_conf(self):
-        cd = {}
-        for i in self.par.ALLOBJECT[self.obj]:
-            if i in list_prop:
-                cd[i] = self.par.ALLOBJECT[self.obj][i]
-        cd['class'] = self.par.ALLOBJECT[self.obj]['class']
-        cd['object'] = self.par.ALLOBJECT[self.obj]['object'] #Потом нужно будет удалить!!!
-        #for i in self.par.ALLOBJECT[self.obj]['id']:
-            #if 'line' in self.par.ALLOBJECT[self.obj]['id'][i] and 'priv' in self.par.ALLOBJECT[self.obj]['id'][i]:
-                #cd['coord'] = self.par.c.coords(i)
-        #points = list(self.par.ALLOBJECT[self.obj]['points'])
-        cd['coords'] = self.par.ALLOBJECT[self.obj]['coords']#self.par.coordinator_to_local(points)
-        #cd['coord'] = [cd['coord'][0][0], cd['coord'][0][1], cd['coord'][1][0], cd['coord'][1][1]]
-        return cd
-
-    #Принимает объект - линия, возвращает координаты
-    def get_coord(self):
-        points = list(self.par.ALLOBJECT[self.obj]['points'])
-        coord = self.par.coordinator_to_local(points)
-        #for i in self.par.ALLOBJECT[self.obj]['id']:
-            #if 'line' in self.par.ALLOBJECT[self.obj]['id'][i] and 'priv' in self.par.ALLOBJECT[self.obj]['id'][i]:
-                #coord = self.par.c.coords(i)
-        return coord

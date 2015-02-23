@@ -132,6 +132,7 @@ class Graphics:
         
         self.motion_flag = False #True - Если нажата ср. кн. мыши
         self.current_flag = True #True - если можно подсвечивать текущий объект под курсором
+        self.current_select_flag = True #True - если можно захватить/выкинуть текущий объект под курсором
         self.trace_flag = False #Трасировка off-on
         self.trace_obj_flag = False #объектное отслеживание off-on
         self.snap_flag = True #Привязка off-on
@@ -161,7 +162,7 @@ class Graphics:
         self.print_rect = [] #Область печати
         
         self.snap = None #None если нет захвата привязки
-        self.current_select = False #True если объект под курсором можно выбрать
+        self.current_select = False #True если объект под курсором и его можно выбрать
         self.current_change = False #True если объект под курсором можно редактировать
         self.current = None #Текущий объект под курсором
         self.temp = False #True, если работает "резиновость" - временное рисавание объекта
@@ -307,8 +308,10 @@ class Graphics:
 
 
     def standart_state(self):
-        self.clone_data = []
-        self.clone_color = []
+        #self.clone_data = []
+        #self.clone_color = []
+        self.red_line_data = []
+        self.red_line_color = []
         self.snap_data = []
         self.snap_color = []
         self.current_data = []
@@ -578,6 +581,7 @@ class Graphics:
                 self.c.Refresh()
                 
             elif self.current_select:
+                print 111
                 self.mass_collector([self.current,], select = select)
                 self.amount_of_select()
                 self.c.Refresh()
@@ -643,6 +647,8 @@ class Graphics:
         self.resFlag = False
         self.print_flag = False
         self.current_flag = True
+        self.current_select_flag = True
+        self.snap_flag = True
 
         self.standart_binds()
         self.standart_state()
@@ -833,12 +839,14 @@ class Graphics:
         tempdata = (
             self.current_data +
             self.snap_data +
-            self.drawing_rect_data
+            self.drawing_rect_data +
+            self.red_line_data
             )
         tempcolor = (
             self.current_color +
             self.snap_color +
-            self.drawing_rect_color
+            self.drawing_rect_color +
+            self.red_line_color
             )
         w_tempdata = (
             self.trace_data +

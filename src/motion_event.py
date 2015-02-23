@@ -27,7 +27,7 @@ def motion(self, e):
     r2 = gluUnProject(rect[2], rect[3], 0)
     rect[0], rect[1] = r1[0], r1[1]
     rect[2], rect[3] = r2[0], r2[1]
-    
+    self.x_priv, self.y_priv = x_w, y_w
     
     if self.motion_flag:
         # Навигвция по плану
@@ -128,9 +128,10 @@ def motion(self, e):
                                                         )
                         self.current_data.extend(clone_data)
                         self.current_color.extend(clone_color)
-                        self.current_select = True
+                        if self.current_select_flag == True:
+                            self.current_select = True
                         self.current = objects[0]
-
+                        #print self.current
                     else:
                         # Если ничего в области курсора
                         self.current = None           

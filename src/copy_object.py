@@ -59,6 +59,7 @@ def copyer(x1, y1, x2, y2, objects, par, temp):
         par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
         
         par.change_pointdata()
+        self.c.Refresh()
         print 'copy ', len(par.collection), ' objects', time.time() - t1, 'sec'
     else:
         for content in objects:

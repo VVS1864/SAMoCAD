@@ -322,6 +322,7 @@ def filet_point(xt1,yt1,xt2,yt2, xt3,yt3,xt4,yt4, R):
     return xc, yc, xe1, ye1, xe2, ye2, cord
 
 def trim_line(x1, y1, x2, y2, x, y, c):
+    #print 'calc', x1, y1, x2, y2, x, y, c
     xn, yn = intersection_stright(x1, y1, x2, y2, c[0], c[1], c[2], c[3])
     if  max(x1, x2) >= xn >= min(x1, x2) or max(y1, y2) >= yn >= min(y1, y2):
         pass

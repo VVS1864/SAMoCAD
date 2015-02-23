@@ -6,6 +6,7 @@ import src.copy_object as copy_object
 import src.move_object as move_object
 import src.mirror_object as mirror_object
 import src.rotate_object as rotate_object
+import src.trim_extend as trim_extend
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -205,10 +206,12 @@ class Window(wx.Frame):
         self.image_trim = wx.Image(os.path.join(appPath, 'res', 'trim2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_trim = wx.BitmapButton(self, wx.NewId(), self.image_trim)
         self.sizer_buttons_right.Add(self.button_trim)
+        self.button_trim.Bind(wx.EVT_BUTTON, self.trim)
 
         self.image_extend = wx.Image(os.path.join(appPath, 'res', 'extend2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_extend = wx.BitmapButton(self, wx.NewId(), self.image_extend)
         self.sizer_buttons_right.Add(self.button_extend)
+        self.button_extend.Bind(wx.EVT_BUTTON, self.extend)
 
         self.image_scale = wx.Image(os.path.join(appPath, 'res', 'scale.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_scale = wx.BitmapButton(self, wx.NewId(), self.image_scale)
@@ -342,6 +345,16 @@ class Window(wx.Frame):
 
     def rotate(self, e):
         self.par.action(rotate_object.Object)
+        self.par.focus_cmd()
+
+    def extend(self, e):
+        self.par.trim_extend = 'Extend'
+        self.par.action(trim_extend.Object)
+        self.par.focus_cmd()
+        
+    def trim(self, e):
+        self.par.trim_extend = 'Trim'
+        self.par.action(trim_extend.Object)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ
