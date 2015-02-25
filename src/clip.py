@@ -12,17 +12,17 @@ def simple(xBL, yBL, xTR, yTR, activIDs, ALL):#, x1, y1, x2, y2):
             y2 = line[3]
             
             if x1 > xTR and x2 > xTR:
-                break
+                continue
             if x1 < xBL and x2< xBL:
-                break
+                continue
             if y1 > yTR and y2 > yTR:
-                break
+                continue
             if y1 < yBL and y2< yBL:
-                break
+                continue
 
             if xBL < x1 < xTR and xBL < x2 < xTR and yBL < y1 < yTR and yBL < y2 < yTR:
                 objects.append(e)
-                break
+                continue
             
             c = x2*y1-x1*y2
             b = x1-x2
@@ -32,26 +32,26 @@ def simple(xBL, yBL, xTR, yTR, activIDs, ALL):#, x1, y1, x2, y2):
             r1 = a * xBL + b * yTR + c
             if not r1:
                 objects.append(e)
-                break
+                continue
             r2 = a * xBL + b * yBL+ c
             if not r2:
                 objects.append(e)
-                break
+                continue
             r3 = a * xTR + b * yTR+ c
             if not r3:
                 objects.append(e)
-                break
+                continue
             r4 = a * xTR + b * yBL + c
             if not r4:
                 objects.append(e)
-                break
+                continue
                 
                
             if (r1 < 0 and r2 < 0 and r3 < 0 and r4 < 0) or (r1 > 0 and r2 > 0 and r3 > 0 and r4 > 0):
-                break
+                continue
             else:
                 objects.append(e)
-                break
+                continue
 
     return objects
 
@@ -74,7 +74,7 @@ def enclosing(xBL, yBL, xTR, yTR, activIDs, ALL):
                 pass
             else:
                 r = 1
-                break
+                continue
         if not r:
             objects.append(e)
     return objects

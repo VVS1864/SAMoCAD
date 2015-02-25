@@ -6,11 +6,26 @@ import src.save_file as save_file
 from os import path
 import wx
 import copy
-import src.calc as calc#import mirrorCalc, mirror_lines, mirror_points, calc_angle, offset_line
-#from object_object import Root_object 
-#from get_conf import get_line_conf
+import src.calc as calc
+
 #ЛИНИЯ
-list_prop = ('color', 'width', 'layer', 'stipple', 'factor_stipple')
+list_prop = (
+    'color',
+    'width',
+    'layer',
+    'stipple',
+    'factor_stipple'
+    )
+
+temp_dict = {
+    'width' : 1,
+    'layer' : 't',
+    'color' : [255, 255, 0],
+    'stipple' : None,
+    'factor_stipple' : None,
+    'in_mass' : False,
+    'temp' : True,
+    }
 #dp = {'fill':0, 'width', 'layer':0, 'stipple':0, 'factor_stipple':0}
 ### Действия создания линии ###
 class Line(Base):
@@ -77,8 +92,11 @@ def c_line(
             in_mass,
             temp = False,
            ):
-    if not (0 < x1 < par.drawing_w and 0 < y1 < par.drawing_h and 0 < x2 < par.drawing_w and 0 < y2 < par.drawing_h):
-        return
+    if not (0 <= x1 <= par.drawing_w
+            and 0 <= y1 <= par.drawing_h
+            and 0 <= x2 <= par.drawing_w
+            and 0 <= y2 <= par.drawing_h):
+        return False
     if stipple:
         dash = [x*factor_stipple for x in stipple]
     else:
@@ -121,6 +139,7 @@ def c_line(
             par.change_pointdata()
             par.c.Refresh()              #Обновить картинку
             par.c.Update()
+        return True
         
     else:
         #if stipple == None:
@@ -207,14 +226,21 @@ class Object_line:
         self.obj = obj
 
     def create_object(self, cd):
-        c_line(self.par, cd['coord'][0], cd['coord'][1], cd['coord'][2], cd['coord'][3],
-               cd['width'],
-               cd['layer'],
-               cd['color'],
-               cd['stipple'],
-               cd['factor_stipple'],
-               temp = cd['temp'],
-                   )
+        cNew = c_line(
+            self.par,
+            cd['x1'],
+            cd['y1'],
+            cd['x2'],
+            cd['y2'],
+            width = cd['width'],
+            layer = cd['layer'],
+            color = cd['color'],
+            stipple = cd['stipple'],
+            factor_stipple = cd['factor_stipple'],
+            in_mass = cd['in_mass'],
+            temp = cd['temp'],
+               )
+        return cNew
         
     ### History_undo method ###
     def undo(self, cd, zoomOLDres, xynachres):
@@ -297,11 +323,15 @@ class Object_line:
     
     ### Edit method ###
     def edit(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj]
-        xn, yn, xf, yf = calc.near_far_point(cd['coords'][0], x1, y1)
-        xn = x2
-        yn = y2
-        c_line(self.par, xn, yn, xf, yf,
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
+        cd['x1'] = x2
+        cd['y1'] = y2
+        cd['temp'] = False
+        cd['in_mass'] = True
+        cNew = self.create_object(cd)
+        '''
+        cNew = c_line(self.par, xn, yn, xf, yf,
                width = cd['width'],
                layer = cd['layer'],
                color = cd['color'],
@@ -310,13 +340,18 @@ class Object_line:
                in_mass = True,
                temp = False,
                )
-        
+        '''
+        return cNew
 
     def edit_temp(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj]
-        xn, yn, xf, yf = calc.near_far_point(cd['coords'][0], x1, y1)
-        xn = x2
-        yn = y2
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd.update(temp_dict)
+        cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
+        cd['x1'] = x2
+        cd['y1'] = y2
+        #cd['in_mass'] = True
+        cNew = self.create_object(cd)
+        '''
         c_line(self.par, xn, yn, xf, yf,
                width = 1,
                layer = 't',
@@ -326,53 +361,25 @@ class Object_line:
                in_mass = True,
                temp = True,
                )
-        
+               
+        self.create_object(cd)
         '''
-        cd['coord'][0] = xn
-        cd['coord'][1] = yn
-        cd['coord'][2] = xf
-        cd['coord'][3] = yf
-        cd['coord'][0] = self.par.ex2
-        cd['coord'][1] = self.par.ey2
-        self.par.ex3 = xf
-        self.par.ey3 = yf
-        if event:
-            cd['temp'] = False
-        else:
-            cd['temp'] = True
-        '''
-        
-        
-        #self.create_object(cd)
     
     ### Rotate methods ###
     def rotate(self, x0, y0, sin, cos, angle):
-        cd = self.par.ALLOBJECT[self.obj]
+        cd = self.par.ALLOBJECT[self.obj].copy()
         coord = list(cd['coords'][0])
-        coord = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
-        
-        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
-               width = cd['width'],
-               layer = cd['layer'],
-               color = cd['color'],
-               stipple = cd['stipple'],
-               factor_stipple = cd['factor_stipple'],
-               in_mass = True,
-               temp = False,
-               )
+        [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
+        cd['in_mass'] = True
+        cd['temp'] = False
+        cNew = self.create_object(cd)
 
     def rotate_temp(self, x0, y0, sin, cos, angle):
-        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
-        coord = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
-        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
-               width = 1,
-               layer = 't',
-               color = [255, 255, 0],
-               stipple = None,
-               factor_stipple = None,
-               in_mass = True,
-               temp = True,
-               )
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        coord = list(cd['coords'][0])
+        [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.rotate_lines(x0, y0, [coord,], sin, cos)[0]
+        cd.update(temp_dict)
+        cNew = self.create_object(cd)
             
     ### Offset method ###
     def offset(self, pd, x3, y3):
@@ -382,9 +389,10 @@ class Object_line:
         
     ### Mirror methods ###   
     def mirror(self, x1, y1, sin, cos):
-        cd = self.par.ALLOBJECT[self.obj]
+        cd = self.par.ALLOBJECT[self.obj].copy()
         coord = list(cd['coords'][0])
-        coord = calc.mirror_lines(x1,y1, [coord,], sin, cos)[0]
+        [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.mirror_lines(x1, y1, [coord,], sin, cos)[0]
+        '''
         c_line(self.par, coord[0], coord[1], coord[2], coord[3],
                width = cd['width'],
                layer = cd['layer'],
@@ -394,8 +402,18 @@ class Object_line:
                in_mass = True,
                temp = False,
                )
+        '''
+        cd['in_mass'] = True
+        cd['temp'] = False
+        cNew = self.create_object(cd)
 
     def mirror_temp(self, x1, y1, sin, cos):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        coord = list(cd['coords'][0])
+        [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.mirror_lines(x1, y1, [coord,], sin, cos)[0]
+        cd.update(temp_dict)
+        cNew = self.create_object(cd)
+        '''
         coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
         coord = calc.mirror_lines(x1,y1, [coord,], sin, cos)[0]
         c_line(self.par, coord[0], coord[1], coord[2], coord[3],
@@ -407,14 +425,18 @@ class Object_line:
                in_mass = True,
                temp = True,
                )
-        
+        '''
     ### Copy method ###    
     def copy(self, d):
-        cd = self.par.ALLOBJECT[self.obj]
-        x1 = cd['coords'][0][0] + d[0]
-        y1 = cd['coords'][0][1] + d[1]
-        x2 = cd['coords'][0][2] + d[0]
-        y2 = cd['coords'][0][3] + d[1]
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['x1'] = cd['coords'][0][0] + d[0]
+        cd['y1'] = cd['coords'][0][1] + d[1]
+        cd['x2'] = cd['coords'][0][2] + d[0]
+        cd['y2'] = cd['coords'][0][3] + d[1]
+        cd['in_mass'] = True
+        cd['temp'] = False
+        cNew = self.create_object(cd)
+        '''
         c_line(self.par, x1, y1, x2, y2,
                width = cd['width'],
                layer = cd['layer'],
@@ -424,9 +446,21 @@ class Object_line:
                in_mass = True,
                temp = False,
                )
+        '''
         
         
     def copy_temp(self, d):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd.update(temp_dict)
+        cd['x1'] = cd['coords'][0][0] + d[0]
+        cd['y1'] = cd['coords'][0][1] + d[1]
+        cd['x2'] = cd['coords'][0][2] + d[0]
+        cd['y2'] = cd['coords'][0][3] + d[1]
+        
+        cNew = self.create_object(cd)
+
+
+        '''
         coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])#self.get_coord()
         x1 = coord[0] + d[0]
         y1 = coord[1] + d[1]
@@ -442,3 +476,4 @@ class Object_line:
                in_mass = True,
                temp = True,
                )
+        '''

@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-from math import ceil, degrees
+from math import ceil, degrees, sqrt
 import os
 class Base_save(object):
     # Базовый класс сохранения
@@ -98,6 +98,100 @@ text {
             except:
                 print i, type(i)
         f.close()
+
+def get_object_lines(cd, drawing_h, file_format):
+    lines_coord = {}        
+    for ind, i in enumerate(cd['coords']):
+        lines_coord.update({
+            'line_'+str(ind+1)+'_x1': i[0],
+            'line_'+str(ind+1)+'_y1': drawing_h - i[1],
+            'line_'+str(ind+1)+'_x2': i[2],
+            'line_'+str(ind+1)+'_y2': drawing_h - i[3]
+            })
+    print len(cd['arrow_lines'])
+    for ind, i in enumerate(cd['arrow_lines']):
+        print ind
+        lines_coord.update({
+            'arrow_'+str(ind+1)+'_x1': i[0],
+            'arrow_'+str(ind+1)+'_y1': drawing_h - i[1],
+            'arrow_'+str(ind+1)+'_x2': i[2],
+            'arrow_'+str(ind+1)+'_y2': drawing_h - i[3]
+            })
+
+    x1 = cd['coords'][3][0]
+    y1 = drawing_h - cd['coords'][3][1]
+    x2 = cd['coords'][3][2]
+    y2 = drawing_h - cd['coords'][3][3]
+    # Длинна текста
+    lines_coord['Ltext'] = sqrt((x1-x2)**2+(y1-y2)**2)
+    if file_format == 'dxf':
+        # Если DXF - берется центральная точка текста
+        #!!!
+        if cd['ort'] == "horizontal":
+            y = (y1+y2)/2.0
+            yy = y
+            x = cd['x3']#coord_list[2][0]
+            xx = x1 - cd['dim_text_size']/2.0
+        else:
+            x = (x1+x2)/2.0
+            xx = x
+            y = cd['y3']#coord_list[2][1]
+            yy = y1 - cd['dim_text_size']/2.0
+        #!!!
+    else:
+        # Иначе - нижняя  левая
+        x = x1
+        xx = x2
+        y = y1
+        yy = y2
+        
+    lines_coord.update({
+        'text_x': x,
+        'text_y': y,
+        'text_xx': xx,
+        'text_yy': yy
+        })
+    cd.update(lines_coord)
+
+    if cd['ort'] == "horizontal":
+        cd.update({
+            'arrow_point1_x': cd['x3'],
+            'arrow_point1_y': cd['y1'],
+            'arrow_point2_x': cd['x3'],
+            'arrow_point2_y': cd['y2']
+            })
+        cd.update({
+            'angle': 90.0,
+            'angle_arrow1': 90.0,
+            'angle_arrow2': 270.0
+            })
+        
+        if cd['type_arrow'] == 'Arrow':
+            cd.update({
+                'arrow_5_x': cd['x3'],
+                'arrow_5_y': lines_coord['arrow_1_y1'],
+                'arrow_6_x': cd['x3'],
+                'arrow_6_y': lines_coord['arrow_3_y1']
+                })
+    else:
+        cd.update({
+            'arrow_point1_x': cd['x1'],
+            'arrow_point1_y': cd['y3'],
+            'arrow_point2_x': cd['x2'],
+            'arrow_point2_y': cd['y3'],
+            'angle': 0.0,
+            'angle_arrow1': 180.0,
+            'angle_arrow2': 0.0
+            })
+        
+        if cd['type_arrow'] == 'Arrow':
+            cd.update({
+                'arrow_5_y': cd['y3'],   
+                'arrow_5_x': lines_coord['arrow_1_x1'],
+                'arrow_6_y': cd['y3'],
+                'arrow_6_x': lines_coord['arrow_3_x1']
+                })
+    return cd
 
 def prop_to_svg_style(layers, cd, SVG_prop):
     #Принимает словарь слоев из SVG, свойства объекта, словарь вида

@@ -8,6 +8,7 @@ class Base(object):
     def func_1(self, target_class, target_func, info, info2):
         self.par.focus_cmd()
         self.par.resFlag = True
+        self.par.current_flag = False
         
         self.par.old_func = (self.par.action, target_class)
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
@@ -79,11 +80,12 @@ class Base(object):
         return default           
 
     def dynamic(self, e):
+        self.par.motion(e)
         if not self.par.motion_flag:
             self.par.dynamic_data = []
             self.par.dynamic_color = []
             self.target_func_2()
-        self.par.motion(e)
+        #
         e.Skip()
 
     def func_3(self, event, target_c_func, target_kwargs):

@@ -429,10 +429,10 @@ def rotate_lines(x, y, lines, msin, mcos):
         i[2],i[3] = rotateCalc(x,y,i[2],i[3],mcos,msin)
     return lines
 
-def rotate_points(x, y, points, angle = None, msin = None, mcos = None):
-    if angle != None:
-        msin = sin(angle)
-        mcos = cos(angle)
+def rotate_points(x, y, points, msin, mcos):
+    #if angle != None:
+    #msin = sin(angle)
+    #mcos = cos(angle)
     for i in points:
         i[0],i[1] = rotateCalc(x,y,i[0],i[1],mcos,msin) #Пересчитать координаты певернутого
     return points
@@ -454,6 +454,14 @@ def mirror_points(x, y, points, msin, mcos):
     for i in points:
         i[0],i[1] = mirrorCalc(x,y,i[0],i[1],mcos,msin) #Пересчитать координаты певернутого
     return points
+
+def move_lines(x1, y1, x2, y2, lines):
+    dx = x2 - x1
+    dy = y2 - y1
+    for ind, line in enumerate(lines):
+        lines[ind] = [y+dx if indd%2 == 0 else y+dy for indd, y in enumerate(line)]
+
+    return lines
 
 def near_far_point(coord, ex, ey):
     d1 = sqrt((coord[0]-ex)**2 + (coord[1]-ey)**2)

@@ -17,13 +17,15 @@ class Object(Base):
         
     def editEvent(self):
         self.par.resFlag = True
+        self.par.current_flag = False
         if self.par.collection:
             #Если объекты выбраны, изменять их, если это возможно
             #objects = self.par.collection
             self.par.collection = self.par.edit_collector(self.par.collection)
         else:
             #Если объекты не выбраны - искать изменяемые в списке привязок
-            self.par.collection = self.par.find_privs
+            a = set(self.par.find_privs)
+            self.par.collection = list(a)
 
         
 
@@ -63,20 +65,24 @@ class Object(Base):
         self.par.ex2 = self.par.x_priv
         self.par.ey2 = self.par.y_priv
         if event:
-            del_list = []
+            del_objs = []
             start = self.par.total_N
             for content in self.par.collection:
-                self.par.ALLOBJECT[content]['class'].edit(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2)
+                cNew = None
+                if 'edit' in dir(self.par.ALLOBJECT[content]['class']):
+                    cNew = self.par.ALLOBJECT[content]['class'].edit(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2)
+                    if cNew:
+                        del_objs.append(content)
             end = self.par.total_N
-            self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(self.par.ALLOBJECT, range(start+1, end+1), self.par.sectors, self.par.q_scale)
-           
-            self.par.delete_objects(self.par.collection, False)
-                
-            self.par.change_pointdata()
+            if del_objs:
+                self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(self.par.ALLOBJECT, range(start+1, end+1), self.par.sectors, self.par.q_scale)
+                self.par.delete_objects(del_objs, False)
+                self.par.change_pointdata()
             self.par.kill()
         else:
             for content in self.par.collection:
-                self.par.ALLOBJECT[content]['class'].edit_temp(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2)
+                if 'edit_temp' in dir(self.par.ALLOBJECT[content]['class']):
+                    self.par.ALLOBJECT[content]['class'].edit_temp(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2)
              
 
 

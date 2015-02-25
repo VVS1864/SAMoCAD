@@ -19,6 +19,7 @@ import copy
 import os
 import sys
 
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -88,9 +89,9 @@ class Graphics:
         self.vr_s = 200
         self.vv_s = 200
         self.type_arrow = 'Arch'
-        self.dim_s_s = 1.3
+        self.dim_text_s_s = 1.3
         self.dim_text_w = 1
-        self.dim_font = 'Architectural'
+        self.dim_text_font = 'TXT'#'Architectural'
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
         self.angle_s = 15.0
         self.auto_save_step = 30 #Количество действий между автосохранениями
@@ -639,7 +640,6 @@ class Graphics:
         y = e.GetY()
         x, y = self.get_world_coords(x, y)
         state = wx.GetMouseState()
-        print self.find_privs
         if self.resFlag:
             pass
         else:

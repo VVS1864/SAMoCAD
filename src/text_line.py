@@ -262,7 +262,7 @@ class Object_text:
             en = ' '
             
             color_rgb_str = 'rgb(' + ', '.join([str(x) for x in cd['color']]) + ')'
-            cd['angle'] = degrees(-float(cd['angle']))
+            cd['angle'] = degrees(float(cd['angle']))
             text = cd['text']
             cd['text'] = text.encode("utf-8")
             cd['text_size'] = str(cd['text_size'])
@@ -277,7 +277,7 @@ class Object_text:
                 #'factor_stipple' : ('stroke-dasharray', dash_str),
                         }
             
-            en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
+            en += save_file.prop_to_svg_style(layers, cd, SVG_prop)
             e = '''<text class="st1" x="%(x1)s" y="%(y1)s" font-size="%(text_size)spx" textLength="%(Ltext)s" lengthAdjust="spacingAndGlyphs"'''+en+'>%(text)s</text>'
             e = (e % cd)
             cd['svg_strings'] = [e,]

@@ -124,8 +124,6 @@ class Object:
             x = (x1+x2)/2.0
             y = (y1+y2)/2.0
             #self.par.mass_collektor(c, 'select')
-            print '111', objects
-            print [x1, y1, x2, y2]
             
             if objects: #self.par.collection:
                 self.trim_extend(x, y, objects)
@@ -135,7 +133,6 @@ class Object:
                         
         else:
             el = self.par.current#self.par.get_obj(x, y)
-            print '111', self.par.current
             if el:
                 objects = [el,]
             #col = self.find_rline()
@@ -155,27 +152,35 @@ class Object:
         self.par.c.Refresh()
         
     def trim_extend(self, x, y, objects):
-        print objects
         del_objs = []
         start = self.par.total_N
         for el in objects:
-            #if el[0] == 'L':
-            cNew = self.par.ALLOBJECT[el]['class'].trim_extend(x, y, self.par.ex, self.par.ey, self.par.ex2, self.par.ey2, self.par.trim_extend)
-            if cNew:
-                del_objs.append(el)
+            cNew = None
+            if 'trim_extend' in dir(self.par.ALLOBJECT[el]['class']):
+                cNew = self.par.ALLOBJECT[el]['class'].trim_extend(
+                    x,
+                    y,
+                    self.par.ex,
+                    self.par.ey,
+                    self.par.ex2,
+                    self.par.ey2,
+                    self.par.trim_extend,
+                    )
+                if cNew:
+                    del_objs.append(el)
         end = self.par.total_N
         #if range(start+1, end+1):
-        if cNew:
+        if del_objs:#if cNew:
             self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
                 self.par.ALLOBJECT,
                 range(start+1, end+1),
                 self.par.sectors,
                 self.par.q_scale
                 )
-        if del_objs:
+        
             self.par.delete_objects(del_objs, False)
             
-        self.par.change_pointdata()
+            self.par.change_pointdata()
             
             
             
