@@ -512,4 +512,41 @@ def ortho(x1, y1, x2, y2, data):
         y2 = y1 + i * data
     return x2, y2
 
+def get_dim_direction(x1, y1, x2, y2, x3, y3):
+    #Определяет направление размера - вертикаль/горизонталь и право-лево (верх-низ)
+    #vertical right = 1
+    #vertical left = -1
+    #horizontal top = 1
+    #horizontal bottom = -1
+    x = max(x1, x2)
+    xm = min(x1, x2)
+    y = max(y1, y2)
+    ym = min(y1, y2)
+    xe_max = max(x3, x)
+    xe_min = min(x3, x)
+    ye_max = max(y3, y)
+    ye_min = min(y3, y)
+    if xe_max - xe_min > ye_max - ye_min:
+        ort = "horizontal"
+    else:
+        ort = "vertical"
+    if ym <= y3 <= y:
+        ort = "horizontal"
+    if xm <= x3 <= x:
+        ort = "vertical"
+
+    if ort == "vertical":
+        if y3 < y2:
+            derect = -1
+        else:
+            derect = 1
+    else:
+        if x3 < x2:
+            derect = -1
+        else:
+            derect = 1
+
+    return ort, derect
+    
+
 

@@ -103,6 +103,19 @@ class Dimension(Base):
         self.par.ey3 = self.par.y_priv
         data = self.par.from_cmd(float)
         if data:
+            kwargs['ort'], derect = calc.get_dim_direction(
+                self.par.ex,
+                self.par.ey,
+                self.par.ex2,
+                self.par.ey2,
+                self.par.ex3,
+                self.par.ey3,
+                )
+            if kwargs['ort'] == "vertical":  
+                self.par.ey3 = self.par.ey2 + data * derect
+            else:
+                self.par.ex3 = self.par.ex2 + data * derect
+            '''
             x = max(self.par.ex, self.par.ex2)
             xm = min(self.par.ex, self.par.ex2)
             y = max(self.par.ey, self.par.ey2)
@@ -127,6 +140,7 @@ class Dimension(Base):
                 if self.par.ex3 < self.par.ex2:
                     data = -data  
                 self.par.ex3 = self.par.ex2 + data
+            '''
                 
             '''
             if self.par.ex3 > self.par.ex2 and self.par.ex3 > self.par.ex:
@@ -322,10 +336,25 @@ def get_dim_lines(
 
     ddx = format(dx, '.0f')
     ddy = format(dy, '.0f')
+    '''
+    if y1 < y2:
+        xm = x1
+        ym = y1
+        x = x2
+        y = y2
+        
+    else:
+        xm = x2
+        ym = y2
+        x = x1
+        y = y1
+    '''
+    
     x = max(x1, x2)
     xm = min(x1, x2)
     y = max(y1, y2)
     ym = min(y1, y2)
+    
     if ort == None:
         xe_max = max(x3, x)
         xe_min = min(x3, x)
@@ -355,11 +384,23 @@ def get_dim_lines(
         angle = radians(90)
         msin = sin(angle)
         mcos = cos(angle)
-        [[x2,y2], [x3,y3], [text_place[0], text_place[1]]]  = calc.rotate_points(x1, y1, [[x2,y2], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
-        x = max(x1, x2)
-        xm = min(x1, x2)
-        y = max(y1, y2)
-        ym = min(y1, y2)
+        if y1 < y2:
+            xm = x1
+            ym = y1
+            x = x2
+            y = y2
+            
+        else:
+            xm = x2
+            ym = y2
+            x = x1
+            y = y1
+        [[x,y], [x3,y3], [text_place[0], text_place[1]]]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
+        #x = max(x1, x2)
+        #xm = min(x1, x2)
+        #y = #max(y1, y2)
+        #ym = #min(y1, y2)
+        
 
     else:
         if text:
@@ -367,8 +408,20 @@ def get_dim_lines(
         else:
             textt = ddx
 
-    dx = abs(x1-x2)
-    dy = abs(y1-y2)
+        if x1 < x2:
+            xm = x1
+            ym = y1
+            x = x2
+            y = y2
+            
+        else:
+            xm = x2
+            ym = y2
+            x = x1
+            y = y1
+
+    dx = abs(xm-x)
+    dy = abs(ym-y)
     #angle = 0
     #Выносные линии
     zvv_s = 1
@@ -376,18 +429,21 @@ def get_dim_lines(
         zvv_s = -1
 
 
-    list_lines.extend([[x1, y1, x1, y3+vv_s*zvv_s], [x2, y2, x2, y3+vv_s*zvv_s]])
+    list_lines.extend([[xm, ym, xm, y3+vv_s*zvv_s], [x, y, x, y3+vv_s*zvv_s]])
+    #list_lines.extend([[xm, ym, xm, y3+vv_s], [x, y, x, y3+vv_s]])
     #Размерная линия + текст(если задан, если нет - вкличина размера)
     # text_change :
     # 1 = 'unchange'
     # 2 = 'online3'
     # 3 = 'online3_m_l'
     if text_change == 1:
+
         text_place = [xm+dx/2.0,y3+s] 
     elif text_change == 2  or text_change == 3:
         text_place[1] = y3+s
     list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, False)
     if text_change == 2:
+
         e2 = list_text_lines.nabor[0][0]
         e3 = list_text_lines.nabor[0][2]
         if x < e3:
@@ -398,9 +454,11 @@ def get_dim_lines(
         line3 = [xm-vr_s,y3,x+vr_s,y3]
     i = 1
     if text_change == 1:
+
         e = list_text_lines.Ltext
         #Если текст не вмещается между выносными линиями - нарисовать сбоку
-        if e>dx-arrow_s: 
+        if e>dx-arrow_s:
+
             list_text_lines.nabor = calc.move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3+s, list_text_lines.nabor)
             e = list_text_lines.nabor[0][0]
             line3 = [x+arrow_s, y3, e, y3]
@@ -409,8 +467,8 @@ def get_dim_lines(
     list_lines.append(line3)       
     #Засечки
     if type_arrow == 'Arch':
-        L1 = [x2-arrow_s,y3+arrow_s,x2+arrow_s,y3-arrow_s]
-        L2 = [x1-arrow_s,y3+arrow_s,x1+arrow_s,y3-arrow_s]
+        L1 = [x-arrow_s,y3+arrow_s,x+arrow_s,y3-arrow_s]
+        L2 = [xm-arrow_s,y3+arrow_s,xm+arrow_s,y3-arrow_s]
         list_arrow.extend([L1, L2])
     elif type_arrow == 'Arrow':
         if dx < arrow_s*3.0:
@@ -423,9 +481,14 @@ def get_dim_lines(
 
     snap_text = list_text_lines.nabor[0]
     #xc = xm + dx/2.0
-    list_snap_lines = [[x1, y1, x1, y3],
-                       [x2, y2, x2, y3],
-                       [x1, y3, x2, y3],
+    #list_snap_lines = [[x1, y1, x1, y3],
+    #                   [x2, y2, x2, y3],
+    #                   [x1, y3, x2, y3],
+    #                   snap_text]
+    list_snap_lines = [[xm, ym, xm, y3],
+                       [x, y, x, y3],
+                       
+                       [xm, y3, x, y3],
                        snap_text]
     list_lines.extend(list_text_lines.nabor[1:])
     
@@ -437,9 +500,9 @@ def get_dim_lines(
         #mcos *= #cos(-angle)
         
         #list_text_lines.nabor = calc.rotate_lines(x1, y1, list_text_lines.nabor, msin, mcos)
-        list_arrow = calc.rotate_lines(x1, y1, list_arrow, msin, mcos)
-        list_lines = calc.rotate_lines(x1, y1, list_lines, msin, mcos)
-        list_snap_lines = calc.rotate_lines(x1, y1, list_snap_lines, msin, mcos)
+        list_arrow = calc.rotate_lines(xm, ym, list_arrow, msin, mcos)
+        list_lines = calc.rotate_lines(xm, ym, list_lines, msin, mcos)
+        list_snap_lines = calc.rotate_lines(xm, ym, list_snap_lines, msin, mcos)
     list_lines.extend(list_arrow)
     
     
@@ -500,7 +563,14 @@ class Object_dim:
                 cd['dim_distanse'] = int(format(abs(cd['x1'] - cd['x2']), '.0f'))
         else:
             cd['dim_distanse'] = cd['text']
-
+        ort, derect = calc.get_dim_direction(
+            cd['x1'],
+            cd['y1'],
+            cd['x2'],
+            cd['y2'],
+            cd['x3'],
+            cd['y3'],
+            )
         cd['y1'] = drawing_h - cd['y1']
         cd['y2'] = drawing_h - cd['y2']
         cd['y3'] = drawing_h - cd['y3']
@@ -598,7 +668,24 @@ class Object_dim:
                     })
         '''
         cd = save_file.get_object_lines(cd, drawing_h, file_format)
-        cd['angle'] = -cd['angle']#??
+        
+        if ort == "vertical":
+            print 'v'
+            cd['line_2_y2'] -= cd['vv_s']*derect
+            cd['line_1_y2'] -= cd['vv_s']*derect
+            
+            cd['line_3_x1'] -= cd['vr_s']
+            cd['line_3_x2'] += cd['vr_s']
+        else:
+            print 'h'
+            cd['line_2_x2'] += cd['vv_s']*derect
+            cd['line_1_x2'] += cd['vv_s']*derect
+            
+            cd['line_3_y1'] += cd['vr_s']
+            cd['line_3_y2'] -= cd['vr_s']
+            
+            #self.par.ex3 = self.par.ex2 + data * derect
+        cd['angle'] = -cd['angle']
         text = str(cd['dim_distanse'])
         cd['text'] = text.encode("utf-8")
         cd['dim_text_size'] = str(cd['dim_text_size'])

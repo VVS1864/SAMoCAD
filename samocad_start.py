@@ -85,9 +85,9 @@ class Graphics:
         self.text_s_s = 1.2 #Межбуквенное расстояние
         self.text_w = 1 #Ширина буквы
         self.s = 50 #Переменная, определяющая пропорции в размерах
-        self.arrow_s = 200
-        self.vr_s = 200
-        self.vv_s = 200
+        self.arrow_s = 100
+        self.vr_s = 200 #Вылет за размерную линию
+        self.vv_s = 100 #Вылет размерной линии
         self.type_arrow = 'Arch'
         self.dim_text_s_s = 1.3
         self.dim_text_w = 1

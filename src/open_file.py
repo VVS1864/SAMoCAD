@@ -3,6 +3,8 @@ from math import pi, sqrt, radians, ceil
 import re
 from calc import min_distanse, intersection_stright
 import src.line as line
+import src.dimension as dimension
+
 import src.text_line as text_line
 import src.sectors_alg as sectors_alg
 import xml.etree.ElementTree as etree
@@ -51,7 +53,7 @@ class Open_from_SVG:
                             in_mass = True,
                         )
 
-            if obj['object'] == 'text_line':
+            elif obj['object'] == 'text_line':
                 text_line.c_text(self.par, obj['x'], obj['y'],
                     text = obj['text'],
                     anchor = obj['anchor'],
@@ -65,6 +67,35 @@ class Open_from_SVG:
                     in_mass = True,
                     temp = False,
                     )
+
+            elif obj['object'] == 'dimL':
+                cNew =  dimension.c_dim(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    obj['x3'],
+                    obj['y3'],
+                    text = obj['text'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    dim_text_size = obj['text_size'],
+                    ort = obj['ort'],
+                    text_change = obj['text_change'],
+                    text_place = obj['text_place'],
+                    s = obj['s'],
+                    vv_s = obj['vv_s'],
+                    vr_s = obj['vr_s'],
+                    arrow_s = obj['arrow_s'],
+                    type_arrow = obj['type_arrow'],
+                    dim_text_s_s = obj['text_s_s'],
+                    dim_text_w = obj['text_w'],
+                    dim_text_font = obj['text_font'],
+                    in_mass = True,
+                    temp = False,
+                    )
+                
 
         self.par.change_pointdata()
         self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
@@ -159,6 +190,7 @@ class Open_from_SVG:
             elif tag == '{http://www.w3.org/2000/svg}text':
                 attrib = i.attrib
                 config['object'] = 'text_line'
+                ###
                 config['x'] = float(attrib['x'])
                 config['y'] = self.par.drawing_h - float(attrib['y'])
                 
@@ -188,7 +220,32 @@ class Open_from_SVG:
                 config['color'] = [255, 255, 255]
                 config['text_font'] = 'TXT'
                 self.config_list.append(config)
-                
+                ###
+
+            elif tag == '{http://www.w3.org/2000/svg}g':
+                attrib = i.attrib
+                config['object'] = 'dimL'
+                if attrib['class'] == 'DimL':
+                    dict_prop = get_object_elements(i, self.par.drawing_h)
+                    config.update(dict_prop)
+                    from_style = self.styles_dict[config['layer']]
+                    config.update(from_style)
+                    
+                    config['x1'] = config['line_1_x1']
+                    config['y1'] = config['line_1_y1']
+                    config['x2'] = config['line_2_x1']
+                    config['y2'] = config['line_2_y1']
+                    #cd['ort'] = None
+                    #cd['text_change'] = 1
+                    #cd['text_place'] = None
+                    #cd['s'] = 
+                    config = self.dimL(config['num_arrows'], config)
+                    print '++++++++++++++++++'
+                    for x in config.keys():
+                        print x, config[x]
+                    self.config_list.append(config)
+                            
+                                
                 '''
                 if 'style' in attrib:
                     style_attrib = re_class.findall(attrib['style'])
@@ -321,6 +378,9 @@ class Open_from_SVG:
                     factor_stipple = value[0]/stipple[0]
                     ist_value = (stipple, factor_stipple)
         return ist_value
+
+    
+                
 
 
               
@@ -627,21 +687,26 @@ class Open_from_SVG:
         
         if config['angle'] == pi/2:
             config['ort'] = 'horizontal'
+            config['y'] += config['Ltext']/2.0
             if 's_s' in config:
-                config['y'] -= config['Ltext']/2.0
+                pass
+                #config['y'] += config['Ltext']/2.0
             else:
                 config['s_s'] = 1.3
                 
             if ym<config['y']<y:
-                if config['y'] == abs(config['y1'] - config['y2']):
-                    config['text_change'] = 'unchange'
+                #if config['y'] == abs(config['y1'] - config['y2']):
+                if abs(config['y'] - abs(config['y1'] + config['y2'])/2) < self.par.min_e:
+                    config['text_change'] = 1
                 else:
-                    config['text_change'] = 'online3_m_l'
+                    config['text_change'] = 3
             else:
-                config['text_change'] = 'online3'
+                config['text_change'] = 2
                 
             config['s'] = abs(float(config['x']) - float(config['x3']))
             config['vv_s'] = abs(float(config['line_3_x1'])-float(config['line_1_x2']))
+            config['vr_s'] = abs(float(config['line_3_y1'])-float(config['line_1_y2']))
+
 
             config['text_place'] = [float(config['x']), float(config['y']), 'vert']
             try:
@@ -651,21 +716,25 @@ class Open_from_SVG:
                 pass               
         else:               
             config['ort'] = 'vertical'
+            config['x'] += config['Ltext']/2.0
             if 's_s' in config:
-                config['x'] += config['Ltext']/2.0
+                pass
+                #config['x'] += config['Ltext']/2.0
             else:
                 config['s_s'] = 1.3
                 
             if xm<config['x']<x:
-                if config['x'] == abs(config['x1'] - config['x2']):
-                    config['text_change'] = 'unchange'
+                #if config['x'] == abs(config['x1'] - config['x2']):
+                if abs(config['x'] - abs(config['x1'] + config['x2'])/2) < self.par.min_e:
+                    config['text_change'] = 1
                 else:
-                    config['text_change'] = 'online3_m_l'
+                    config['text_change'] = 3
             else:
-                config['text_change'] = 'online3'
+                config['text_change'] = 2
             
             config['s'] = abs(float(config['y']) - float(config['y3']))
             config['vv_s'] = abs(float(config['line_3_y1'])-float(config['line_1_y2']))
+            config['vr_s'] = abs(float(config['line_3_x1'])-float(config['line_1_x2']))
             
             config['text_place'] = [float(config['x']), float(config['y']), 'hor']
             try:
@@ -675,15 +744,15 @@ class Open_from_SVG:
                 pass
         if 3 < line < 6:
             config['type_arrow'] = 'Arch'
-            config['arrow_s'] = abs(float(config['line_4_x1'])-float(config['line_4_x2']))/2.0
+            config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x2']))/2.0
         elif line == 7:
             if config['ort'] == 'horizontal':
-                config['arrow_s'] = abs(float(config['line_4_y1'])-float(config['line_4_y2']))
+                config['arrow_s'] = abs(float(config['arrow_1_y1'])-float(config['arrow_1_y1']))
             else:
-                config['arrow_s'] = abs(float(config['line_4_x1'])-float(config['line_4_x2']))
+                config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x1']))
           
-        e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, x3 = %(x3)s, y3 = %(y3)s, text = u'%(text)s', fill = '%(fill)s', ort = '%(ort)s', size = %(size)s, text_change = '%(text_change)s', text_place = %(text_place)s, sloy = 1, s = %(s)s, vr_s = %(vr_s)s, vv_s = %(vv_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simumar TXT')"
-        return (e % config)
+        #e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, x3 = %(x3)s, y3 = %(y3)s, text = u'%(text)s', fill = '%(fill)s', ort = '%(ort)s', size = %(size)s, text_change = '%(text_change)s', text_place = %(text_place)s, sloy = 1, s = %(s)s, vr_s = %(vr_s)s, vv_s = %(vv_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simumar TXT')"
+        return config
 
     def dimR(self, line, config):
         if line > 2:
@@ -754,5 +823,67 @@ class Open_from_SVG:
             config['dash'] = None
             config['factor_stip'] = 200.0
         return config
+
+def get_object_elements(g, drawing_h):
+    dict_prop = {}
+    elements = g.getchildren()
+    line_num = 0
+    arrow_num = 0
+    for el in elements:
+        el_attrib = el.attrib
+        if el.tag == '{http://www.w3.org/2000/svg}line':
+
+            if line_num < 3:
+                line_num += 1
+                dict_prop.update({
+                    'line_'+str(line_num)+'_x1' : float(el_attrib['x1']),
+                    'line_'+str(line_num)+'_y1' : drawing_h - float(el_attrib['y1']),
+                    'line_'+str(line_num)+'_x2' : float(el_attrib['x2']),
+                    'line_'+str(line_num)+'_y2' : drawing_h - float(el_attrib['y2']),
+                    })
+            else:
+                arrow_num += 1
+                dict_prop.update({
+                    'arrow_'+str(arrow_num)+'_x1' : float(el_attrib['x1']),
+                    'arrow_'+str(arrow_num)+'_y1' : drawing_h - float(el_attrib['y1']),
+                    'arrow_'+str(arrow_num)+'_x2' : float(el_attrib['x2']),
+                    'arrow_'+str(arrow_num)+'_y2' : drawing_h - float(el_attrib['y2']),
+                    })
+                
+        elif el.tag == '{http://www.w3.org/2000/svg}text':
+
+            dict_prop['x'] = float(el_attrib['x'])
+            dict_prop['y'] = drawing_h - float(el_attrib['y'])
+            
+            dict_prop['layer'] = el_attrib['class'][2:]
+
+            #from_style = self.styles_dict[config['layer']]
+            #config.update(from_style)
+            dict_prop['text'] = el.text.decode('utf-8')
+            dict_prop['text_s_s'] = 1.3
+            dict_prop['text_size'] = el_attrib['font-size']
+            if 'px' in dict_prop['text_size']:
+                dict_prop['text_size'] = float(dict_prop['text_size'][0:-2])
+            elif 'mm' in dict_prop['text_size']:
+                dict_prop['text_size'] = float(dict_prop['text_size'][0:-2])
+            else:
+                dict_prop['text_size'] = float(dict_prop['text_size'])
+
+            if 'transform' in el_attrib:
+                re_rotate = re.compile('rotate\(([^",]+)[, ]+([^",]+)[, ]+([^",]+)\)')
+                find_rotate = re_rotate.search(el_attrib['transform'])
+                dict_prop['angle'] = radians(-float(find_rotate.groups()[0]))
+            else:
+                dict_prop['angle'] = 0.0
+
+            dict_prop['anchor'] = 'sw'
+            dict_prop['text_w'] = 1
+            dict_prop['color'] = [255, 255, 255]
+            dict_prop['text_font'] = 'TXT'
+            dict_prop['Ltext'] = float(el_attrib['textLength'])
+    dict_prop['num_arrows'] = arrow_num+line_num
+    return dict_prop
+            
+                
 
     
