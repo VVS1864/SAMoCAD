@@ -305,10 +305,7 @@ class Object_line:
             cNew = calc.trim_line(x1, y1, x2, y2, x, y, cd['coords'][0])
         else:
             cNew = calc.extend_line(x1, y1, x2, y2, cd['coords'][0])
-        print cNew
         if cNew:
-            print 'cut'
-            #self.par.delete_objects((self.obj,), False)
             c_line(self.par, cNew[0], cNew[1], cNew[2], cNew[3],
                width = cd['width'],
                layer = cd['layer'],

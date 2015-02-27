@@ -245,7 +245,7 @@ def c_dim(
     pointdata = []
     colordata = []
     IDs = []
-    snap_lines, lines, list_arrow, ort = get_dim_lines(**kwargs)
+    snap_lines, lines, list_arrow, ort, text_place, text_change, line3 = get_dim_lines(**kwargs)
     if not (0 <= snap_lines[3][0] <= par.drawing_w and
             0 <= snap_lines[3][1] <= par.drawing_h and
             0 <= snap_lines[3][2] <= par.drawing_w and
@@ -279,6 +279,7 @@ def c_dim(
                                 'coords': snap_lines,
                                 'lines': lines,
                                 'arrow_lines' : list_arrow,
+                                'line3' : line3,
                                 }
         par.ALLOBJECT[par.total_N].update(dict_prop)
         
@@ -336,20 +337,7 @@ def get_dim_lines(
 
     ddx = format(dx, '.0f')
     ddy = format(dy, '.0f')
-    '''
-    if y1 < y2:
-        xm = x1
-        ym = y1
-        x = x2
-        y = y2
         
-    else:
-        xm = x2
-        ym = y2
-        x = x1
-        y = y1
-    '''
-    
     x = max(x1, x2)
     xm = min(x1, x2)
     y = max(y1, y2)
@@ -395,12 +383,8 @@ def get_dim_lines(
             ym = y2
             x = x1
             y = y1
-        [[x,y], [x3,y3], [text_place[0], text_place[1]]]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
-        #x = max(x1, x2)
-        #xm = min(x1, x2)
-        #y = #max(y1, y2)
-        #ym = #min(y1, y2)
-        
+        [ [x,y], [x3,y3], [a, b] ]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
+        text_place[0], text_place[1] = a, b        
 
     else:
         if text:
@@ -433,17 +417,16 @@ def get_dim_lines(
     #list_lines.extend([[xm, ym, xm, y3+vv_s], [x, y, x, y3+vv_s]])
     #Размерная линия + текст(если задан, если нет - вкличина размера)
     # text_change :
-    # 1 = 'unchange'
+    # 1 = 'unchange' - auto
     # 2 = 'online3'
     # 3 = 'online3_m_l'
+   
     if text_change == 1:
-
-        text_place = [xm+dx/2.0,y3+s] 
+        text_place = [xm+dx/2.0, y3+s] 
     elif text_change == 2  or text_change == 3:
         text_place[1] = y3+s
     list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, False)
     if text_change == 2:
-
         e2 = list_text_lines.nabor[0][0]
         e3 = list_text_lines.nabor[0][2]
         if x < e3:
@@ -451,7 +434,7 @@ def get_dim_lines(
         else:
             line3 = [e2, y3, x+vr_s, y3]
     else:
-        line3 = [xm-vr_s,y3,x+vr_s,y3]
+        line3 = [xm-vr_s, y3, x+vr_s, y3]
     i = 1
     if text_change == 1:
 
@@ -461,9 +444,10 @@ def get_dim_lines(
 
             list_text_lines.nabor = calc.move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3+s, list_text_lines.nabor)
             e = list_text_lines.nabor[0][0]
-            line3 = [x+arrow_s, y3, e, y3]
+            line3 = [x+vr_s, y3, e, y3]
             i = -1
-            text_change = 2
+            #text_change = 2
+            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s,]
     list_lines.append(line3)       
     #Засечки
     if type_arrow == 'Arch':
@@ -480,11 +464,6 @@ def get_dim_lines(
         list_arrow.extend([L1, L2, L3, L4])
 
     snap_text = list_text_lines.nabor[0]
-    #xc = xm + dx/2.0
-    #list_snap_lines = [[x1, y1, x1, y3],
-    #                   [x2, y2, x2, y3],
-    #                   [x1, y3, x2, y3],
-    #                   snap_text]
     list_snap_lines = [[xm, ym, xm, y3],
                        [x, y, x, y3],
                        
@@ -496,18 +475,19 @@ def get_dim_lines(
 
     if ort == 'horizontal':
         
-        msin *= -1#sin(-angle)
-        #mcos *= #cos(-angle)
+        msin *= -1
         
         #list_text_lines.nabor = calc.rotate_lines(x1, y1, list_text_lines.nabor, msin, mcos)
         list_arrow = calc.rotate_lines(xm, ym, list_arrow, msin, mcos)
         list_lines = calc.rotate_lines(xm, ym, list_lines, msin, mcos)
         list_snap_lines = calc.rotate_lines(xm, ym, list_snap_lines, msin, mcos)
+        #[line3,] = calc.rotate_lines(xm, ym, [line3,], msin, mcos)
+        [text_place,] = calc.rotate_points(xm, ym, [text_place,], msin, mcos)
     list_lines.extend(list_arrow)
     
     
     
-    return list_snap_lines, list_lines, list_arrow, ort
+    return list_snap_lines, list_lines, list_arrow, ort, text_place, text_change, line3
         
 
 class Object_dim:
@@ -571,6 +551,10 @@ class Object_dim:
             cd['x3'],
             cd['y3'],
             )
+        cd['ist_y1'] = cd['y1']
+        cd['ist_y2'] = cd['y2']
+        cd['ist_y3'] = cd['y3']
+        
         cd['y1'] = drawing_h - cd['y1']
         cd['y2'] = drawing_h - cd['y2']
         cd['y3'] = drawing_h - cd['y3']
@@ -670,24 +654,28 @@ class Object_dim:
         cd = save_file.get_object_lines(cd, drawing_h, file_format)
         
         if ort == "vertical":
-            print 'v'
             cd['line_2_y2'] -= cd['vv_s']*derect
             cd['line_1_y2'] -= cd['vv_s']*derect
             
-            cd['line_3_x1'] -= cd['vr_s']
-            cd['line_3_x2'] += cd['vr_s']
+            #cd['line_3_x1'] -= cd['vr_s']
+            #cd['line_3_x2'] += cd['vr_s']
         else:
-            print 'h'
             cd['line_2_x2'] += cd['vv_s']*derect
             cd['line_1_x2'] += cd['vv_s']*derect
             
-            cd['line_3_y1'] += cd['vr_s']
-            cd['line_3_y2'] -= cd['vr_s']
-            
-            #self.par.ex3 = self.par.ex2 + data * derect
+            #cd['line_3_y1'] += cd['vr_s']
+            #cd['line_3_y2'] -= cd['vr_s']
+        
+        cd['line_3_x1'] = cd['line3'][0]
+        cd['line_3_y1'] = drawing_h - cd['line3'][1]
+        cd['line_3_x2'] = cd['line3'][2]
+        cd['line_3_y2'] = drawing_h - cd['line3'][3]
         cd['angle'] = -cd['angle']
-        text = str(cd['dim_distanse'])
-        cd['text'] = text.encode("utf-8")
+        if not cd['text']:
+            text = str(cd['dim_distanse'])
+        else:
+            text = cd['text']
+        cd['svg_text'] = text.encode("utf-8")
         cd['dim_text_size'] = str(cd['dim_text_size'])
 
         en = ' '
@@ -710,10 +698,11 @@ class Object_dim:
             en_text += save_file.prop_to_svg_style(layers, cd, SVG_prop_text)
         
             e0 = '''<g class="DimL">'''
+            e_desc = '''<desc>x1 = "%(x1)s", y1 = "%(ist_y1)s", x2 = "%(x2)s", y2 = "%(ist_y2)s", x3 = "%(x3)s", y3 = "%(ist_y3)s", text = "%(text)s", color = "%(color)s", ort = "%(ort)s", dim_text_size = "%(dim_text_size)s", text_change = "%(text_change)s", text_place = "%(text_place)s", layer = "%(layer)s", s = "%(s)s", vr_s = "%(vr_s)s", vv_s = "%(vv_s)s", arrow_s = "%(arrow_s)s", type_arrow = "%(type_arrow)s", dim_text_s_s = "%(dim_text_s_s)s", dim_text_w = "%(dim_text_w)s", dim_text_font = "%(dim_text_font)s"</desc>'''
             e1 = '''<line class="st1" x1="%(line_1_x1)s" y1="%(line_1_y1)s" x2="%(line_1_x2)s" y2="%(line_1_y2)s"'''+en+"/>"
             e2 = '''<line class="st1" x1="%(line_2_x1)s" y1="%(line_2_y1)s" x2="%(line_2_x2)s" y2="%(line_2_y2)s"'''+en+"/>"
             e3 = '''<line class="st1" x1="%(line_3_x1)s" y1="%(line_3_y1)s" x2="%(line_3_x2)s" y2="%(line_3_y2)s"'''+en+"/>"
-            e4 = '''<text class="st1" x="%(text_x)s" y="%(text_y)s" font-size="%(dim_text_size)spx" textLength="%(Ltext)s" lengthAdjust="spacingAndGlyphs"'''+en_text+'>%(text)s</text>'
+            e4 = '''<text class="st1" x="%(text_x)s" y="%(text_y)s" font-size="%(dim_text_size)spx" textLength="%(Ltext)s" lengthAdjust="spacingAndGlyphs"'''+en_text+'>%(svg_text)s</text>'
 
             if cd['type_arrow'] != 'Arch':                
                 a1 = '''<line class="st1" x1="%(arrow_1_x1)s" y1="%(arrow_1_y1)s" x2="%(arrow_1_x2)s" y2="%(arrow_1_y2)s"'''+en+"/>"
@@ -726,7 +715,7 @@ class Object_dim:
                 a3 = ''
                 a4 = ''
             e5 = '</g>'
-            e = [x % cd for x in (e0, e1, e2, e3, e4, a1, a2, a3, a4, e5) if x]
+            e = [x % cd for x in (e0, e_desc, e1, e2, e3, e4, a1, a2, a3, a4, e5) if x]
             cd['svg_strings'] = e
             
         return cd

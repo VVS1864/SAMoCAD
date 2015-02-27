@@ -71,27 +71,27 @@ class Open_from_SVG:
             elif obj['object'] == 'dimL':
                 cNew =  dimension.c_dim(
                     self.par,
-                    obj['x1'],
-                    obj['y1'],
-                    obj['x2'],
-                    obj['y2'],
-                    obj['x3'],
-                    obj['y3'],
+                    float(obj['x1']),
+                    float(obj['y1']),
+                    float(obj['x2']),
+                    float(obj['y2']),
+                    float(obj['x3']),
+                    float(obj['y3']),
                     text = obj['text'],
                     layer = obj['layer'],
                     color = obj['color'],
-                    dim_text_size = obj['text_size'],
+                    dim_text_size = float(obj['dim_text_size']),
                     ort = obj['ort'],
-                    text_change = obj['text_change'],
+                    text_change = int(obj['text_change']),
                     text_place = obj['text_place'],
-                    s = obj['s'],
-                    vv_s = obj['vv_s'],
-                    vr_s = obj['vr_s'],
-                    arrow_s = obj['arrow_s'],
+                    s = float(obj['s']),
+                    vv_s = float(obj['vv_s']),
+                    vr_s = float(obj['vr_s']),
+                    arrow_s = float(obj['arrow_s']),
                     type_arrow = obj['type_arrow'],
-                    dim_text_s_s = obj['text_s_s'],
-                    dim_text_w = obj['text_w'],
-                    dim_text_font = obj['text_font'],
+                    dim_text_s_s = float(obj['dim_text_s_s']),
+                    dim_text_w = float(obj['dim_text_w']),
+                    dim_text_font = obj['dim_text_font'],
                     in_mass = True,
                     temp = False,
                     )
@@ -115,14 +115,6 @@ class Open_from_SVG:
         #Список индексов ID
         #self.par.inds_vals = dict((y,x) for x,y in enumerate(self.par.IDs))
         
-            
-        
-        '''
-        if re.compile('<svg.*>').search(self.file[0]):
-            self.svg_file()
-        else:
-            print ('No SVG file')
-        '''
 
     def svg_file(self):
         re_layer = re.compile('\.st([^{}]*) {([^{}]*)}')
@@ -221,100 +213,35 @@ class Open_from_SVG:
                 config['text_font'] = 'TXT'
                 self.config_list.append(config)
                 ###
-
             elif tag == '{http://www.w3.org/2000/svg}g':
                 attrib = i.attrib
                 config['object'] = 'dimL'
-                if attrib['class'] == 'DimL':
-                    dict_prop = get_object_elements(i, self.par.drawing_h)
-                    config.update(dict_prop)
-                    from_style = self.styles_dict[config['layer']]
-                    config.update(from_style)
-                    
-                    config['x1'] = config['line_1_x1']
-                    config['y1'] = config['line_1_y1']
-                    config['x2'] = config['line_2_x1']
-                    config['y2'] = config['line_2_y1']
-                    #cd['ort'] = None
-                    #cd['text_change'] = 1
-                    #cd['text_place'] = None
-                    #cd['s'] = 
-                    config = self.dimL(config['num_arrows'], config)
-                    print '++++++++++++++++++'
-                    for x in config.keys():
-                        print x, config[x]
-                    self.config_list.append(config)
-                            
-                                
-                '''
-                if 'style' in attrib:
-                    style_attrib = re_class.findall(attrib['style'])
-                    if style_attrib:
-                        for prop_n_v in style_attrib:
-                            name, value = self.proper(prop_n_v)
-                            config[name] = value
-
-                self.config_list.append(config)
-                '''
-
-
-                '''
-                config = {}
-                re_o = re.compile('x="([^," ]+)" y="([^," ]+)"')
-                config = self.prop_from_style(s, config)
-                coord = re_o.search(s).groups()
-                config['x'] = coord[0]
-                config['y'] = coord[1]
-                re_font_size = re.compile('font-size="([^="]+)"')
-                re_rotate = re.compile('transform="rotate\(([^",]+)[, ]+([^",]+)[, ]+([^",]+)\)"')
-                re_Ltext = re.compile('textLength="([^",]+)" lengthAdjust="spacingAndGlyphs"')
-                re_text = re.compile('<text.*>(.*)</text>')
-                find_size = re_font_size.search(s)
-                find_rotate = re_rotate.search(s)
-                find_text = re_text.search(s)
-                find_Ltext = re_Ltext.search(s)
-                config['text'] = find_text.groups()[0].decode('utf-8')
-                config['s_s'] = 1.3
-                if find_size:
-                    config['size'] = find_size.groups()[0]
-                    if 'px' in config['size']:
-                        config['size'] = -float(config['size'][0:-2])
-                    elif 'mm' in config['size']:
-                        ###
-                        config['size'] = -float(config['size'][0:-2])
-                    else:
-                        config['size'] = -float(config['size'])
-                if find_rotate:
-                    config['angle'] = radians(-float(find_rotate.groups()[0]))
-                else:
-                    config['angle'] = 0.0
-                if find_Ltext:
-                    Ltext = float(find_Ltext.groups()[0])
-                    print config['size']
-                    print len(config['text'])
-                    if len(config['text']) == 0:
-                        return
-                    config['s_s'] = (Ltext + -float(config['size'])/4.0)/(len(config['text'])*2.0*-float(config['size'])/4.0)                                                                     
-                                                                        
-                    
-                if config['angle'] == -0.0:
-                    config['angle'] = 0.0
-                ### Надо будет доделать
-                #config['s_s'] = 1.2
-                config['w_text'] = 1
-                ###
                 
-                e = "self.c_text(x = %(x)s, y = %(y)s, text = u'%(text)s', fill = '%(fill)s', angle = %(angle)s, size = %(size)s, anchor = 'sw', sloy = 1, s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simular TXT')"
-                e = (e % config)
+                if attrib['class'] == 'DimL':
+                    elements = i.getchildren()
+                    for el in elements:
+                        if el.tag == '{http://www.w3.org/2000/svg}desc':
+                            re_desc = re.compile('''([\w][^=, ]*) = "([^=]*)"''')
+                            props = re_desc.findall(el.text)#.groups()
+                            confs = dict((key, val) for key, val in props)
+                            config.update(confs)
+                            config['color'] = self.color(config['color'], svg = False)
+                            re_list = re.compile('([.\d]+), ?([.\d]+)')
+                            text_place = re_list.search(config['text_place'])
+                            
+                            if text_place:
+                                list_str = text_place.groups()
+                                config['text_place'] = [float(x) for x in list_str]
+                            else:
+                                config['text_place'] = None
+                                config['text_change'] = None
+                                
+                            if config['text'] == 'None':
+                                config['text'] = None
 
-                self.command_list.append(e)
-                '''
+                            self.config_list.append(config)
 
-
-
-
-
-
+                    
                 
                 
         for i in self.config_list:
@@ -341,22 +268,26 @@ class Open_from_SVG:
                     
         return ist_name, ist_value
 
-    def color(self, value):
-        re_color = re.compile('rgb[a]?\(([.\d]+), ?([.\d]+), ?([.\d]+)[,. \d]*\)')
+    def color(self, value, svg = True):
+        if svg:
+            re_color = re.compile('rgb[a]?\(([.\d]+), ?([.\d]+), ?([.\d]+)[,. \d]*\)')
+            factor = 255
+        else:
+            re_color = re.compile('\(([.\d]+), ?([.\d]+), ?([.\d]+)\)')
+            factor = 1
         rgb = re_color.search(value)
         ist_value = [255, 255, 255]
         if rgb:
             rgb = rgb.groups()
             ivalue = []
             for color in rgb:
-                i = int(color)*255
+                i = int(color)*factor
                 if i > 255:
                     return ist_value
                 ivalue.append(i)
             if ivalue == [0, 0, 0]:
                 ivalue = [255, 255, 255]
             ist_value = ivalue
-            #ist_value = [int(int(color)*255) for color in rgb]
             
         elif value in self.color_dict:
             ist_value = self.color_dict[value]
@@ -685,6 +616,16 @@ class Open_from_SVG:
         y = max(config['y1'], config['y2'])
         ym = min(config['y1'], config['y2'])
         
+        if 3 < line < 6:
+            config['type_arrow'] = 'Arch'
+            config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x2']))/2.0
+        elif line == 7:
+            if config['ort'] == 'horizontal':
+                config['arrow_s'] = abs(float(config['arrow_1_y1'])-float(config['arrow_1_y1']))
+            else:
+                config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x1']))
+                
+        
         if config['angle'] == pi/2:
             config['ort'] = 'horizontal'
             config['y'] += config['Ltext']/2.0
@@ -700,13 +641,17 @@ class Open_from_SVG:
                     config['text_change'] = 1
                 else:
                     config['text_change'] = 3
+            elif abs(config['y'] - (ym - config['arrow_s'] - config['Ltext']/2.0)) < self.par.min_e:
+                config['text_change'] = 1
             else:
                 config['text_change'] = 2
                 
             config['s'] = abs(float(config['x']) - float(config['x3']))
             config['vv_s'] = abs(float(config['line_3_x1'])-float(config['line_1_x2']))
-            config['vr_s'] = abs(float(config['line_3_y1'])-float(config['line_1_y2']))
-
+            #config['vr_s'] = abs(float(config['line_3_y1'])-float(config['line_1_y2']))
+            vr_s1 = abs(config['line_3_y2']-config['line_1_y2'])
+            vr_s2 = abs(config['line_3_y1']-config['line_2_y2'])
+            config['vr_s'] = min(vr_s1, vr_s2)
 
             config['text_place'] = [float(config['x']), float(config['y']), 'vert']
             try:
@@ -714,7 +659,8 @@ class Open_from_SVG:
                     config['text'] = None
             except ValueError:
                 pass               
-        else:               
+        else:
+            
             config['ort'] = 'vertical'
             config['x'] += config['Ltext']/2.0
             if 's_s' in config:
@@ -729,12 +675,18 @@ class Open_from_SVG:
                     config['text_change'] = 1
                 else:
                     config['text_change'] = 3
+            elif abs(config['x'] - (xm - config['arrow_s'] - config['Ltext']/2.0)) < self.par.min_e:
+                config['text_change'] = 1
             else:
                 config['text_change'] = 2
             
             config['s'] = abs(float(config['y']) - float(config['y3']))
             config['vv_s'] = abs(float(config['line_3_y1'])-float(config['line_1_y2']))
-            config['vr_s'] = abs(float(config['line_3_x1'])-float(config['line_1_x2']))
+            vr_s1 = abs(config['line_3_x2']-config['line_1_x2'])
+            vr_s2 = abs(config['line_3_x1']-config['line_2_x2'])
+            vr_s3 = abs(config['line_3_x1']-config['line_1_x2'])
+            vr_s4 = abs(config['line_3_x2']-config['line_2_x2'])
+            config['vr_s'] = min(vr_s1, vr_s2, vr_s3, vr_s4)#abs(float(config['line_3_x1'])-float(config['line_1_x2']))
             
             config['text_place'] = [float(config['x']), float(config['y']), 'hor']
             try:
@@ -742,14 +694,7 @@ class Open_from_SVG:
                     config['text'] = None
             except ValueError:
                 pass
-        if 3 < line < 6:
-            config['type_arrow'] = 'Arch'
-            config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x2']))/2.0
-        elif line == 7:
-            if config['ort'] == 'horizontal':
-                config['arrow_s'] = abs(float(config['arrow_1_y1'])-float(config['arrow_1_y1']))
-            else:
-                config['arrow_s'] = abs(float(config['arrow_1_x1'])-float(config['arrow_1_x1']))
+        
           
         #e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, x3 = %(x3)s, y3 = %(y3)s, text = u'%(text)s', fill = '%(fill)s', ort = '%(ort)s', size = %(size)s, text_change = '%(text_change)s', text_place = %(text_place)s, sloy = 1, s = %(s)s, vr_s = %(vr_s)s, vv_s = %(vv_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simumar TXT')"
         return config

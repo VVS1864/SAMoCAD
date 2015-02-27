@@ -108,9 +108,7 @@ def get_object_lines(cd, drawing_h, file_format):
             'line_'+str(ind+1)+'_x2': i[2],
             'line_'+str(ind+1)+'_y2': drawing_h - i[3]
             })
-    print len(cd['arrow_lines'])
     for ind, i in enumerate(cd['arrow_lines']):
-        print ind
         lines_coord.update({
             'arrow_'+str(ind+1)+'_x1': i[0],
             'arrow_'+str(ind+1)+'_y1': drawing_h - i[1],

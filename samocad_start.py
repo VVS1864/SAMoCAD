@@ -275,7 +275,6 @@ class Graphics:
         print 'Create lines', t.time() - t1
         
         wx.EVT_SIZE(self.c, self.OnSize)
-        print 333
         self.standart_binds()
         self.interface.Show(True)
 
@@ -719,7 +718,6 @@ class Graphics:
 
     def kill(self, event=None):#Возвращает все в исходное состояние
         
-        print 'kill'
         self.rect = False
         self.trace_on = False
         if 'trace' in self.ALLOBJECT:
