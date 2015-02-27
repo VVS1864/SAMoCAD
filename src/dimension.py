@@ -327,16 +327,12 @@ def get_dim_lines(
     temp,
     ):
     
-    
-    
-    #id_dict = OrderedDict()
+
     list_arrow = []
     list_lines = []
     list_text_lines = []
     list_snap_lines = []
 
-    #ddx = format(dx, '.0f')
-    #ddy = format(dy, '.0f')
         
     x = max(x1, x2)
     xm = min(x1, x2)
