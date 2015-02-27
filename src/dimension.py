@@ -327,16 +327,16 @@ def get_dim_lines(
     temp,
     ):
     
-    dx=abs(x1-x2)
-    dy=abs(y1-y2)
+    
+    
     #id_dict = OrderedDict()
     list_arrow = []
     list_lines = []
     list_text_lines = []
     list_snap_lines = []
 
-    ddx = format(dx, '.0f')
-    ddy = format(dy, '.0f')
+    #ddx = format(dx, '.0f')
+    #ddy = format(dy, '.0f')
         
     x = max(x1, x2)
     xm = min(x1, x2)
@@ -354,21 +354,16 @@ def get_dim_lines(
             ort = "vertical"
         if ym <= y3 <= y:
             ort = "horizontal"
-        if xm <= x3 <= x:
+        elif xm <= x3 <= x:
             ort = "vertical"
-    elif ort == 'rotated':
-        pass
-    if text:
-        textt = text
-    else:
-        textt = ddx
+    #elif ort == 'rotated':
+        #pass
+    
+            
     if ort == "horizontal":
         if text_place == None:
             text_place = [0, 0]
-        if text:
-            textt = text
-        else:
-            textt = ddy
+                    
         angle = radians(90)
         msin = sin(angle)
         mcos = cos(angle)
@@ -383,14 +378,11 @@ def get_dim_lines(
             ym = y2
             x = x1
             y = y1
-        [ [x,y], [x3,y3], [a, b] ]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
-        text_place[0], text_place[1] = a, b        
+        [ [x,y], [x3,y3], [ text_place[0], text_place[1] ] ]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
+        #text_place[0], text_place[1] = a, b        
 
     else:
-        if text:
-            textt = text
-        else:
-            textt = ddx
+        
 
         if x1 < x2:
             xm = x1
@@ -404,9 +396,15 @@ def get_dim_lines(
             x = x1
             y = y1
 
-    dx = abs(xm-x)
-    dy = abs(ym-y)
-    #angle = 0
+    dx = abs(xm - x)
+    ddx = format(dx, '.0f')
+
+    if text:
+        textt = text
+    else:
+        textt = ddx
+
+
     #Выносные линии
     zvv_s = 1
     if y3 < y:
@@ -414,7 +412,7 @@ def get_dim_lines(
 
 
     list_lines.extend([[xm, ym, xm, y3+vv_s*zvv_s], [x, y, x, y3+vv_s*zvv_s]])
-    #list_lines.extend([[xm, ym, xm, y3+vv_s], [x, y, x, y3+vv_s]])
+
     #Размерная линия + текст(если задан, если нет - вкличина размера)
     # text_change :
     # 1 = 'unchange' - auto
@@ -425,7 +423,18 @@ def get_dim_lines(
         text_place = [xm+dx/2.0, y3+s] 
     elif text_change == 2  or text_change == 3:
         text_place[1] = y3+s
-    list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, False)
+        
+    
+    if in_mass and temp:
+        temp = True
+    else:
+        temp = False
+    
+        
+    list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+
+
+    i = 1
     if text_change == 2:
         e2 = list_text_lines.nabor[0][0]
         e3 = list_text_lines.nabor[0][2]
@@ -433,9 +442,19 @@ def get_dim_lines(
             line3 = [xm-vr_s, y3, e3, y3]
         else:
             line3 = [e2, y3, x+vr_s, y3]
-    else:
+    elif text_change == 1:
         line3 = [xm-vr_s, y3, x+vr_s, y3]
-    i = 1
+        
+        #Если текст не вмещается между выносными линиями - нарисовать сбоку
+        if list_text_lines.Ltext > dx - arrow_s:
+
+            list_text_lines.nabor = calc.move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3+s, list_text_lines.nabor)
+            e = list_text_lines.nabor[0][0]
+            line3 = [x+vr_s, y3, e, y3]
+            i = -1
+            #text_change = 2
+            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
+    '''
     if text_change == 1:
 
         e = list_text_lines.Ltext
@@ -447,42 +466,39 @@ def get_dim_lines(
             line3 = [x+vr_s, y3, e, y3]
             i = -1
             #text_change = 2
-            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s,]
+            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
+        '''
     list_lines.append(line3)       
     #Засечки
     if type_arrow == 'Arch':
-        L1 = [x-arrow_s,y3+arrow_s,x+arrow_s,y3-arrow_s]
-        L2 = [xm-arrow_s,y3+arrow_s,xm+arrow_s,y3-arrow_s]
+        L1 = [x - arrow_s, y3 + arrow_s, x + arrow_s, y3 - arrow_s]
+        L2 = [xm - arrow_s, y3 + arrow_s, xm + arrow_s, y3 - arrow_s]
         list_arrow.extend([L1, L2])
     elif type_arrow == 'Arrow':
         if dx < arrow_s*3.0:
             i = -1
-        L1 = [xm, y3, xm+arrow_s*i, y3-arrow_s/10.0]
-        L2 = [xm, y3, xm+arrow_s*i, y3+arrow_s/10.0]
-        L3 = [x, y3, x-arrow_s*i, y3-arrow_s/10.0]
-        L4 = [x, y3, x-arrow_s*i, y3+arrow_s/10.0]
+        L1 = [xm, y3, xm + arrow_s*i, y3 - arrow_s/10.0]
+        L2 = [xm, y3, xm + arrow_s*i, y3 + arrow_s/10.0]
+        L3 = [x, y3, x - arrow_s*i, y3 - arrow_s/10.0]
+        L4 = [x, y3, x - arrow_s*i, y3 + arrow_s/10.0]
         list_arrow.extend([L1, L2, L3, L4])
 
     snap_text = list_text_lines.nabor[0]
     list_snap_lines = [[xm, ym, xm, y3],
                        [x, y, x, y3],
-                       
                        [xm, y3, x, y3],
                        snap_text]
-    list_lines.extend(list_text_lines.nabor[1:])
-    
+    del list_text_lines.nabor[0]
+    list_lines.extend(list_text_lines.nabor)
     
 
     if ort == 'horizontal':
-        
-        msin *= -1
-        
-        #list_text_lines.nabor = calc.rotate_lines(x1, y1, list_text_lines.nabor, msin, mcos)
+        msin = -msin  
         list_arrow = calc.rotate_lines(xm, ym, list_arrow, msin, mcos)
         list_lines = calc.rotate_lines(xm, ym, list_lines, msin, mcos)
         list_snap_lines = calc.rotate_lines(xm, ym, list_snap_lines, msin, mcos)
         #[line3,] = calc.rotate_lines(xm, ym, [line3,], msin, mcos)
-        [text_place,] = calc.rotate_points(xm, ym, [text_place,], msin, mcos)
+        (text_place,) = calc.rotate_points(xm, ym, [text_place,], msin, mcos)
     list_lines.extend(list_arrow)
     
     
@@ -874,7 +890,7 @@ class Object_dim:
             #    text_place[1] = y1 + (y2-y1)
             #else:
              #   text_place[0] = x1 + (x2-x1)
-        cd['in_mass'] = True
+        cd['in_mass'] = False
         #if event:
             #cd['temp'] = False
         #else:

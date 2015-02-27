@@ -234,7 +234,7 @@ class Open_from_SVG:
                                 config['text_place'] = [float(x) for x in list_str]
                             else:
                                 config['text_place'] = None
-                                config['text_change'] = None
+                                config['text_change'] = 1
                                 
                             if config['text'] == 'None':
                                 config['text'] = None
