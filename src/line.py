@@ -375,7 +375,8 @@ class Object_line:
         #cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
         a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
         b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)
-        
+        cd['x2'], cd['y2'] = cd['coords'][0][2], cd['coords'][0][3]
+        cd['x1'], cd['y1'] = cd['coords'][0][0], cd['coords'][0][1]
 
         if a < self.par.min_e:
             cd['x1'], cd['y1'] = x2, y2
@@ -384,8 +385,8 @@ class Object_line:
         else:
             return False
             
-        cd['x1'] = x2
-        cd['y1'] = y2
+        #cd['x1'] = x2
+        #cd['y1'] = y2
         cNew = self.create_object(cd)
         return cNew
         
