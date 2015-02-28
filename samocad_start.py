@@ -38,8 +38,8 @@ class Graphics:
         self.color_vbo_col = None
 
         # Ширина и высота рабочей области
-        self.drawing_w = 10000.0
-        self.drawing_h = 10000.0
+        self.drawing_w = 100000.0
+        self.drawing_h = 100000.0
 
         self.ex = 0.0
         self.ey = 0.0
@@ -274,9 +274,12 @@ class Graphics:
         
         print 'Create lines', t.time() - t1
         
+        
         wx.EVT_SIZE(self.c, self.OnSize)
         self.standart_binds()
         self.interface.Show(True)
+        for i in xrange(5):
+            self.zoom((0,500), -1)
 
     def OnEraseBackground(self, event):
         pass
@@ -365,7 +368,7 @@ class Graphics:
         self.zoom(xy, w)        
         
     def zoom(self, xy, w):
-        wx.GetMousePosition()
+        #wx.GetMousePosition()
         x, y = self.get_world_coords(xy[0], xy[1])
         xy1 = gluUnProject(1, 0, 0)
         xy2 = gluUnProject(0, 0, 0)
@@ -475,21 +478,92 @@ class Graphics:
             if self.ALLOBJECT[i]['object'] == 'dim':
                 catch_dim = True
     '''
-    def edit_collector(self, objects):
+    def edit_collector(self, objects, x, y):
         #Проверяет, какие объекты находятся в коллекции:
         #если только размеры по линии - оставляет коллекцию неизменной,
         #если есть другие объекты - оставляет в кол. только те, к которым есть привязка в данный момент
 
-        #delete_list = []#Список объектов из коллекции, к которым привязка нет
         dim_list = []#Список размеров из коллекции
         line_dim_edit = True #True - пока не попался НЕразмер
+        
+        bFlag = False#Если False - то все размерные линии имеют одну общую координату (x или y) и лежат по одной линии
+
         for i in objects:#Перебрать пришедшую коллекцию
-            #if content[0] == 'd':#Если объект == размер
             if self.ALLOBJECT[i]['object'] == 'dim':
                 dim_list.append(i)#Добавить в список размеров
             else:
                 line_dim_edit = False#Иначе неразмер попался
+
+#!!! - определяет, по одной линии все размеры или нет.
+#Если да - можно радактировать всю размерную цепочку
+        if line_dim_edit == True:#Если ни одного НЕразмера не попалось
+            if len(dim_list) > 1:#Если количество размеров > 1
+                
+                line3_list = []#Список первых координат размерных линий размеров                
+                ort1 = self.ALLOBJECT[dim_list[0]]['ort']
+                if ort1 == 'vertical':
+                    line_3_xy = (self.ALLOBJECT[dim_list[0]]['line3'][0], 0, x)
+                else:
+                    line_3_xy = (self.ALLOBJECT[dim_list[0]]['line3'][1], 1, y)
+                    
+                for i in dim_list[1:]:# Перебрать список размеров
+                    ort2 = self.ALLOBJECT[i]['ort']
+                    if ort1 != ort2:#Если переменные не равны - Вылететь, коллекцию больше не изменять
+                        bFlag = True
+                        break
+                    line3 = self.ALLOBJECT[i]['line3']#Взять размерную линию размера                    
+                    if line3[line_3_xy[1]] != line_3_xy[0] and abs(line3[line_3_xy[1]] - line_3_xy[1]) > self.min_e:
+                        print 'break L3'
+                        bFlag = True
+                        break
+            if bFlag == False:#Если вылетания и теперь не произошло
+                print 'bF'
+                objects = dim_list#Коллекция = списку размеров
+            
+            
         return objects
+        '''
+                if bFlag == False:#Если Вылетания не произошло
+                    for ind, i in enumerate(line3_list):#Перебрать список координат
+                        if ort1 == 'vertical':#Если оринтация вертикальная
+                        
+
+
+                            
+                            if i == line3_list[-1]:#Если элемент последний в списке
+                                ii = -1#Второй элемент - взять предыдущий
+                            else:
+                                ii = 1#Иначе - последующий
+                            if i[1] != line3_list[ind + ii][1]:#Если координата y второго не равна y первого - Вылететь, коллекцию больше не изменять
+                                bFlag = True
+                                break
+                        else:
+                            if i == line3_list[-1]:
+                                ii = -1
+                            else:
+                                ii = 1
+                            if i[0] != line3_list[ind + ii][0]:#Если координата x второго не равна x первого - Вылететь, коллекцию больше не изменять
+                                bFlag = True
+                                break
+                
+                    if bFlag == False:#Если вылетания и теперь не произошло
+                        objects = dim_list#Коллекция = списку размеров
+                        #for i in self.collection:#Поменять цвет размеров
+                            #self.c.delete('C'+i)
+                        #select_clone.Select_clone(self.collection, graf)
+        
+        if bFlag == True:
+            edit_flag = False #Если True - то объект получается редактировать
+            for i in objects:
+                for coord in self.ALLOBJECT[i]['coords']:
+                    a = sqrt((coord - x1)**2 + (cd['y1'] - y1)**2)
+                    b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
+                    if coords
+        '''
+                    
+                    
+                        
+        #return objects
         '''
             undel_obj = False#Если False - убрать объект из коллекции
             find  = self.ALLOBJECT[content]['id']#self.c.find_withtag(content)#Получить приметивы объекта

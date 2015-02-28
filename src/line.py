@@ -321,12 +321,18 @@ class Object_line:
     ### Edit method ###
     def edit(self, x1, y1, x2, y2):
         cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['temp'] = False
+        cd['in_mass'] = True
+        cNew = self.edit_object(x1, y1, x2, y2, cd)
+        return cNew
+        '''
         cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
         cd['x1'] = x2
         cd['y1'] = y2
         cd['temp'] = False
         cd['in_mass'] = True
         cNew = self.create_object(cd)
+        '''
         '''
         cNew = c_line(self.par, xn, yn, xf, yf,
                width = cd['width'],
@@ -343,11 +349,15 @@ class Object_line:
     def edit_temp(self, x1, y1, x2, y2):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd.update(temp_dict)
+        self.edit_object(x1, y1, x2, y2, cd)
+        
+        '''
         cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
         cd['x1'] = x2
         cd['y1'] = y2
         #cd['in_mass'] = True
         cNew = self.create_object(cd)
+        '''
         '''
         c_line(self.par, xn, yn, xf, yf,
                width = 1,
@@ -361,6 +371,24 @@ class Object_line:
                
         self.create_object(cd)
         '''
+    def edit_object(self, x1, y1, x2, y2, cd):
+        #cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
+        a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
+        b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)
+        
+
+        if a < self.par.min_e:
+            cd['x1'], cd['y1'] = x2, y2
+        elif b < self.par.min_e:
+            cd['x2'], cd['y2'] = x2, y2
+        else:
+            return False
+            
+        cd['x1'] = x2
+        cd['y1'] = y2
+        cNew = self.create_object(cd)
+        return cNew
+        
     
     ### Rotate methods ###
     def rotate(self, x0, y0, sin, cos, angle):

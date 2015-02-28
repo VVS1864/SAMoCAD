@@ -16,12 +16,18 @@ class Object(Base):
         self.editEvent()
         
     def editEvent(self):
+        x = self.par.x_priv
+        y = self.par.y_priv
+        
         self.par.resFlag = True
         self.par.current_flag = False
         if self.par.collection:
             #Если объекты выбраны, изменять их, если это возможно
-            #objects = self.par.collection
-            self.par.collection = self.par.edit_collector(self.par.collection)
+            self.par.collection = self.par.edit_collector(self.par.collection, x, y)
+            if not self.par.collection:
+                a = set(self.par.find_privs)
+                self.par.collection = list(a)
+
         else:
             #Если объекты не выбраны - искать изменяемые в списке привязок
             a = set(self.par.find_privs)
@@ -65,20 +71,29 @@ class Object(Base):
         self.par.ex2 = self.par.x_priv
         self.par.ey2 = self.par.y_priv
         if event:
-            del_objs = []
+            del_objects = []
             start = self.par.total_N
             for content in self.par.collection:
                 cNew = None
                 if 'edit' in dir(self.par.ALLOBJECT[content]['class']):
                     cNew = self.par.ALLOBJECT[content]['class'].edit(self.par.ex, self.par.ey, self.par.ex2, self.par.ey2)
                     if cNew:
-                        del_objs.append(content)
+                        del_objects.append(content)
             end = self.par.total_N
-            if del_objs:
-                self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(self.par.ALLOBJECT, range(start+1, end+1), self.par.sectors, self.par.q_scale)
-                self.par.delete_objects(del_objs, False)
+            new_objects = range(start+1, end+1)
+            if del_objects:
+                self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(self.par.ALLOBJECT, new_objects, self.par.sectors, self.par.q_scale)
+                self.par.delete_objects(del_objects, False)
                 self.par.change_pointdata()
+            #self.par.kill()
+            
+            a = set(self.par.collection)
+            b = set(new_objects)
+            c = set(del_objects)
+            a.difference_update(c)
+            a.update(b)
             self.par.kill()
+            self.par.collectionBack = list(b)
         else:
             for content in self.par.collection:
                 if 'edit_temp' in dir(self.par.ALLOBJECT[content]['class']):
