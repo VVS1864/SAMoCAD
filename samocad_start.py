@@ -312,6 +312,7 @@ class Graphics:
 
 
     def standart_state(self):
+        #print 'st'
         #self.clone_data = []
         #self.clone_color = []
         self.red_line_data = []
@@ -402,13 +403,6 @@ class Graphics:
         if self.resFlag == False and not self.collection:
             self.mass_collector(self.collectionBack, 'select')
         self.c.Refresh()
-        '''
-            def BC(i):
-                if i in self.ALLOBJECT:#Если объект есть в обхем списке (не был удален)
-                    self.collection.append(i)#Добавить в коллекцию
-                    
-            map(BC, self.collectionBack)#Перебрать старую коллекцию
-        '''
             #select_clone.Select_clone(self.collection, graf)
             #self.colObj()#Посчитать колличество выделенных объектов
             #draft_gui.gui.update_prop()
@@ -513,112 +507,14 @@ class Graphics:
                         break
                     line3 = self.ALLOBJECT[i]['line3']#Взять размерную линию размера                    
                     if line3[line_3_xy[1]] != line_3_xy[0] and abs(line3[line_3_xy[1]] - line_3_xy[1]) > self.min_e:
-                        print 'break L3'
                         bFlag = True
                         break
             if bFlag == False:#Если вылетания и теперь не произошло
-                print 'bF'
                 objects = dim_list#Коллекция = списку размеров
             
             
         return objects
-        '''
-                if bFlag == False:#Если Вылетания не произошло
-                    for ind, i in enumerate(line3_list):#Перебрать список координат
-                        if ort1 == 'vertical':#Если оринтация вертикальная
-                        
-
-
-                            
-                            if i == line3_list[-1]:#Если элемент последний в списке
-                                ii = -1#Второй элемент - взять предыдущий
-                            else:
-                                ii = 1#Иначе - последующий
-                            if i[1] != line3_list[ind + ii][1]:#Если координата y второго не равна y первого - Вылететь, коллекцию больше не изменять
-                                bFlag = True
-                                break
-                        else:
-                            if i == line3_list[-1]:
-                                ii = -1
-                            else:
-                                ii = 1
-                            if i[0] != line3_list[ind + ii][0]:#Если координата x второго не равна x первого - Вылететь, коллекцию больше не изменять
-                                bFlag = True
-                                break
-                
-                    if bFlag == False:#Если вылетания и теперь не произошло
-                        objects = dim_list#Коллекция = списку размеров
-                        #for i in self.collection:#Поменять цвет размеров
-                            #self.c.delete('C'+i)
-                        #select_clone.Select_clone(self.collection, graf)
-        
-        if bFlag == True:
-            edit_flag = False #Если True - то объект получается редактировать
-            for i in objects:
-                for coord in self.ALLOBJECT[i]['coords']:
-                    a = sqrt((coord - x1)**2 + (cd['y1'] - y1)**2)
-                    b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
-                    if coords
-        '''
-                    
-                    
-                        
-        #return objects
-        '''
-            undel_obj = False#Если False - убрать объект из коллекции
-            find  = self.ALLOBJECT[content]['id']#self.c.find_withtag(content)#Получить приметивы объекта
-            for i in find:#Перебрать их
-                if i in self.find_privs2:#Если приметив в списке приметивов - привязок
-                    undel_obj = True#Оставить объект в коллекции
-            if undel_obj == False:#Если не удалять - False
-                delete_list.append(content)#Добавить объект в список удаления
-                self.c.delete('C'+content)
-        map(lambda i: self.collection.remove(i), delete_list)#перебрать delete_list, удалить все его объекты из коллекции
-        '''
-        '''
-#!!! - определяет, по одной линии все размеры или нет.
-#Если да - можно радактировать всю размерную цепочку
-        if line_dim_edit == True:#Если ни одного НЕразмера не попалось
-            if len(dim_list) > 1:#Если количество размеров > 1
-                line3_list = []#Список первых координат размерных линий размеров
-                ort1 = None#ориентация первого размера
-                ort2 = None#То же второго
-                bFlag = False#Если False - то все размерные линии имеют одну общую координату (x или y) и лежат по одной линии
-                for i in dim_list:# Перебрать список размеров
-                    if dim_list.index(i) == 0:  #Если размер первый в списке
-                        ort1 = self.ALLOBJECT[i]['ort']#Присвоить его ориентацию первой переменной
-                    else:
-                        ort2 = self.ALLOBJECT[i]['ort']#Иначе второй
-                        if ort1 != ort2:#Если переменные не равны - Вылететь, коллекцию больше не изменять
-                            bFlag = True
-                            break
-                    line3 = self.get_snap_line(i)[2]#Взять размерную линию размера
-                    coord = self.c.coords(line3)#Взять координаты размерной линии
-                    line3_list.append(coord[0:2])#Добавить в список координат только 2 первые координаты
-                if bFlag == False:#Если Вылетания не произошло
-                    for ind, i in enumerate(line3_list):#Перебрать список координат
-                        if ort1 == 'vertical':#Если оринтация вертикальная
-                            if i == line3_list[-1]:#Если элемент последний в списке
-                                ii = -1#Второй элемент - взять предыдущий
-                            else:
-                                ii = 1#Иначе - последующий
-                            if i[1] != line3_list[ind + ii][1]:#Если координата y второго не равна y первого - Вылететь, коллекцию больше не изменять
-                                bFlag = True
-                                break
-                        else:
-                            if i == line3_list[-1]:
-                                ii = -1
-                            else:
-                                ii = 1
-                            if i[0] != line3_list[ind + ii][0]:#Если координата x второго не равна x первого - Вылететь, коллекцию больше не изменять
-                                bFlag = True
-                                break
-                    if bFlag == False:#Если вылетания и теперь не произошло
-                        self.collection = dim_list#Коллекция = списку размеров
-                        for i in self.collection:#Поменять цвет размеров
-                            self.c.delete('C'+i)
-                        select_clone.Select_clone(self.collection, graf)
-        '''
+    
 
     def get_indexes(self, objects):
         begin_list = []
@@ -745,8 +641,8 @@ class Graphics:
                 self.recty = y
             elif self.current_change:
                 edit.Object(self)
-                
-        self.standart_state()
+        if not self.current_change:        
+            self.standart_state()
         #e.Skip()
         self.focus_cmd()
 
@@ -791,7 +687,7 @@ class Graphics:
         e.Skip()
 
     def kill(self, event=None):#Возвращает все в исходное состояние
-        
+        print 'kill'
         self.rect = False
         self.trace_on = False
         if 'trace' in self.ALLOBJECT:

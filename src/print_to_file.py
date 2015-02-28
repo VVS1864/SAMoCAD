@@ -78,6 +78,8 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
         del draw
         im.info['dpi'] = (100, 100)
         im.save(f_name, f_format)
+        
+    print 'Print successfull! File', f_format, f_name 
     
 
 class Select_area:

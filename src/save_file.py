@@ -42,7 +42,7 @@ class Save_to_SVG(Base_save):
             self.h *= 1024/self.w
             self.w = 1024
         else:
-            mx = 1024/self.w
+            mx = 10240/self.w
             self.nx = ceil(self.w/mx)
             self.ny =  ceil(self.h/mx)
         self.drawing_data = {

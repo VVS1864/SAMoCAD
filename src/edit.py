@@ -2,6 +2,7 @@
 from math import sqrt, pi, degrees, radians
 
 import src.sectors_alg as sectors_alg
+import src.select_clone as select_clone
 from src.calc import calc_angle
 from src.base import Base
 #import line, dimension, text_line, circle, arc
@@ -11,7 +12,6 @@ from src.base import Base
 #ИЗИЕНЕНИЕ УЗЛОВ
 class Object(Base):
     def __init__(self, par):
-        #self.par = par
         super(Object, self).__init__(par)
         self.editEvent()
         
@@ -33,15 +33,20 @@ class Object(Base):
             a = set(self.par.find_privs)
             self.par.collection = list(a)
 
-        
-
+        self.par.rline = self.par.collection[0]
+        self.par.red_line_data, self.par.red_line_color = select_clone.select_clone(
+                self.par,
+                self.par.collection,
+                [255, 0, 0],
+                )
         
         self.par.ex, self.par.ey = super(Object, self).func_2(
             self.editEvent2,
             'Etit node - %s objects:' %(len(self.par.collection)),
             True,
             )
-        self.par.info2.SetValue('Escape - stop')                       
+        self.par.info2.SetValue('Escape - stop')
+        self.par.c.Refresh()
            
         '''
         if self.par.tip_p not in ('X', 'c'):

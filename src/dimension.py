@@ -792,19 +792,19 @@ class Object_dim:
     
     ### Edit_prop method ###
     def edit_prop(self, params):
-        param_changed = False
-        r_list = None
-        cd = self.get_conf()
+        #param_changed = False
+        #r_list = None
+        cd = self.par.ALLOBJECT[self.obj]#self.get_conf()
         for param in params:
             if param in cd:
                 param_changed = True
                 cd[param] = params[param]
-        if param_changed == True:
-            cd['temp'] = None
-            self.create_object(cd)
-            
-            r_list = (self.obj, self.par.Ntext)
-        return r_list
+        #if param_changed == True:
+        cd['temp'] = False
+        cd['in_mass'] = True
+        cNew = self.create_object(cd)
+            #r_list = (self.obj, self.par.Nline)
+        return cNew
 
     ### Edit method ###
     def edit(self, x1, y1, x2, y2):

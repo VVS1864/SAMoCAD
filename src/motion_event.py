@@ -55,7 +55,6 @@ def motion(self, e):
             self.current_select = False
             self.current_change = False 
             objects = self.get_current_objects(rect)
-        
             if self.snap_flag:
                 # Если включена привязка
                 r1 = gluUnProject(self.size_simbol_p/2, 0, 0)

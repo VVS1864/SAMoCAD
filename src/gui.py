@@ -8,6 +8,7 @@ import src.move_object as move_object
 import src.mirror_object as mirror_object
 import src.rotate_object as rotate_object
 import src.trim_extend as trim_extend
+import src.copy_prop as copy_prop
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -33,6 +34,7 @@ class Window(wx.Frame):
             'S' : rotate_object.Object,
             'Q' : trim_extend.Trim,
             'W' : trim_extend.Extend,
+            'D' : copy_prop.Copy_prop,
             }
         
         wx.Frame.__init__(self, parent, -1, title = title)

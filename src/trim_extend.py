@@ -21,8 +21,6 @@ class Object:
         self.trimEvent1()
         
     def trimEvent1(self):
-        #self.par.red_line = True
-        print 111
         self.par.focus_cmd()
         if self.par.collection and len(self.par.collection)==1:
             self.par.rline = self.par.collection[0]
@@ -56,6 +54,7 @@ class Object:
             #self.par.c.config(cursor = 'iron_cross')
         else:
             self.par.kill()
+            self.par.snap_flag = False
             self.par.info.SetValue('%s - object 1:' %(self.par.trim_extend))
             self.par.info2.SetValue('Escape - stop')
             

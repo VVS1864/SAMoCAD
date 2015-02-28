@@ -273,7 +273,7 @@ class Open_from_SVG:
             re_color = re.compile('rgb[a]?\(([.\d]+), ?([.\d]+), ?([.\d]+)[,. \d]*\)')
             factor = 255
         else:
-            re_color = re.compile('\(([.\d]+), ?([.\d]+), ?([.\d]+)\)')
+            re_color = re.compile('([.\d]+), ?([.\d]+), ?([.\d]+)')
             factor = 1
         rgb = re_color.search(value)
         ist_value = [255, 255, 255]
@@ -283,7 +283,7 @@ class Open_from_SVG:
             for color in rgb:
                 i = int(color)*factor
                 if i > 255:
-                    return ist_value
+                    i = int(color)
                 ivalue.append(i)
             if ivalue == [0, 0, 0]:
                 ivalue = [255, 255, 255]
@@ -291,9 +291,6 @@ class Open_from_SVG:
             
         elif value in self.color_dict:
             ist_value = self.color_dict[value]
-       
-            
-
         return ist_value
 
     def stipple(self, value):
