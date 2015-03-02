@@ -58,6 +58,9 @@ class Object(Base):
         if event and event.GetEventType() == wx.wxEVT_KEY_DOWN:
             if event.GetKeyCode() == wx.WXK_RETURN:
                 kwargs['del_old'] = super(Object, self).input_Y_N(default = 'N')
+            elif event.GetKeyCode() == wx.WXK_ESCAPE:
+                self.par.kill()
+                return
             else:
                 event.Skip()
                 return

@@ -9,6 +9,8 @@ import src.mirror_object as mirror_object
 import src.rotate_object as rotate_object
 import src.trim_extend as trim_extend
 import src.copy_prop as copy_prop
+import src.trim_dim_line as trim_dim_line
+
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -204,6 +206,7 @@ class Window(wx.Frame):
         self.image_copy_p = wx.Image(os.path.join(appPath, 'res', 'copy_p2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_copy_p = wx.BitmapButton(self, wx.NewId(), self.image_copy_p)
         self.sizer_buttons_right.Add(self.button_copy_p)
+        self.button_copy_p.Bind(wx.EVT_BUTTON, self.copy_prop)
 
         self.image_fillet = wx.Image(os.path.join(appPath, 'res', 'fillet2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_fillet = wx.BitmapButton(self, wx.NewId(), self.image_fillet)
@@ -225,7 +228,9 @@ class Window(wx.Frame):
 
         self.image_trim_dim = wx.Image(os.path.join(appPath, 'res', 'chain_dim.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_trim_dim = wx.BitmapButton(self, wx.NewId(), self.image_trim_dim)
+        self.button_trim_dim.Bind(wx.EVT_BUTTON, self.trim_dim)
         self.sizer_buttons_right.Add(self.button_trim_dim)
+        
         
         # Собираем сайзеры в top
         self.sizer_top.Add(self.sizer_buttons_left,  flag = wx.ALIGN_LEFT)
@@ -365,6 +370,14 @@ class Window(wx.Frame):
     def trim(self, e):
         #self.par.trim_extend = 'Trim'
         self.par.action(trim_extend.Trim)
+        self.par.focus_cmd()
+
+    def copy_prop(self, e):
+        self.par.action(copy_prop.Copy_prop)
+        self.par.focus_cmd()
+
+    def trim_dim(self, e):
+        self.par.action(trim_dim_line.Object)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ

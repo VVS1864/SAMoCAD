@@ -77,7 +77,7 @@ class Copy_prop:
         self.par.focus_cmd()
         self.par.prop = {}
         for p in self.par.ALLOBJECT[col]:
-            if p in ('color', 'width', 'stipple', 'factor_stipple', 'text_size', 'layer', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 'text_s_s', 'text_w', 'text_font', 'dim_text_s_s', 'dim_text_w', 'dim_text_font'):                       
+            if p in ('color', 'width', 'stipple', 'factor_stipple', 'text_size', 'layer', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 'text_s_s', 'text_w', 'text_font', 'dim_text_size', 'dim_text_s_s', 'dim_text_w', 'dim_text_font'):                       
                 self.par.prop[p] = copy(self.par.ALLOBJECT[col][p])
 
     def copy_prop4(self, event):
@@ -89,6 +89,7 @@ class Copy_prop:
         self.par.focus_cmd()
         x = self.par.x_priv
         y = self.par.y_priv
+        print self.par.prop
         if self.par.rect:
             #self.par.c.delete(self.par.rect)#Удалить прямоугольник выделения
             self.par.rect = None
@@ -108,7 +109,6 @@ class Copy_prop:
             y2 = self.par.recty
             objects = grab_object.select(self.par, [x1, y1, x2, y2], False)
             if objects:
-                
                 edit_prop.Edit_prop(self.par, self.par.prop, objects)
                 #self.par.sbros()
                 #self.par.changeFlag = True

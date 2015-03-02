@@ -7,7 +7,7 @@ def select(par, rect, master_enclose = None):
     y2 = max(rect[1], rect[3])
     y1 = min(rect[1], rect[3])
     if master_enclose == None:
-        if rect[0] < rect[2]:
+        if rect[0] > rect[2]:
             enclose = False
         else:
             enclose = True

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+#from __future__ import division
 
 import src.clip as clip
 import src.line as line
@@ -18,12 +18,15 @@ from random import random, randint, uniform
 import copy
 import os
 import sys
+import numpy
+import ctypes
 
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GL.ARB.vertex_buffer_object import *
+from OpenGL.raw import GL
 
 class Graphics:
     def __init__(self):
@@ -38,8 +41,8 @@ class Graphics:
         self.color_vbo_col = None
 
         # Ширина и высота рабочей области
-        self.drawing_w = 100000.0
-        self.drawing_h = 100000.0
+        self.drawing_w = 1000000.0
+        self.drawing_h = 1000000.0
 
         self.ex = 0.0
         self.ey = 0.0
@@ -75,8 +78,8 @@ class Graphics:
         self.select_color = [0, 255, 0] #Цвет выделяемых объектов
         self.priv_color = [0, 255, 255] #Цвет привязки
         self.back_color = 'black'
-        self.left_color = [0, 255, 255]#'light blue'
-        self.right_color = [255, 0, 0]#'red'
+        self.right_color = [0, 255, 255]#'light blue'
+        self.left_color = [255, 0, 0]#'red'
         self.text_size = 500 #Текущий размер шрифта текста (5 мм)
         self.dim_text_size = 350 #Текущий размер шрифта размеров (3.5 мм)
         self.size_simbol_p = 20 #Размер значка привязки
@@ -197,7 +200,7 @@ class Graphics:
         self.activIDs = set() #Массив активных ID (которые в активных секторах)
         self.activSectors = [] #Активные сектора
         self.IDs = []
-        self.q_scale = 1000
+        self.q_scale = 10000
         
         
         self.trace_x1 = 0
@@ -222,6 +225,7 @@ class Graphics:
         self.c.Bind(wx.EVT_MIDDLE_DOWN, self.move_on)
         self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
+        self.interface.Bind(wx.EVT_CLOSE, self.destroy)
         
         if 'linux' in sys.platform:
             self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
@@ -278,7 +282,7 @@ class Graphics:
         wx.EVT_SIZE(self.c, self.OnSize)
         self.standart_binds()
         self.interface.Show(True)
-        for i in xrange(5):
+        for i in xrange(10):
             self.zoom((0,500), -1)
 
     def OnEraseBackground(self, event):
@@ -286,6 +290,7 @@ class Graphics:
 
     def create_sectors(self):
         t1 = t.time()
+        #del self.sectors
         self.sectors = {}
         #Разбивка поля на сектора
         for i in xrange(int(self.drawing_w//self.q_scale)):
@@ -337,9 +342,27 @@ class Graphics:
         else:
             self.info2.SetValue((''))
 
-    def change_pointdata(self):
+    def change_pointdata(self):        
         self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
-        self.vbo, self.color_vbo = self.c_VBO(self.pointdata, self.colordata)
+        if not self.vbo:
+            #a = range(3000000)
+            #b = a*6
+            #self.vbo_size = len((GLfloat*len(a))(*a))#len(c_pointdata)#numpy.array(a, dtype = numpy.float32)
+            #self.color_vbo_size = len((GLfloat*len(b))(*b))#len(c_colordata)#numpy.array(b, dtype = numpy.ubyte)
+            
+            if self.GL_version == '3':
+                self.vbo = glGenBuffers(1)
+                self.color_vbo = glGenBuffers(1)
+            else:
+                self.vbo = glGenBuffersARB(1)
+                self.color_vbo = glGenBuffersARB(1)
+    
+        self.vbo, self.color_vbo = self.c_VBO(self.vbo, self.color_vbo, self.pointdata, self.colordata)
+
+        #else:
+            #self.update_VBO()
+        
+
 
     def action(self, object_class):
         self.curent_class = object_class(self)
@@ -424,31 +447,7 @@ class Graphics:
             self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]
             self.IDs = [x for i, x in enumerate(self.IDs) if i*4 not in all_indexes]
         
-        '''
-        def dele(i, h = None):#Удаляет пришедший объект с канваса и из ALLOBJECT
-            if h:
-                e = self.ALLOBJECT[i]['class'].get_conf()#self.get_conf(i)
-                self.e_list.append(e)
-            self.c.delete(i)
-            del self.ALLOBJECT[i]
-            if ('c_', i) in self.history_undo:
-                self.history_undo.remove(('c_', i))
         
-        t1 = time.time()
-        if elements == None:#Если не заданы элементы для удаления
-            self.set_coord()
-            self.e_list = []
-            map(lambda x: dele(x, h = 'add'), self.collection)#Перебрать коллекцию
-            self.collection = []
-            self.history_undo.append(('delete', (self.e_list, self.xynachres, self.zoomOLDres)))
-            self.changeFlag = True
-            self.enumerator_p()
-            self.kill()
-        else:#Если заданы элементы для удаления
-            map(dele, elements)
-        t2 = time.time()
-        print ('delete', t2-t1)
-        '''
     def mass_collector(self, objects, select):
         a = set(self.collection)
         b = set(objects)
@@ -465,13 +464,6 @@ class Graphics:
                                                             )
         self.c_collection_VBO()
 
-    '''
-    def edit_collector(self, objects):
-        catch_dim = False #True, пока не попался размер
-        for i in objects:
-            if self.ALLOBJECT[i]['object'] == 'dim':
-                catch_dim = True
-    '''
     def edit_collector(self, objects, x, y):
         #Проверяет, какие объекты находятся в коллекции:
         #если только размеры по линии - оставляет коллекцию неизменной,
@@ -579,8 +571,7 @@ class Graphics:
                         rect[3],
                         self.activIDs,
                         self.ALLOBJECT,
-                        )
-                        
+                        )               
         return objects
     
     def draw_rect(self, x, y):
@@ -711,67 +702,7 @@ class Graphics:
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()
-        '''
-        if self.rect:
-            self.c.delete(self.rect)
-            self.rect = None
-        if self.col:
-            self.c.delete('C'+self.col)
-            self.col = None
-        if self.curent_class:
-            del self.curent_class
-            self.curent_class = None
-        ##t=self.c.find_withtag('c1')
-        if t:
-            self.c.delete('c1')
-        if 'trace' in self.ALLOBJECT:
-            self.c.delete('trace')
-            del self.ALLOBJECT['trace']
-        if 'trace_o' in self.ALLOBJECT:
-            self.c.delete('trace_o')
-            del self.ALLOBJECT['trace_o']
-        self.c.delete('clone')
-        self.c.delete('temp')
-        self.unpriv = False
-        self.edit_clone = False
-        self.move_clone = False
-        self.mirror_clone = False
-        self.rotate_clone = False
-        self.edit_dim_clone = False
-        self.copy_clone = False
-        self.line_clone = False
-        self.circle_clone = False
-        self.arc_clone = False
-        self.dim_clone = False
-        self.dimR_clone = False
-        self.trim_dim_clone = False
-        self.edit_dim_text_clone = False
-        self.c.bind_class(self.c,"<Motion>", self.gpriv)
-        self.c.bind_class(self.master1, "<Control-Button-3>", self.BackCol)
-        self.c.bind('<Button-1>', self.lapping_sel)
-        self.c.bind('<Shift-Button-1>', self.lapping_desel)
-        self.c.bind('<Button-3>', self.edit_butt_3)
-        self.c.bind_class(self.master1, "<Return>", self.old_function)
-        self.c.bind_class(self.master1, "<Delete>", self.delete)
-
-        self.c.unbind_class(self.c,"<Shift-1>")
-        self.c.unbind_class(self.master1, "<Motion>")
-        self.c.unbind_class(self.c, "<End>")
-        self.dialog.config(text = 'Command:')
-        self.info.config(text = '')
-        self.resFlag = False
-        self.lappingFlag = False
-        self.anchorFlag = False
-        self.trace_on = False
-        self.trace_obj_on = False
-        self.command.delete(0,END)
-        self.com = None
-        self.sbros()
-        self.func_collection = []
-        self.temp_collection = []
-        ##self.c.config(cursor = 'crosshair')
-        draft_gui.gui.update_prop()
-        '''
+        
 
     def draw_VBO(self):
         if self.GL_version == '3':
@@ -839,7 +770,7 @@ class Graphics:
             
                 glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
             glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0)
-
+    '''
     def draw_array(self):
         #glBindBuffer( GL_ARRAY_BUFFER, self.color_vbo)
         # Указываем, где взять массив цветов:
@@ -871,6 +802,7 @@ class Graphics:
             glVertexPointer(2, GL_FLOAT, 0, self.collection_data) 
         
             glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
+    '''
 
     def OnDraw(self,event):
         self.c.SetCurrent(self.c.context)
@@ -910,15 +842,19 @@ class Graphics:
             )
        
         if tempdata or w_tempdata:
-            
+            c_tempdata = numpy.array(tempdata, dtype = numpy.float32)
+            c_tempcolor = numpy.array(tempcolor, dtype = numpy.ubyte)
+            c_w_tempdata = numpy.array(w_tempdata, dtype = numpy.float32)
+            c_w_tempcolor = numpy.array(w_tempcolor, dtype = numpy.ubyte)
+
             glLineWidth(3)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, tempcolor)
-            glVertexPointer(2, GL_FLOAT, 0, tempdata)
+            glColorPointer(3, GL_UNSIGNED_BYTE, 0, c_tempcolor)
+            glVertexPointer(2, GL_FLOAT, 0, c_tempdata)
             glDrawArrays(GL_LINES, 0, len(tempdata)//2)
             glLineWidth(1)
             #glBindBuffer( GL_ARRAY_BUFFER, 0)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, w_tempcolor)
-            glVertexPointer(2, GL_FLOAT, 0, w_tempdata)
+            glColorPointer(3, GL_UNSIGNED_BYTE, 0, c_w_tempcolor)
+            glVertexPointer(2, GL_FLOAT, 0, c_w_tempdata)
             glDrawArrays(GL_LINES, 0, len(w_tempdata)//2)
             
         glDisableClientState(GL_VERTEX_ARRAY)           # Отключаем использование массива вершин
@@ -980,33 +916,45 @@ class Graphics:
         #else:
         print 'end init GL'
         print 'start init VBO...'
-        self.vbo, self.color_vbo = self.c_VBO(self.pointdata, self.colordata)
+        self.change_pointdata()
+        #self.vbo, self.color_vbo = self.c_VBO(self.pointdata, self.colordata)
         print 'end init VBO'
             #from OpenGL.GL.ARB.vertex_buffer_object import *
 
     def destroy(self, event):
+        print 'destroy'
         if self.vbo: # Если уже есть - удалить
             glDeleteBuffers(1, [self.vbo])
             glDeleteBuffers(1, [self.color_vbo])
         self.interface.Destroy()
+
+    
     
     def c_collection_VBO(self):
+        c_pointdata = numpy.array(self.collection_data, dtype = numpy.float32)
+        c_colordata = numpy.array(self.collection_color, dtype = numpy.ubyte)
+        
         if self.GL_version == '3':
-            #if self.vbo_col: # Если уже есть - удалить
-                #glDeleteBuffers(1, [self.vbo_col])
-                #glDeleteBuffers(1, [self.color_vbo_col])
+            if not self.vbo_col:
+                self.vbo_col = glGenBuffers(1)
+                self.color_vbo_col = glGenBuffers(1)
+            '''
+            if self.vbo_col: # Если уже есть - удалить
+                glDeleteBuffers(1, [self.vbo_col])
+                glDeleteBuffers(1, [self.color_vbo_col])
+            '''
 
             ### Стандартная процедура создания VBO ###
-            self.vbo_col = glGenBuffers(1)
+            #self.vbo_col = glGenBuffers(1)
             glBindBuffer (GL_ARRAY_BUFFER, self.vbo_col)
             # 2 Параметр - указатель на массив pointdata
-            glBufferData (GL_ARRAY_BUFFER, (GLfloat*len(self.collection_data))(*self.collection_data), GL_STATIC_DRAW)
+            glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_STATIC_DRAW)
             glBindBuffer (GL_ARRAY_BUFFER, 0)
             
-            self.color_vbo_col = glGenBuffers(1)
+            #self.color_vbo_col = glGenBuffers(1)
             glBindBuffer (GL_ARRAY_BUFFER, self.color_vbo_col)
             # 2 Параметр - указатель на массив colordata
-            glBufferData (GL_ARRAY_BUFFER, (GLubyte*len(self.collection_color))(*self.collection_color), GL_STATIC_DRAW)
+            glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
             glBindBuffer (GL_ARRAY_BUFFER, 0)
 
         else:
@@ -1014,49 +962,100 @@ class Graphics:
                 #glDeleteBuffers(1, [self.vbo_col])
                 #glDeleteBuffers(1, [self.color_vbo_col])
 
+            if not self.vbo_col:
+                self.vbo_col = glGenBuffersARB(1)
+                self.color_vbo_col = glGenBuffersARB(1)
+
             ### Стандартная процедура создания VBO ###
-            self.vbo_col = glGenBuffersARB(1)
+            #self.vbo_col = glGenBuffersARB(1)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.vbo_col)
             # 2 Параметр - указатель на массив pointdata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, (GLfloat*len(self.collection_data))(*self.collection_data), GL_STATIC_DRAW_ARB)
+            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
             
             self.color_vbo_col = glGenBuffersARB(1)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.color_vbo_col)
             # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, (GLubyte*len(self.collection_color))(*self.collection_color), GL_STATIC_DRAW_ARB)
+            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-    
+
+    def update_VBO(self):
+        glBindBuffer (GL_ARRAY_BUFFER, self.vbo)
         
-    def c_VBO(self, pointdata, colordata):
-        if self.GL_version == '3':            
-            ### Стандартная процедура создания VBO ###
-            vbo = glGenBuffersARB(1)
+        vbo_pointer = ctypes.cast(
+            glMapBuffer(
+                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
+                ctypes.POINTER(ctypes.c_float)
+            )
+        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
+                    (self.vbo_size,))
+        
+        data = numpy.array(self.pointdata, dtype = numpy.float32)#numpy.ctypeslib.as_ctypes(numpy.array(self.pointdata, dtype = numpy.float32))
+        #numpy.array(pointdata, dtype = numpy.float32)
+        vbo_array[0:len(data)] = data.view(dtype=numpy.float32)
+
+        glUnmapBuffer(GL_ARRAY_BUFFER)
+        glBindBuffer (GL_ARRAY_BUFFER, 0)
+        glBindBuffer (GL_ARRAY_BUFFER, self.color_vbo)
+
+        vbo_pointer = ctypes.cast(
+            glMapBuffer(
+                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
+                ctypes.POINTER(ctypes.c_ubyte)
+            )
+        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
+                    (self.color_vbo_size,))
+        
+        data = numpy.array(self.colordata, dtype = numpy.ubyte)#numpy.ctypeslib.as_ctypes(numpy.array(self.colordata, dtype = numpy.ubyte))
+        #numpy.array(pointdata, dtype = numpy.float32)
+        vbo_array[0:len(data)] = data.view(dtype=numpy.ubyte)
+
+        glUnmapBuffer(GL_ARRAY_BUFFER)
+        
+        
+    def c_VBO(self, vbo, color_vbo, pointdata, colordata):
+        
+        #c_pointdata = (GLfloat*len(pointdata))(*pointdata)#
+        c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
+        #c_colordata = (GLubyte*len(colordata))(*colordata)#
+        c_colordata = numpy.array(colordata, dtype = numpy.ubyte)
+        
+        
+        if self.GL_version == '3':
+            '''
+            if self.vbo: # Если уже есть - удалить
+                glDeleteBuffers(1, [self.vbo])
+                glDeleteBuffers(1, [self.color_vbo])
+            '''
+                
+            ### Стандартная процедура создания VBO ###            
             glBindBuffer (GL_ARRAY_BUFFER, vbo)
-            # 2 Параметр - указатель на массив pointdata
             
-            glBufferData (GL_ARRAY_BUFFER, (GLfloat*len(pointdata))(*pointdata), GL_STATIC_DRAW)
+            # 2 Параметр - указатель на массив pointdata
+            glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_DYNAMIC_DRAW)
             glBindBuffer (GL_ARRAY_BUFFER, 0)
             
-            color_vbo = glGenBuffersARB(1)
+            
             glBindBuffer (GL_ARRAY_BUFFER, color_vbo)
+            
             # 2 Параметр - указатель на массив colordata
-            glBufferData (GL_ARRAY_BUFFER, (GLubyte*len(colordata))(*colordata), GL_STATIC_DRAW)
+            glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_DYNAMIC_DRAW)
             glBindBuffer (GL_ARRAY_BUFFER, 0)
 
         else:            
             ### Стандартная процедура создания VBO ###
-            vbo = glGenBuffersARB(1)
+            #vbo = glGenBuffersARB(1)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, vbo)
-            # 2 Параметр - указатель на массив pointdata
             
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, (GLfloat*len(pointdata))(*pointdata), GL_STATIC_DRAW_ARB)
+            # 2 Параметр - указатель на массив pointdata
+            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
             
-            color_vbo = glGenBuffersARB(1)
+            #color_vbo = glGenBuffersARB(1)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, color_vbo)
+            
             # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, (GLubyte*len(colordata))(*colordata), GL_STATIC_DRAW_ARB)
+            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
             glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
 
         return vbo, color_vbo

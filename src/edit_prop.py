@@ -15,8 +15,9 @@ class Edit_prop:
                     remove_list.append(i)
             end = self.par.total_N
             
-
+        #print remove_list
         if remove_list:
+            
             #del_list = [x[0] for x in remove_list]
             self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
                 self.par.ALLOBJECT,

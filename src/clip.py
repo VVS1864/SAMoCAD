@@ -22,7 +22,7 @@ def simple(xBL, yBL, xTR, yTR, activIDs, ALL):#, x1, y1, x2, y2):
 
             if xBL < x1 < xTR and xBL < x2 < xTR and yBL < y1 < yTR and yBL < y2 < yTR:
                 objects.append(e)
-                continue
+                break
             
             c = x2*y1-x1*y2
             b = x1-x2
@@ -32,26 +32,27 @@ def simple(xBL, yBL, xTR, yTR, activIDs, ALL):#, x1, y1, x2, y2):
             r1 = a * xBL + b * yTR + c
             if not r1:
                 objects.append(e)
-                continue
+                break
             r2 = a * xBL + b * yBL+ c
             if not r2:
                 objects.append(e)
-                continue
+                break
             r3 = a * xTR + b * yTR+ c
             if not r3:
                 objects.append(e)
-                continue
+                break
             r4 = a * xTR + b * yBL + c
             if not r4:
                 objects.append(e)
-                continue
+                break
                 
                
             if (r1 < 0 and r2 < 0 and r3 < 0 and r4 < 0) or (r1 > 0 and r2 > 0 and r3 > 0 and r4 > 0):
                 continue
             else:
                 objects.append(e)
-                continue
+                break
+                #continue
 
     return objects
 
