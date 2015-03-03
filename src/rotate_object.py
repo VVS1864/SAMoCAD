@@ -88,6 +88,7 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
             mcos = cos(angle)
                 
             if not temp:
+                new_object = []
                 del_list = []
                 t1 = time.time()
                 start = par.total_N
@@ -96,13 +97,14 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
                     if cNew:
                         del_list.append(content)
                 end = par.total_N
-                par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
+                new_objects = range(start+1, end+1)
+                par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
                 if del_old == 'Y':
                     print 'Y'
                     par.delete_objects(del_list, False)
                     
                 par.change_pointdata()
-                    
+                par.collection = new_objects    
                 print 'rotate ', len(par.collection), ' objects', time.time() - t1, 'sec'
                 par.kill()
             else:

@@ -256,10 +256,6 @@ class Object_line:
     ### Save method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
-        #cd['x1'] = cd['coords'][0][0]
-        #cd['y1'] = drawing_h - cd['coords'][0][1]
-        #cd['x2'] = cd['coords'][0][2] 
-        #cd['y2'] = drawing_h - cd['coords'][0][3]
         cd['y1'] = drawing_h - cd['y1']
         
         cd['y2'] = drawing_h - cd['y2']
@@ -291,18 +287,14 @@ class Object_line:
             
     ### Edit_prop method ###
     def edit_prop(self, params):
-        #param_changed = False
-        #r_list = None
-        cd = self.par.ALLOBJECT[self.obj]#self.get_conf()
+        cd = self.par.ALLOBJECT[self.obj]
         for param in params:
             if param in cd:
                 param_changed = True
                 cd[param] = params[param]
-        #if param_changed == True:
         cd['temp'] = False
         cd['in_mass'] = True
         cNew = self.create_object(cd)
-            #r_list = (self.obj, self.par.Nline)
         return cNew
                    
     ### Trim method ###
@@ -311,7 +303,6 @@ class Object_line:
         cd['temp'] = False
         cd['in_mass'] = True
         if trim_extend == 'Trim':
-            #self.par.c.delete('C'+self.obj)
             cNew = calc.trim_line(x1, y1, x2, y2, x, y, cd['coords'][0])
         else:
             cNew = calc.extend_line(x1, y1, x2, y2, cd['coords'][0])
@@ -320,19 +311,7 @@ class Object_line:
             cd['y1'] = cNew[1]
             cd['x2'] = cNew[2]
             cd['y2'] = cNew[3]
-            cNew = self.create_object(cd)
-            '''
-            c_line(self.par, cNew[0], cNew[1], cNew[2], cNew[3],
-               width = cd['width'],
-               layer = cd['layer'],
-               color = cd['color'],
-               stipple = cd['stipple'],
-               factor_stipple = cd['factor_stipple'],
-               in_mass = True,
-               temp = False,
-               )
-            '''
-            
+            cNew = self.create_object(cd)            
         return cNew
     
     ### Edit method ###
@@ -342,54 +321,13 @@ class Object_line:
         cd['in_mass'] = True
         cNew = self.edit_object(x1, y1, x2, y2, cd)
         return cNew
-        '''
-        cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
-        cd['x1'] = x2
-        cd['y1'] = y2
-        cd['temp'] = False
-        cd['in_mass'] = True
-        cNew = self.create_object(cd)
-        '''
-        '''
-        cNew = c_line(self.par, xn, yn, xf, yf,
-               width = cd['width'],
-               layer = cd['layer'],
-               color = cd['color'],
-               stipple = cd['stipple'],
-               factor_stipple = cd['factor_stipple'],
-               in_mass = True,
-               temp = False,
-               )
-        '''
-        return cNew
-
+        
     def edit_temp(self, x1, y1, x2, y2):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd.update(temp_dict)
         self.edit_object(x1, y1, x2, y2, cd)
         
-        '''
-        cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
-        cd['x1'] = x2
-        cd['y1'] = y2
-        #cd['in_mass'] = True
-        cNew = self.create_object(cd)
-        '''
-        '''
-        c_line(self.par, xn, yn, xf, yf,
-               width = 1,
-               layer = 't',
-               color = [255, 255, 0],
-               stipple = None,
-               factor_stipple = None,
-               in_mass = True,
-               temp = True,
-               )
-               
-        self.create_object(cd)
-        '''
     def edit_object(self, x1, y1, x2, y2, cd):
-        #cd['x1'], cd['y1'], cd['x2'], cd['y2'] = calc.near_far_point(list(cd['coords'][0]), x1, y1)
         a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
         b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)
         cd['x2'], cd['y2'] = cd['coords'][0][2], cd['coords'][0][3]
@@ -402,11 +340,8 @@ class Object_line:
         else:
             return False
             
-        #cd['x1'] = x2
-        #cd['y1'] = y2
         cNew = self.create_object(cd)
         return cNew
-        
     
     ### Rotate methods ###
     def rotate(self, x0, y0, sin, cos, angle):
@@ -436,17 +371,7 @@ class Object_line:
         cd = self.par.ALLOBJECT[self.obj].copy()
         coord = list(cd['coords'][0])
         [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.mirror_lines(x1, y1, [coord,], sin, cos)[0]
-        '''
-        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
-               width = cd['width'],
-               layer = cd['layer'],
-               color = cd['color'],
-               stipple = cd['stipple'],
-               factor_stipple = cd['factor_stipple'],
-               in_mass = True,
-               temp = False,
-               )
-        '''
+        
         cd['in_mass'] = True
         cd['temp'] = False
         cNew = self.create_object(cd)
@@ -458,74 +383,42 @@ class Object_line:
         [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.mirror_lines(x1, y1, [coord,], sin, cos)[0]
         cd.update(temp_dict)
         self.create_object(cd)
-        '''
-        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
-        coord = calc.mirror_lines(x1,y1, [coord,], sin, cos)[0]
-        c_line(self.par, coord[0], coord[1], coord[2], coord[3],
-               width = 1,
-               layer = 't',
-               color = [255, 255, 0],
-               stipple = None,
-               factor_stipple = None,
-               in_mass = True,
-               temp = True,
-               )
-        '''
+        
     ### Copy method ###    
     def copy(self, d):
         cd = self.par.ALLOBJECT[self.obj].copy()
-        cd['x1'] += d[0]#cd['coords'][0][0] + d[0]
-        cd['y1'] += d[1]#cd['coords'][0][1] + d[1]
-        cd['x2'] += d[0]#cd['coords'][0][2] + d[0]
-        cd['y2'] += d[1]#cd['coords'][0][3] + d[1]
+        cd['x1'] += d[0]
+        cd['y1'] += d[1]
+        cd['x2'] += d[0]
+        cd['y2'] += d[1]
         cd['in_mass'] = True
         cd['temp'] = False
         cNew = self.create_object(cd)
         return cNew
-        '''
-        c_line(self.par, x1, y1, x2, y2,
-               width = cd['width'],
-               layer = cd['layer'],
-               color = cd['color'],
-               stipple = cd['stipple'],
-               factor_stipple = cd['factor_stipple'],
-               in_mass = True,
-               temp = False,
-               )
-        '''
         
         
     def copy_temp(self, d):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd.update(temp_dict)
-        cd['x1'] += d[0]#cd['coords'][0][0] + d[0]
-        cd['y1'] += d[1]#cd['coords'][0][1] + d[1]
-        cd['x2'] += d[0]#cd['coords'][0][2] + d[0]
-        cd['y2'] += d[1]#cd['coords'][0][3] + d[1]
-        '''
-        cd['x1'] = cd['coords'][0][0] + d[0]
-        cd['y1'] = cd['coords'][0][1] + d[1]
-        cd['x2'] = cd['coords'][0][2] + d[0]
-        cd['y2'] = cd['coords'][0][3] + d[1]
-        '''
+        cd['x1'] += d[0]
+        cd['y1'] += d[1]
+        cd['x2'] += d[0]
+        cd['y2'] += d[1]
         
         cNew = self.create_object(cd)
 
 
-        '''
-        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])#self.get_coord()
-        x1 = coord[0] + d[0]
-        y1 = coord[1] + d[1]
-        x2 = coord[2] + d[0]
-        y2 = coord[3] + d[1]
-        #cd['coord'] = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(cd['coord'])]
-        c_line(self.par, x1, y1, x2, y2,
-               width = 1,
-               layer = 't',
-               color = [255, 255, 0],
-               stipple = None,
-               factor_stipple = None,
-               in_mass = True,
-               temp = True,
-               )
-        '''
+    ### Scale method ###    
+    def scale(self, x, y, scale_factor):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['x1'] = (cd['x1']-x)*scale_factor + x
+        cd['y1'] = (cd['y1']-y)*scale_factor + y
+        cd['x2'] = (cd['x2']-x)*scale_factor + x
+        cd['y2'] = (cd['y2']-y)*scale_factor + y
+        cd['factor_stipple'] *= scale_factor
+        
+        cd['in_mass'] = True
+        cd['temp'] = False
+        cNew = self.create_object(cd)
+        return cNew
+

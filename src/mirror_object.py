@@ -80,6 +80,7 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
         
         if not temp:
             del_list = []
+            new_object = []
             t1 = time.time()
             start = par.total_N
             for content in objects:
@@ -87,12 +88,14 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
                 if cNew:
                     del_list.append(content)
             end = par.total_N
-            par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
+            new_objects = range(start+1, end+1)
+            par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
             if del_old == 'Y':
                 par.delete_objects(del_list, False)
+                par.collection = new_objects
                 
             par.change_pointdata()
-                
+            #par.collection = new_objects
             print 'mirror ', len(par.collection), ' objects', time.time() - t1, 'sec'
             par.kill()
         else:

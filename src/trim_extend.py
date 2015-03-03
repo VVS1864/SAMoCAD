@@ -168,8 +168,8 @@ class Object:
                 if cNew:
                     del_objs.append(el)
         end = self.par.total_N
-        #if range(start+1, end+1):
-        if del_objs:#if cNew:
+
+        if del_objs:
             self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
                 self.par.ALLOBJECT,
                 range(start+1, end+1),

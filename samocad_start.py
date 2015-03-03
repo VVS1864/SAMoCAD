@@ -649,6 +649,7 @@ class Graphics:
         
     def key(self, e):
         key =  e.GetKeyCode()
+        #state = wx.GetKeyState()
         if key == wx.WXK_ESCAPE:
             self.kill()
         elif not self.resFlag:
@@ -665,7 +666,7 @@ class Graphics:
                 self.collection = []
                 self.kill()
             
-            elif chr_key in self.interface.hot_keys_dict:
+            elif e.ControlDown() and chr_key in self.interface.hot_keys_dict:
                 self.action(self.interface.hot_keys_dict[chr_key])
                 self.focus_cmd()
                 
@@ -698,7 +699,8 @@ class Graphics:
         self.c_collection_VBO()
         self.collectionBack = self.collection
         self.collection = []
-        
+
+        self.cmd.SetValue('')
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()

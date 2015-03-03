@@ -9,7 +9,9 @@ import src.mirror_object as mirror_object
 import src.rotate_object as rotate_object
 import src.trim_extend as trim_extend
 import src.copy_prop as copy_prop
+import src.edit_prop as edit_prop
 import src.trim_dim_line as trim_dim_line
+import src.scale_object as scale_object
 
 
 import src.print_to_file as print_to_file
@@ -225,6 +227,7 @@ class Window(wx.Frame):
         self.image_scale = wx.Image(os.path.join(appPath, 'res', 'scale.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_scale = wx.BitmapButton(self, wx.NewId(), self.image_scale)
         self.sizer_buttons_right.Add(self.button_scale)
+        self.button_scale.Bind(wx.EVT_BUTTON, self.scale)
 
         self.image_trim_dim = wx.Image(os.path.join(appPath, 'res', 'chain_dim.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_trim_dim = wx.BitmapButton(self, wx.NewId(), self.image_trim_dim)
@@ -300,35 +303,52 @@ class Window(wx.Frame):
             RGB = (255, 255, 255)
             self.color_pick.SetColour(RGB)
         self.par.color = list(RGB)
+        self.edit_prop({'color':self.par.color})
+        #edit_prop.Edit_prop(self.par, {'color':self.par.color}, self.par.collection)
+        self.par.focus_cmd()
         e.Skip()
 
     def width(self, e):
         line_width = e.GetString()
         self.par.width = int(line_width)
+        self.edit_prop({'width':self.par.width})
+        #edit_prop.Edit_prop(self.par, {'width':self.par.width}, self.par.collection)
+        self.par.focus_cmd()
         e.Skip()
 
     def stipple(self, e):
         self.par.stipple = self.par.stipples[e.GetString()]
+        self.edit_prop({'stipple':self.par.stipple})
+        #edit_prop.Edit_prop(self.par, {'stipple':self.par.stipple}, self.par.collection)
+        self.par.focus_cmd()
         e.Skip()
 
     def size_text(self, e):
         self.par.text_size = self.text_size_ctrl.GetValue()*100.0
+        self.edit_prop({'text_size':self.par.text_size})
+        #edit_prop.Edit_prop(self.par, {'text_size':self.par.text_size}, self.par.collection)
+        self.par.focus_cmd()
         e.Skip()
 
     def size_text_enter(self, e):
         key =  e.GetKeyCode()
         if key == wx.WXK_RETURN:
             self.size_text(e)
+            self.par.focus_cmd()
         e.Skip()
 
     def dim_size_text(self, e):
         self.par.dim_text_size = self.dim_text_size_ctrl.GetValue()*100.0
+        self.edit_prop({'dim_text_size':self.par.dim_text_size})
+        #edit_prop.Edit_prop(self.par, {'dim_text_size':self.par.dim_text_size}, self.par.collection)
+        self.par.focus_cmd()
         e.Skip()
 
     def dim_size_text_enter(self, e):
         key =  e.GetKeyCode()
         if key == wx.WXK_RETURN:
             self.dim_size_text(e)
+            self.par.focus_cmd()
         e.Skip()
             
 
@@ -378,6 +398,10 @@ class Window(wx.Frame):
 
     def trim_dim(self, e):
         self.par.action(trim_dim_line.Object)
+        self.par.focus_cmd()
+
+    def scale(self, e):
+        self.par.action(scale_object.Object)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ
@@ -459,7 +483,21 @@ class Window(wx.Frame):
         else:
             button.SetBackgroundColour("White")
             button.SetForegroundColour("Black")
-    
+
+# Смена свойств выделенных объектов при изменении глобальных параметров
+
+    def edit_prop(self, dict_prop, get_objects = []):
+        if not get_objects:
+            objects = self.par.collection
+        else:
+            objects = get_objects
+            
+        new_objects = edit_prop.Edit_prop(self.par, dict_prop, objects)
+        if new_objects and not get_objects:
+            self.par.collection = new_objects
+            self.par.kill()
+            self.par.mass_collector(new_objects, 'select')
+            #self.par.collectionBack = []    
 
 class myGLCanvas(GLCanvas):
     def __init__(self, parent):
