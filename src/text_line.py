@@ -1,12 +1,13 @@
 # -*- coding: utf-8; -*-
-import symbols
+import src.symbols as symbols
 import src.sectors_alg as sectors_alg
 import src.save_file as save_file
 from math import sqrt, degrees
 from os import path
 import wx
 import calc
-from base import Base
+from src.base import Base
+from src.base_object import Base_object
 list_prop = ('color', 'text', 'layer', 'angle', 'anchor', 'text_size', 'text_s_s', 'text_w', 'text_font')
 temp_dict = {
     'layer' : 't',
@@ -126,10 +127,9 @@ def c_text(
             par.dynamic_data.extend(i)
             par.dynamic_color.extend(color * 2)
     
-class Object_text:
+class Object_text(Base_object):
     def __init__(self, par, obj):
-        self.par = par
-        self.obj = obj
+        super(Object_text, self).__init__(par, obj)
 
     def create_object(self, cd):
         cNew = c_text(
@@ -150,20 +150,6 @@ class Object_text:
             )
         return cNew
 
-    ### History_undo method ###
-    def undo(self, cd, zoomOLDres, xynachres):
-        cd['x1'], cd['y1'] = self.par.coordinator(cd['coord'][0], cd['coord'][1], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        c_text(self.par, cd['x1'], cd['y1'],
-               cd['text'],
-               cd['anchor'],
-               cd['sloy'],
-               cd['fill'],
-               cd['angle'],
-               cd['size'],
-               cd['s_s'],
-               cd['w_text'],
-               cd['font'],
-               )
 
     ### Edit_prop method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
@@ -187,9 +173,6 @@ class Object_text:
             SVG_prop = {
                 # cd_name : (SVG_name, cd_value)
                 'color' : ('fill', color_rgb_str),
-                #'width' : ('stroke-width', cd['width']),
-                #'stipple' : ('stroke-dasharray', dash_str),
-                #'factor_stipple' : ('stroke-dasharray', dash_str),
                         }
             
             en += save_file.prop_to_svg_style(layers, cd, SVG_prop)
@@ -198,24 +181,6 @@ class Object_text:
             cd['svg_strings'] = [e,]
             
         return cd
-
-        
-    
-    ### Edit_prop method ###
-    def edit_prop(self, params):
-        cd = self.par.ALLOBJECT[self.obj]
-        for param in params:
-            if param in cd:
-                param_changed = True
-                cd[param] = params[param]
-        cd['temp'] = False
-        cd['in_mass'] = True
-        cNew = self.create_object(cd)
-        return cNew
-
-    ### Edit method ###
-    def edit(self, event):
-        pass
 
     ### Rotate methods ###
     def rotate(self, x0, y0, msin, mcos, angle):
@@ -227,21 +192,6 @@ class Object_text:
         cd['temp'] = False
         cNew = self.create_object(cd)
         return cNew
-        '''
-        c_text(self.par, coord[0], coord[1],
-               text = cd['text'],
-               anchor = cd['anchor'],
-               layer = cd['layer'],
-               color = cd['color'],
-               angle = cd['angle'],
-               text_size = cd['text_size'],
-               text_s_s = cd['text_s_s'],
-               text_w = cd['text_w'],
-               text_font = cd['text_font'],
-               in_mass = True,
-               temp = False,
-               )
-        '''
 
     def rotate_temp(self, x0, y0, msin, mcos, angle):
         cd = self.par.ALLOBJECT[self.obj].copy()
@@ -251,89 +201,19 @@ class Object_text:
         cd.update(temp_dict)
         self.create_object(cd)
 
-        '''
-        cd = self.par.ALLOBJECT[self.obj]
-        coord = list(cd['coords'][0])
-        coord = calc.rotate_lines(x0, y0, [coord,], msin, mcos)[0]
-        angle += cd['angle']
-        c_text(self.par, coord[0], coord[1],
-               text = cd['text'],
-               anchor = cd['anchor'],
-               layer = cd['layer'],
-               color = [255, 255, 0],
-               angle = angle,
-               text_size = cd['text_size'],
-               text_s_s = cd['text_s_s'],
-               text_w = cd['text_w'],
-               text_font = cd['text_font'],
-               in_mass = True,
-               temp = True,
-               )
-        '''
-
-    ### Offset method ###
-    def offset(self, pd, x3, y3):
-        pass
-
-    ### Rotate methods ###    
-    def mirror(self, x0, y0, msin, mcos):
-        pass
-
-    def mirror_temp(self, x0, y0, msin, mcos):
-        pass
-
     ### Copy method ###    
     def copy(self, d):
-        #cd = self.par.ALLOBJECT[self.obj]
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd['x'] += d[0]
         cd['y'] += d[1]
-        
         cd['in_mass'] = True
         cd['temp'] = False
         cNew = self.create_object(cd)
         return cNew
-        
-        '''
-        c_text(self.par, x, y,
-               text = cd['text'],
-               anchor = cd['anchor'],
-               layer = cd['layer'],
-               color = cd['color'],
-               angle = cd['angle'],
-               text_size = cd['text_size'],
-               text_s_s = cd['text_s_s'],
-               text_w = cd['text_w'],
-               text_font = cd['text_font'],
-               in_mass = True,
-               temp = False,
-               )
-        '''
 
     def copy_temp(self, d):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd.update(temp_dict)
         cd['x'] += d[0]
         cd['y'] += d[1]
-        cNew = self.create_object(cd)
-        
-        '''
-        cd = self.par.ALLOBJECT[self.obj]
-        coord = list(self.par.ALLOBJECT[self.obj]['coords'][0])
-        x = coord[0] + d[0]
-        y = coord[1] + d[1]
-        c_text(self.par, x, y,
-               text = cd['text'],
-               anchor = cd['anchor'],
-               layer = 't',
-               color = [255, 255, 0],
-               angle = cd['angle'],
-               text_size = cd['text_size'],
-               text_s_s = cd['text_s_s'],
-               text_w = cd['text_w'],
-               text_font = cd['text_font'],
-               in_mass = True,
-               temp = True,
-               )
-        '''
-        
+        cNew = self.create_object(cd)        

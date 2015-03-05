@@ -2,6 +2,7 @@
 from math import sqrt, copysign
 import src.sectors_alg as sectors_alg
 from src.base import Base
+from src.base_object import Base_object
 import src.save_file as save_file
 from os import path
 import wx
@@ -61,17 +62,6 @@ class Line(Base):
             }
         super(Line, self).func_3(event, c_line, kwargs)
         
-        """
-            #self.par.history_undo.append(('c_', self.par.Nline))
-            ex = self.par.ex2
-            ey = self.par.ey2
-            event.Skip()
-            #self.par.set_coord()
-            #self.par.changeFlag = True
-            #self.par.enumerator_p()
-            #self.par.com = None
-            #self.par.command.delete(0, 'end')
-        """
         if event:
             self.par.ex = self.par.ex2
             self.par.ey = self.par.ey2
@@ -146,14 +136,9 @@ def c_line(
         return True
         
     else:
-        #if stipple == None:
         par.dynamic_data.extend([x1,y1,x2,y2])
         par.dynamic_color.extend(color * 2)
             
-        #else:
-            #lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
-            #par.dynamic_data.extend(pointdata)
-            #par.dynamic_color.extend(colordata)
             
 ### Отрисовка линии сложного типа ###    
 def stipple_line(par, x1,y1,x2,y2, dash, color, width):
@@ -224,10 +209,9 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
         if cor:
             return lines, pointdata, colordata, IDs            
 
-class Object_line:
+class Object_line(Base_object):
     def __init__(self, par, obj):
-        self.par = par
-        self.obj = obj
+        super(Object_line, self).__init__(par, obj)
 
     def create_object(self, cd):
         cNew = c_line(
@@ -245,14 +229,7 @@ class Object_line:
             temp = cd['temp'],
                )
         return cNew
-        
-    ### History_undo method ###
-    def undo(self, cd, zoomOLDres, xynachres):
-        cd['coord'][0], cd['coord'][1] = self.par.coordinator(cd['coord'][0], cd['coord'][1], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['coord'][2], cd['coord'][3] = self.par.coordinator(cd['coord'][2], cd['coord'][3], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['temp'] = False
-        self.create_object(cd)
-        
+                
     ### Save method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
@@ -284,18 +261,6 @@ class Object_line:
             cd['svg_strings'] = [e,]
             
         return cd
-            
-    ### Edit_prop method ###
-    def edit_prop(self, params):
-        cd = self.par.ALLOBJECT[self.obj]
-        for param in params:
-            if param in cd:
-                param_changed = True
-                cd[param] = params[param]
-        cd['temp'] = False
-        cd['in_mass'] = True
-        cNew = self.create_object(cd)
-        return cNew
                    
     ### Trim method ###
     def trim_extend(self, x, y, x1, y1, x2, y2, trim_extend):
@@ -315,18 +280,6 @@ class Object_line:
         return cNew
     
     ### Edit method ###
-    def edit(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj].copy()
-        cd['temp'] = False
-        cd['in_mass'] = True
-        cNew = self.edit_object(x1, y1, x2, y2, cd)
-        return cNew
-        
-    def edit_temp(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj].copy()
-        cd.update(temp_dict)
-        self.edit_object(x1, y1, x2, y2, cd)
-        
     def edit_object(self, x1, y1, x2, y2, cd):
         a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
         b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)

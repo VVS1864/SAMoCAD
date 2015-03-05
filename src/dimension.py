@@ -4,6 +4,7 @@ from math import pi, sqrt, degrees, radians, sin, cos
 import src.calc as calc
 import src.sectors_alg as sectors_alg
 from src.base import Base
+from src.base_object import Base_object
 import src.save_file as save_file
 
 import symbols
@@ -502,10 +503,9 @@ def get_dim_lines(
     return list_snap_lines, list_lines, list_arrow, ort, text_place, text_change, line3
         
 
-class Object_dim:
+class Object_dim(Base_object):
     def __init__(self, par, obj):
-        self.par = par
-        self.obj = obj
+        super(Object_dim, self).__init__(par, obj)
     
     def create_object(self, cd):
         cNew =  c_dim(
@@ -534,18 +534,9 @@ class Object_dim:
             in_mass = cd['in_mass'],
             temp = cd['temp'],
             )
-        return cNew
+        return cNew              
 
-    ### History_undo method ###
-    def undo(self, cd, zoomOLDres, xynachres):
-        cd['x1'], cd['y1'] = self.par.coordinator(cd['x1'], cd['y1'], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['x2'], cd['y2'] = self.par.coordinator(cd['x2'], cd['y2'], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['x3'], cd['y3'] = self.par.coordinator(cd['x3'], cd['y3'], zoomOLDres = zoomOLDres, xynachres = xynachres)
-        cd['temp'] = None
-        self.create_object(cd)
-               
-
-    ### Edit_prop method ###
+    ### Save method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
         if cd['text'] == None:
@@ -668,15 +659,9 @@ class Object_dim:
         if ort == "vertical":
             cd['line_2_y2'] -= cd['vv_s']*derect
             cd['line_1_y2'] -= cd['vv_s']*derect
-            
-            #cd['line_3_x1'] -= cd['vr_s']
-            #cd['line_3_x2'] += cd['vr_s']
         else:
             cd['line_2_x2'] += cd['vv_s']*derect
             cd['line_1_x2'] += cd['vv_s']*derect
-            
-            #cd['line_3_y1'] += cd['vr_s']
-            #cd['line_3_y2'] -= cd['vr_s']
         
         cd['line_3_x1'] = cd['line3'][0]
         cd['line_3_y1'] = drawing_h - cd['line3'][1]
@@ -789,112 +774,6 @@ class Object_dim:
         e = (e % cd)
         return e, cd
         '''
-    
-    ### Edit_prop method ###
-    def edit_prop(self, params):
-        #param_changed = False
-        #r_list = None
-        cd = self.par.ALLOBJECT[self.obj]#self.get_conf()
-        for param in params:
-            if param in cd:
-                param_changed = True
-                cd[param] = params[param]
-        #if param_changed == True:
-        cd['temp'] = False
-        cd['in_mass'] = True
-        cNew = self.create_object(cd)
-            #r_list = (self.obj, self.par.Nline)
-        return cNew
-
-    ### Edit method ###
-    def edit(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj].copy()
-        cd['in_mass'] = True
-        cd['temp'] = False
-        cNew = self.edit_object(x1, y1, x2, y2, cd)
-        return cNew
-        #text_change = 'unchange'
-        #text_place = None
-        '''
-        cd['x3'] = cd['coords'][2][0]
-        cd['y3'] = cd['coords'][2][1]
-        
-        cd['x4'] = cd['coords'][2][2]
-        cd['y4'] = cd['coords'][2][3]
-        
-        
-        a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
-        b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
-        c = sqrt((cd['x3'] - x1)**2 + (cd['y3'] - y1)**2)
-        d = sqrt((cd['x4'] - x1)**2 + (cd['y4'] - y1)**2)
-
-        if a < self.par.min_e:
-            cd['x1'], cd['y1'] = x2, y2
-        elif b < self.par.min_e:
-            cd['x2'], cd['y2'] = x2, y2
-        elif c < self.par.min_e or d < self.par.min_e:
-            cd['x3'], cd['y3'] = x2, y2
-        elif abs(cd['x3'] - x1) < self.par.min_e or abs(cd['y3'] - y1) < self.par.min_e:
-            cd['x3'], cd['y3'] = x2, y2
-            #text_change = cd['text_change']
-            #text_lines, priv_line, text_place =
-            #text_lines, priv_line, text_place = get_conf.dim_text_place(content)
-            #if cd['ort'] == 'vertical':#text_place[2] == 'hor':
-            #    text_place[1] = y1 + (y2-y1)
-            #else:
-             #   text_place[0] = x1 + (x2-x1)
-        cd['in_mass'] = True
-        cd['temp'] = False
-
-        cNew = self.create_object(cd)
-                    
-        return cNew
-        '''
-
-    def edit_temp(self, x1, y1, x2, y2):
-        cd = self.par.ALLOBJECT[self.obj].copy()
-        cd.update(temp_dict)
-        cd['in_mass'] = False
-        self.edit_object(x1, y1, x2, y2, cd)
-        #text_change = 'unchange'
-        #text_place = None
-        #cd = self.grt_coords(cd)
-        '''
-        cd['x3'] = cd['coords'][2][0]
-        cd['y3'] = cd['coords'][2][1]
-        
-        cd['x4'] = cd['coords'][2][2]
-        cd['y4'] = cd['coords'][2][3]
-        
-        
-        a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
-        b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
-        c = sqrt((cd['x3'] - x1)**2 + (cd['y3'] - y1)**2)
-        d = sqrt((cd['x4'] - x1)**2 + (cd['y4'] - y1)**2)
-
-        if a < self.par.min_e:
-            cd['x1'], cd['y1'] = x2, y2
-        elif b < self.par.min_e:
-            cd['x2'], cd['y2'] = x2, y2
-        elif c < self.par.min_e or d < self.par.min_e:
-            cd['x3'], cd['y3'] = x2, y2
-        elif abs(cd['x3'] - x1) < self.par.min_e or abs(cd['y3'] - y1) < self.par.min_e:
-            cd['x3'], cd['y3'] = x2, y2
-            #text_change = cd['text_change']
-            #text_lines, priv_line, text_place =
-            #text_lines, priv_line, text_place = get_conf.dim_text_place(content)
-            #if cd['ort'] == 'vertical':#text_place[2] == 'hor':
-            #    text_place[1] = y1 + (y2-y1)
-            #else:
-             #   text_place[0] = x1 + (x2-x1)
-        cd['in_mass'] = False
-        #if event:
-            #cd['temp'] = False
-        #else:
-        #cd['temp'] = True
-            
-        self.create_object(cd)
-        '''
         
     def edit_object(self, x1, y1, x2, y2, cd):
         cd['x3'] = cd['coords'][2][0]
@@ -934,24 +813,10 @@ class Object_dim:
         cNew = self.create_object(cd)
         return cNew
     
-        
-    ### Rotate methods ###    
-    def rotate(self, x0, y0, msin, mcos, angle):
-        pass
-
-    def rotate_temp(self, x0, y0, msin, mcos, angle):
-        pass
-
-    ### Rotate methods ###    
-    def mirror(self, x0, y0, msin, mcos):
-        pass
-
-    def mirror_temp(self, x0, y0, msin, mcos):
-        pass
 
     ### Copy method ###    
     def copy(self, d):
-        cd = self.par.ALLOBJECT[self.obj].copy() #self.get_conf()
+        cd = self.par.ALLOBJECT[self.obj].copy()
         cd['x1'] += d[0]
         cd['y1'] += d[1]
         cd['x2'] += d[0]
@@ -970,8 +835,6 @@ class Object_dim:
     def copy_temp(self, d):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd.update(temp_dict)
-        
-        #coord = list(self.par.ALLOBJECT[self.obj]['coords'])#self.par.ALLOBJECT[self.obj].copy() #self.get_conf()
         cd['x1'] += d[0]
         cd['y1'] += d[1]
         cd['x2'] += d[0]
@@ -979,11 +842,10 @@ class Object_dim:
         cd['x3'] += d[0]
         cd['y3'] += d[1]
     
-        #coord = [y+d[0] if ind%2 == 0 else y+d[1] for ind, y in enumerate(]
         if cd['text_place']:
             cd['text_place'][0] += d[0]
             cd['text_place'][1] += d[1]
-        #cd['temp'] = False
+
         cd['in_mass'] = True
         self.create_object(cd)
         
