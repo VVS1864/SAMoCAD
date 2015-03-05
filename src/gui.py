@@ -2,6 +2,7 @@
 import src.line as line
 import src.text_line as text_line
 import src.dimension as dimension
+import src.circle as circle
 
 import src.copy_object as copy_object
 import src.move_object as move_object
@@ -159,6 +160,7 @@ class Window(wx.Frame):
         self.image_circle = wx.Image(os.path.join(appPath, 'res', 'circle2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_circle = wx.BitmapButton(self, wx.NewId(), self.image_circle)
         self.sizer_buttons_left.Add(self.button_circle)
+        self.button_circle.Bind(wx.EVT_BUTTON, self.circle)
 
         self.image_arc = wx.Image(os.path.join(appPath, 'res', 'arc2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_arc = wx.BitmapButton(self, wx.NewId(), self.image_arc)
@@ -363,6 +365,10 @@ class Window(wx.Frame):
 
     def dim(self, e):
         self.par.action(dimension.Dimension)
+        self.par.focus_cmd()
+
+    def circle(self, e):
+        self.par.action(circle.Circle)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА

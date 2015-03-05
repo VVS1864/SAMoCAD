@@ -443,7 +443,7 @@ def rotate_points(x, y, points, msin, mcos):
 def mirrorCalc(px1, py1, xold, yold,  mcos, msin):
     a = xold-px1
     b = yold-py1
-    x2 = (mcos*(a*mcos+b*msin) + msin*(-a*msin+b*mcos))+px1
+    x2 = (mcos*(a*mcos+b*msin) + msin*(-a*msin+b*mcos)) +px1
     y2 = (msin*(a*mcos+b*msin) + mcos*(a*msin-b*mcos)) +py1
     return x2,y2
     

@@ -40,10 +40,10 @@ class Line(Base):
 
     def line(self, e):
         self.par.ex, self.par.ey = super(Line, self).func_2(
-                                                            self.line2,
-                                                            'Line - next point:',
-                                                            True,
-                                                            )
+            self.line2,
+            'Line - next point:',
+            True,
+            )
 
     def line2(self, event = None):
         kwargs = {
@@ -69,19 +69,19 @@ class Line(Base):
 
 ### Отрисовка линии ###
 def c_line(
-            par,
-            x1,
-            y1,
-            x2,
-            y2,
-            width,
-            layer,
-            color,
-            stipple,
-            factor_stipple,
-            in_mass,
-            temp = False,
-           ):
+    par,
+    x1,
+    y1,
+    x2,
+    y2,
+    width,
+    layer,
+    color,
+    stipple,
+    factor_stipple,
+    in_mass,
+    temp = False,
+    ):
     if not (0 <= x1 <= par.drawing_w
             and 0 <= y1 <= par.drawing_h
             and 0 <= x2 <= par.drawing_w
@@ -102,13 +102,14 @@ def c_line(
             par.IDs.append(par.total_N)
                         
         else:
-            lines, pointdata, colordata, IDs = stipple_line(par, x1,y1,x2,y2, dash, color, width)
+            lines, pointdata = stipple_line(x1,y1,x2,y2, dash)
             if not lines:
                 return
             else:
+                par.IDs.append(par.total_N)
+                par.IDs.extend([0,]*(len(lines)-1))
                 par.pointdata.extend(pointdata)
-                par.colordata.extend(colordata)
-                par.IDs.extend(IDs)
+                par.colordata.extend(color*2*len(lines))
        
         object_line = Object_line(par, par.total_N)
         dict_prop = {}
@@ -141,11 +142,9 @@ def c_line(
             
             
 ### Отрисовка линии сложного типа ###    
-def stipple_line(par, x1,y1,x2,y2, dash, color, width):
+def stipple_line(x1,y1,x2,y2, dash):
     lines = []
     pointdata = []
-    colordata = []
-    IDs = []
     xm = min(x1, x2)
     ym = min(y1, y2)
     xb = max(x1, x2)
@@ -200,14 +199,8 @@ def stipple_line(par, x1,y1,x2,y2, dash, color, width):
         if pos % 2 != 0:
             lines.append([xi1,yi1,xi2,yi2])
             pointdata.extend([xi1,yi1,xi2,yi2])
-            colordata.extend(color * 2)
-            if one:
-                IDs.append(0)
-            else:
-                IDs.append(par.total_N)
-                one = 1
         if cor:
-            return lines, pointdata, colordata, IDs            
+            return lines, pointdata            
 
 class Object_line(Base_object):
     def __init__(self, par, obj):
@@ -357,7 +350,6 @@ class Object_line(Base_object):
         cd['y1'] += d[1]
         cd['x2'] += d[0]
         cd['y2'] += d[1]
-        
         cNew = self.create_object(cd)
 
 
