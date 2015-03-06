@@ -162,6 +162,7 @@ def c_circle(
                                     'lines': lines,
                                     'x1': x1,
                                     'y1': y1,
+                                    'snap_type':'circle',
                                     }
         par.ALLOBJECT[par.total_N].update(dict_prop)
         if not in_mass:

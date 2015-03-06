@@ -114,6 +114,7 @@ def c_text(
                                         'lines': lines,
                                         'x' : x,
                                         'y' : y,
+                                        'snap_type':'line',
                                         }
         par.ALLOBJECT[par.total_N].update(dict_prop)
         if not in_mass:

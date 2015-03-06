@@ -281,6 +281,7 @@ def c_dim(
                                 'lines': lines,
                                 'arrow_lines' : list_arrow,
                                 'line3' : line3,
+                                'snap_type':'line',
                                 }
         par.ALLOBJECT[par.total_N].update(dict_prop)
         
