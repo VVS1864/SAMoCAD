@@ -241,6 +241,7 @@ def oval_lines(x, y, R, sector_angle):
 class Object_circle(Base_object):
     def __init__(self, par, obj):
         super(Object_circle, self).__init__(par, obj)
+        self.temp_dict = temp_dict
 
 
     def create_object(self, cd):
@@ -273,21 +274,12 @@ class Object_circle(Base_object):
         return e, cd
 
     ### Edit method ###
-    def edit(self, event):
-        cd = self.get_conf()
-        cd['R'] = sqrt((self.par.ex2-cd['xc'])**2 + (self.par.ey2-cd['yc'])**2)
-        
-        if event:
-            temp = None
-        else:
-            temp = 'Yes'
-
-        c_circle(self.par, cd['xc'], cd['yc'],
-                width = cd['width'],
-                sloy = cd['sloy'],
-                fill = cd['fill'],
-                R = cd['R'], 
-                temp = temp)
+    def edit_object(self, x1, y1, x2, y2, cd ):
+        a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
+        if abs(a - cd['R']) < self.par.min_e:
+            cd['R'] = sqrt((x2-cd['x1'])**2 + (y2-cd['y1'])**2)
+            cNew = self.create_object(cd)
+            return cNew
 
     ### Rotate methods ###
     def rotate(self, x0, y0, msin, mcos, angle):

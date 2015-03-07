@@ -507,6 +507,7 @@ def get_dim_lines(
 class Object_dim(Base_object):
     def __init__(self, par, obj):
         super(Object_dim, self).__init__(par, obj)
+        self.temp_dict = temp_dict
     
     def create_object(self, cd):
         cNew =  c_dim(

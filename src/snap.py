@@ -87,7 +87,7 @@ def get_snap(x, y, snap_s, find, par):
                 yt = yc #Текущимь координатами взять координаты первой точки приметива
                 xt = xc
                 cath = True
-                tip_p = 'r'#Тип привязки - к конточке
+                tip_p = 'c'#Тип привязки - к конточке
             elif b <= snap_s:
                 yt = yc #Текущимь координатами взять координаты первой точки приметива
                 xt = xc-R
@@ -121,7 +121,7 @@ def get_snap(x, y, snap_s, find, par):
                         tip_p = p
                         break
 
-            elif N_dist <= snap_s and par.snap_near == True and par.resFlag == True:
+            elif abs(N_dist) <= snap_s and par.snap_near == True and par.resFlag == True:
                 xi = xn#Назначить координаты выхода полученным координатам
                 yi = yn
                 tip_p = 'N'

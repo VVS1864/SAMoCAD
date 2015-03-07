@@ -28,7 +28,7 @@ class Base_object(object):
 
     def edit_temp(self, x1, y1, x2, y2):
         cd = self.par.ALLOBJECT[self.obj].copy()
-        cd.update(temp_dict)
+        cd.update(self.temp_dict)
         cd['in_mass'] = False
         self.edit_object(x1, y1, x2, y2, cd)
 

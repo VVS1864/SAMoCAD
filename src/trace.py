@@ -83,6 +83,7 @@ def tracer(par, x1, y1, x2, y2, angle_s, rect):
                                 'sectors':[],
                                 'coords': ((xr1,yr1,xr2,yr2),),
                                 'lines': lines,
+                                'snap_type' : 'line',
                                 }
             par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, ['trace',], par.sectors, par.q_scale)
             #id_dict = {id:('line', 'priv')}
