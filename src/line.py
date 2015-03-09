@@ -4,9 +4,7 @@ import src.sectors_alg as sectors_alg
 from src.base import Base
 from src.base_object import Base_object
 import src.save_file as save_file
-from os import path
 import wx
-import copy
 import src.calc as calc
 
 #ЛИНИЯ

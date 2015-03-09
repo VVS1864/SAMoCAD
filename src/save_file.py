@@ -36,6 +36,7 @@ class Save_to_SVG(Base_save):
     def __init__(self, file_name, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
         self.w = ceil(drawing_w)
         self.h = ceil(drawing_h)
+        '''
         if self.w < 1024:
             self.nx = self.w
             self.ny =  self.h
@@ -45,13 +46,17 @@ class Save_to_SVG(Base_save):
             mx = 10240/self.w
             self.nx = ceil(self.w/mx)
             self.ny =  ceil(self.h/mx)
+        '''
         self.drawing_data = {
                             'h':self.h,
                             'w':self.w,
-                            'nx':self.nx,
-                            'ny':self.ny,
+                            
+                            #'nx':self.nx,
+                            #'ny':self.ny,
+                            
                             'drawing_name':os.path.basename(file_name),
                             }
+        
         self.write_list = []
         self.st0 = {
                     "fill": "white",
@@ -59,7 +64,7 @@ class Save_to_SVG(Base_save):
                     "stipple":None,
                     }
         
-        e = """<svg id="%(drawing_name)s" version="1.1" width="%(w)s" height="%(h)s" viewBox="0 0 %(nx)s %(ny)s" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" type="1">"""
+        e = """<svg id="%(drawing_name)s" version="1.1" width="%(w)s" height="%(h)s" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" type="1">"""
         e = (e % self.drawing_data)
         self.write_list.append(e)
 
@@ -74,7 +79,7 @@ text {
   vector-effect: non-scaling-stroke;
 }
 .st1 {
-  fill: black;
+  fill: none;
   stroke: black;
   stroke-width: 2;
   stroke-dasharray: none

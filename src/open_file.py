@@ -4,6 +4,7 @@ import re
 from calc import min_distanse, intersection_stright
 import src.line as line
 import src.dimension as dimension
+import src.circle as circle
 
 import src.text_line as text_line
 import src.sectors_alg as sectors_alg
@@ -44,14 +45,14 @@ class Open_from_SVG:
         for obj in self.config_list:
             if obj['object'] == 'line':
                 line.c_line(
-                            self.par, obj['x1'], obj['y1'], obj['x2'], obj['y2'],
-                            width = obj['width'],
-                            layer = obj['layer'],
-                            color = obj['color'],
-                            stipple = obj['stipple'],
-                            factor_stipple = obj['factor_stipple'],
-                            in_mass = True,
-                        )
+                    self.par, obj['x1'], obj['y1'], obj['x2'], obj['y2'],
+                    width = obj['width'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    stipple = obj['stipple'],
+                    factor_stipple = obj['factor_stipple'],
+                    in_mass = True,
+                )
 
             elif obj['object'] == 'text_line':
                 text_line.c_text(self.par, obj['x'], obj['y'],
@@ -95,6 +96,22 @@ class Open_from_SVG:
                     in_mass = True,
                     temp = False,
                     )
+
+            if obj['object'] == 'circle':
+                obj['x2'], obj['y2'] = 0, 0
+                circle.c_circle(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    R = obj['R'],
+                    width = obj['width'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    in_mass = True,
+                    temp = False
+                )
                 
 
         self.par.change_pointdata()
@@ -180,6 +197,7 @@ class Open_from_SVG:
                 self.config_list.append(config)
 
             elif tag == '{http://www.w3.org/2000/svg}text':
+                print 't'
                 attrib = i.attrib
                 config['object'] = 'text_line'
                 ###
@@ -209,8 +227,16 @@ class Open_from_SVG:
 
                 config['anchor'] = 'sw'
                 config['text_w'] = 1
-                config['color'] = [255, 255, 255]
+                #config['color'] = [255, 255, 255]
                 config['text_font'] = 'TXT'
+
+                if 'style' in attrib:
+                    style_attrib = re_class.findall(attrib['style'])
+                    if style_attrib:
+                        for prop_n_v in style_attrib:
+                            name, value = self.proper(prop_n_v)
+                            config[name] = value
+                            
                 self.config_list.append(config)
                 ###
             elif tag == '{http://www.w3.org/2000/svg}g':
@@ -240,6 +266,26 @@ class Open_from_SVG:
                                 config['text'] = None
 
                             self.config_list.append(config)
+
+            elif tag == '{http://www.w3.org/2000/svg}circle':
+                attrib = i.attrib
+                config['object'] = 'circle'
+                config['x1'] = float(attrib['cx'])
+                config['y1'] = self.par.drawing_h - float(attrib['cy'])
+                config['R'] = float(attrib['r'])
+                config['layer'] = attrib['class'][2:]
+
+                from_style = self.styles_dict[config['layer']]
+                config.update(from_style)
+
+                if 'style' in attrib:
+                    style_attrib = re_class.findall(attrib['style'])
+                    if style_attrib:
+                        for prop_n_v in style_attrib:
+                            name, value = self.proper(prop_n_v)
+                            config[name] = value
+
+                self.config_list.append(config)
 
                     
                 
@@ -291,6 +337,7 @@ class Open_from_SVG:
             
         elif value in self.color_dict:
             ist_value = self.color_dict[value]
+        print ist_value
         return ist_value
 
     def stipple(self, value):

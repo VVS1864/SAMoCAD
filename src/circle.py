@@ -5,6 +5,7 @@ import calc
 import src.sectors_alg as sectors_alg
 from src.base import Base
 from src.base_object import Base_object
+import src.save_file as save_file
 
 #КРУГ
 list_prop = (
@@ -265,13 +266,36 @@ class Object_circle(Base_object):
 
 
     ### Edit_prop method ###
-    def save(self, dxf):
-        cd = self.get_conf()
-        e = "self.c_circle(x0 = %(xc)s, y0 = %(yc)s, R = %(R)s, width = %(width)s, fill = '%(fill)s', sloy = %(sloy)s)"
-        e = (e % cd)
-        if dxf:
-            cd['fill'] = dxf_colorer(cd['fill'])
-        return e, cd
+    def save(self, file_format, layers, drawing_w, drawing_h):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['y1'] = drawing_h - cd['y1']
+
+        if file_format == 'svg':
+            '''
+            try:
+                dash_str = ', '.join([str(x*cd['factor_stipple']) for x in cd['stipple']])
+            except:
+                dash_str = None
+            '''
+            color_rgb_str = 'rgb(' + ', '.join([str(x) for x in cd['color']]) + ')'
+
+                                               
+            # Перебрать свойства слоя объекта
+            SVG_prop = {
+                # cd_name : (SVG_name, cd_value)
+                'color' : ('stroke', color_rgb_str),
+                'width' : ('stroke-width', cd['width']),
+                #'stipple' : ('stroke-dasharray', dash_str),
+                #'factor_stipple' : ('stroke-dasharray', dash_str),
+                        }
+            
+            en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
+                
+            e = '''<circle class="st1" cx="%(x1)s" cy="%(y1)s" r="%(R)s"'''+en+"/>"
+            e = (e % cd)
+            cd['svg_strings'] = [e,]
+            
+        return cd
 
     ### Edit method ###
     def edit_object(self, x1, y1, x2, y2, cd ):
