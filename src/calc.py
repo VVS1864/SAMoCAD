@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-from math import sqrt, acos, sin, cos
+from math import sqrt, acos, sin, cos, pi
 import copy
 min_e = 0.00001
 def intersection_l_l(x1,y1, x2,y2, x3, y3, x4, y4):#Пересечение векторов. Принимает координаты 2 линий, проверяет их на параллельность, если не параллельны - ищет точку пересечения, если такая есть - возвращает ее координаты, иначе вернет None, None
@@ -550,6 +550,25 @@ def get_dim_direction(x1, y1, x2, y2, x3, y3):
             derect = 1
 
     return ort, derect
+
+def oval_lines(x, y, R, sector_angle, step = 20):
+    #Возвращает список линий круга
+    w = h = 2.0*R
+    angle_increment = pi*2 / step
+    theta = 0
+    lines = []
+    pointdata = []
+    x1 = x+R
+    y1 = y
+    while theta < pi*2:
+        theta += angle_increment
+        x2 = w/2 * cos(theta) + x
+        y2 = h/2 * sin(theta) + y
+        lines.append([x1, y1, x2, y2])
+        pointdata.extend([x1, y1, x2, y2])
+        x1 = x2
+        y1 = y2
+    return lines, pointdata
     
 
 

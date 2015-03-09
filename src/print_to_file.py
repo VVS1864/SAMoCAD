@@ -9,15 +9,24 @@ from reportlab.lib.units import cm, mm
 from reportlab.pdfgen import canvas
 
 import src.grab_object as grab_object
+import src.calc as calc
 
 def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
     #Печать выделенной области чертежа в растр. или вектор. файл
     objects = grab_object.select(par, rect, master_enclose = False)
+    '''
     width_dict = {
         1:1,
         2:2,
         3:4,
         4:6,
+        }
+    '''
+    width_dict = {
+        1:0.25,
+        2:0.5,
+        3:0.8,
+        4:1.5,
         }
     rect2 = [
         min(rect[0], rect[2]),
@@ -29,6 +38,7 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
     
 
     if f_format == 'PDF':
+        
         w = (abs(rect2[0] - rect2[2])/scale)
         h = (abs(rect2[1] - rect2[3])/scale)
         im = canvas.Canvas(f_name, pagesize = (w*mm, h*mm))
@@ -37,46 +47,75 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
                 color = (0, 0, 0)
             else:
                 color = tuple(x*1.0/255.0 for x in ALLOBJECT[i]['color'])
-            if 'width' in ALLOBJECT[i]:            
-                width = ALLOBJECT[i]['width']/scale*mm
+            if 'width' in ALLOBJECT[i]:
+                width = width_dict[ALLOBJECT[i]['width']]*mm
             else:
-                width = 1/scale*mm
-            for line in ALLOBJECT[i]['lines']:
-                x1 = ((line[0] - rect2[0])/scale)*mm
-                y1 = ((line[1] - rect2[1])/scale)*mm
-                x2 = ((line[2] - rect2[0])/scale)*mm
-                y2 = ((line[3] - rect2[1])/scale)*mm
+                width = width_dict[1]*mm
+
+            if ALLOBJECT[i]['object'] == 'circle':
+                x1 = ((ALLOBJECT[i]['x1'] - rect2[0])/scale)*mm
+                y1 = ((ALLOBJECT[i]['y1'] - rect2[1])/scale)*mm
+                R = (ALLOBJECT[i]['R'] / scale) * mm
                 im.setLineWidth(width)
                 im.setStrokeColorRGB(*color)
-                im.line(x1, y1, x2, y2)
+                im.circle(x1, y1, R)
+
+            else:
+                for line in ALLOBJECT[i]['lines']:
+                    x1 = ((line[0] - rect2[0])/scale)*mm
+                    y1 = ((line[1] - rect2[1])/scale)*mm
+                    x2 = ((line[2] - rect2[0])/scale)*mm
+                    y2 = ((line[3] - rect2[1])/scale)*mm
+                    im.setLineWidth(width)
+                    im.setStrokeColorRGB(*color)
+                    im.line(x1, y1, x2, y2)
 
         im.save()
 
     else:
-        scale *= 0.1 
-        w = int(abs(rect2[0] - rect2[2])//scale)
-        h = int(abs(rect2[1] - rect2[3])//scale)
+        scale *= 0.5
+        w = int((abs(rect2[0] - rect2[2])/scale)*mm)
+        h = int((abs(rect2[1] - rect2[3])/scale)*mm)
+        #w = int(abs(rect2[0] - rect2[2])*mm
+        #h = int(abs(rect2[1] - rect2[3])//scale)
         im = Image.new("RGB", (w, h), (255,255,255))
         draw = ImageDraw.Draw(im)
         for i in objects:
             color = tuple(ALLOBJECT[i]['color'])
             if color == (255, 255, 255):
                 color = (0, 0, 0)
+
+            if 'width' in ALLOBJECT[i]:
+                width = int(width_dict[ALLOBJECT[i]['width']]*mm)
+            else:
+                width = int(width_dict[1]*mm)
+            '''
             if 'width' in ALLOBJECT[i]:
                 width = int(width_dict[ALLOBJECT[i]['width']]//scale)
             else:
                 width = 1
-                
-            for line in ALLOBJECT[i]['lines']:
-                x1 = int((line[0] - rect2[0])//scale)
-                y1 = int((rect2[3] - line[1])//scale)
-                x2 = int((line[2] - rect2[0])//scale)
-                y2 = int((rect2[3] - line[3])//scale)
+            '''
+            if ALLOBJECT[i]['object'] == 'circle':
+                lines, p = calc.oval_lines(ALLOBJECT[i]['x1'], ALLOBJECT[i]['y1'], ALLOBJECT[i]['R'], (0, 360), 90)
+                '''
+                x1 = int(((ALLOBJECT[i]['x1'] - ALLOBJECT[i]['R'] - rect2[0])/scale)*mm)
+                y1 = int(((rect2[3] - ALLOBJECT[i]['y1'] - ALLOBJECT[i]['R'])/scale)*mm)
+                x2 = int(((ALLOBJECT[i]['x1'] + ALLOBJECT[i]['R'] - rect2[0])/scale)*mm)
+                y2 = int(((rect2[3] - ALLOBJECT[i]['y1'] + ALLOBJECT[i]['R'])/scale)*mm)
+
+                draw.ellipse((x1, y1, x2, y2), fill = None, outline = color)
+                '''
+            else:
+                lines = ALLOBJECT[i]['lines']
+            for line in lines:
+                x1 = int( ((line[0] - rect2[0])/scale)*mm )
+                y1 = int( ((rect2[3] - line[1])/scale)*mm )
+                x2 = int( ((line[2] - rect2[0])/scale)*mm )
+                y2 = int( ((rect2[3] - line[3])/scale)*mm )
 
                 draw.line((x1, y1, x2, y2), fill = color, width = width)
 
         del draw
-        im.info['dpi'] = (100, 100)
         im.save(f_name, f_format)
         
     print 'Print successfull! File', f_format, f_name 

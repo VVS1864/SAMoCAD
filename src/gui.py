@@ -604,7 +604,9 @@ class Print_dialog(wx.Frame):
                                     style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
-        self.par.current_print_file = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
+        file_base = self.file_dialog.GetFilename()
+        print_file_base = os.path.splitext(file_base)[0] #Взять без разрешения
+        self.par.current_print_file = os.path.join(self.file_dialog.GetDirectory(), print_file_base)
         self.dir.SetValue(self.par.current_print_file)
         
 
@@ -613,6 +615,9 @@ class Print_dialog(wx.Frame):
             scale = self.dict_scale[self.combo_scale.GetValue()]
             file_format = self.combo_format.GetValue()
             file_name = self.dir.GetValue()
+            print_file_base = os.path.splitext(file_name)
+            if not print_file_base[1]:
+                file_name = file_name + '.%s' %file_format.lower()
             print_to_file.print_to(self.par, self.par.print_rect, self.par.ALLOBJECT, scale, file_format, file_name) 
                                
 

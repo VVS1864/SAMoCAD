@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from math import sqrt, degrees, radians, sin, cos, pi
-import calc
+import src.calc as calc
 
 import src.sectors_alg as sectors_alg
 from src.base import Base
@@ -132,7 +132,7 @@ def c_circle(
     s = R/20.0
     lines = [[x1,y1-s,x1,y1+s], [x1-s,y1,x1+s,y1]]
     pointdata = [x1,y1-s,x1,y1+s, x1-s,y1,x1+s,y1]
-    lines_c, pointdata_c = oval_lines(x1, y1, R, (0, 360))
+    lines_c, pointdata_c = calc.oval_lines(x1, y1, R, (0, 360))
     lines.extend(lines_c)
     pointdata.extend(pointdata_c)
     if not temp:
@@ -221,23 +221,7 @@ def c_circle(
         par.c.create_line(x0+s,y0-s,x0-s,y0+s,fill=fill,tags = ('obj', 'temp'))
         '''
 
-def oval_lines(x, y, R, sector_angle):
-    w = h = 2.0*R
-    angle_increment = pi*2 / 20
-    theta = 0
-    lines = []
-    pointdata = []
-    x1 = x+R
-    y1 = y
-    while theta < pi*2:
-        theta += angle_increment
-        x2 = w/2 * cos(theta) + x
-        y2 = h/2 * sin(theta) + y
-        lines.append([x1, y1, x2, y2])
-        pointdata.extend([x1, y1, x2, y2])
-        x1 = x2
-        y1 = y2
-    return lines, pointdata
+
     
 class Object_circle(Base_object):
     def __init__(self, par, obj):

@@ -197,7 +197,6 @@ class Open_from_SVG:
                 self.config_list.append(config)
 
             elif tag == '{http://www.w3.org/2000/svg}text':
-                print 't'
                 attrib = i.attrib
                 config['object'] = 'text_line'
                 ###
@@ -230,6 +229,9 @@ class Open_from_SVG:
                 #config['color'] = [255, 255, 255]
                 config['text_font'] = 'TXT'
 
+                from_style = self.styles_dict[config['layer']]
+                config.update(from_style)
+
                 if 'style' in attrib:
                     style_attrib = re_class.findall(attrib['style'])
                     if style_attrib:
@@ -248,7 +250,7 @@ class Open_from_SVG:
                     for el in elements:
                         if el.tag == '{http://www.w3.org/2000/svg}desc':
                             re_desc = re.compile('''([\w][^=, ]*) = "([^=]*)"''')
-                            props = re_desc.findall(el.text)#.groups()
+                            props = re_desc.findall(el.text)
                             confs = dict((key, val) for key, val in props)
                             config.update(confs)
                             config['color'] = self.color(config['color'], svg = False)
@@ -337,7 +339,6 @@ class Open_from_SVG:
             
         elif value in self.color_dict:
             ist_value = self.color_dict[value]
-        print ist_value
         return ist_value
 
     def stipple(self, value):
