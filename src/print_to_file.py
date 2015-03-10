@@ -60,6 +60,17 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
                 im.setStrokeColorRGB(*color)
                 im.circle(x1, y1, R)
 
+            elif ALLOBJECT[i]['object'] == 'arc':
+                
+                x1 = ((ALLOBJECT[i]['x1']-ALLOBJECT[i]['R'] - rect2[0])/scale)*mm
+                y1 = ((ALLOBJECT[i]['y1']-ALLOBJECT[i]['R'] - rect2[1])/scale)*mm
+                x2 = ((ALLOBJECT[i]['x1']+ALLOBJECT[i]['R'] - rect2[0])/scale)*mm
+                y2 = ((ALLOBJECT[i]['y1']+ALLOBJECT[i]['R'] - rect2[1])/scale)*mm
+                R = (ALLOBJECT[i]['R'] / scale) * mm
+                im.setLineWidth(width)
+                im.setStrokeColorRGB(*color)
+                im.arc(x1, y1, x2, y2, startAng=ALLOBJECT[i]['start'], extent=abs(ALLOBJECT[i]['extent'] - ALLOBJECT[i]['start']))
+
             else:
                 for line in ALLOBJECT[i]['lines']:
                     x1 = ((line[0] - rect2[0])/scale)*mm
@@ -96,15 +107,19 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
                 width = 1
             '''
             if ALLOBJECT[i]['object'] == 'circle':
-                lines, p = calc.oval_lines(ALLOBJECT[i]['x1'], ALLOBJECT[i]['y1'], ALLOBJECT[i]['R'], (0, 360), 90)
-                '''
-                x1 = int(((ALLOBJECT[i]['x1'] - ALLOBJECT[i]['R'] - rect2[0])/scale)*mm)
-                y1 = int(((rect2[3] - ALLOBJECT[i]['y1'] - ALLOBJECT[i]['R'])/scale)*mm)
-                x2 = int(((ALLOBJECT[i]['x1'] + ALLOBJECT[i]['R'] - rect2[0])/scale)*mm)
-                y2 = int(((rect2[3] - ALLOBJECT[i]['y1'] + ALLOBJECT[i]['R'])/scale)*mm)
+                lines, p = calc.circle_lines(ALLOBJECT[i]['x1'], ALLOBJECT[i]['y1'], ALLOBJECT[i]['R'], 90)
 
-                draw.ellipse((x1, y1, x2, y2), fill = None, outline = color)
-                '''
+            elif ALLOBJECT[i]['object'] == 'arc':
+                lines, p = calc.oval_lines(
+                    ALLOBJECT[i]['x1'],
+                    ALLOBJECT[i]['y1'],
+                    ALLOBJECT[i]['R'],
+                    (ALLOBJECT[i]['start'], ALLOBJECT[i]['extent']),
+                    360,
+                    ALLOBJECT[i]['x3'],
+                    ALLOBJECT[i]['y3'],
+                    )
+                
             else:
                 lines = ALLOBJECT[i]['lines']
             for line in lines:

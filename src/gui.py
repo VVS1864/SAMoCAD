@@ -3,6 +3,7 @@ import src.line as line
 import src.text_line as text_line
 import src.dimension as dimension
 import src.circle as circle
+import src.arc as arc
 
 import src.copy_object as copy_object
 import src.move_object as move_object
@@ -165,6 +166,7 @@ class Window(wx.Frame):
         self.image_arc = wx.Image(os.path.join(appPath, 'res', 'arc2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_arc = wx.BitmapButton(self, wx.NewId(), self.image_arc)
         self.sizer_buttons_left.Add(self.button_arc)
+        self.button_arc.Bind(wx.EVT_BUTTON, self.arc)
 
         self.image_dim = wx.Image(os.path.join(appPath, 'res', 'dim2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_dim = wx.BitmapButton(self, wx.NewId(), self.image_dim)
@@ -371,6 +373,10 @@ class Window(wx.Frame):
         self.par.action(circle.Circle)
         self.par.focus_cmd()
 
+    def arc(self, e):
+        self.par.action(arc.Arc)
+        self.par.focus_cmd()
+
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА
     def copy(self, e):
         self.par.action(copy_object.Object)
@@ -389,12 +395,10 @@ class Window(wx.Frame):
         self.par.focus_cmd()
 
     def extend(self, e):
-        #self.par.trim_extend = 'Extend'
         self.par.action(trim_extend.Extend)
         self.par.focus_cmd()
         
     def trim(self, e):
-        #self.par.trim_extend = 'Trim'
         self.par.action(trim_extend.Trim)
         self.par.focus_cmd()
 
@@ -442,7 +446,6 @@ class Window(wx.Frame):
         else:
             self.print_dialog.Hide()
             self.print_dialog_on = False
-        #print_to_file.print_to(self.par)
 
     def OnSave(self, e):
         head, tail = os.path.split(self.par.current_save_path)
@@ -463,7 +466,6 @@ class Window(wx.Frame):
                             )
 
     def OnOpen(self, e):
-        print 111
         head, tail = os.path.split(self.par.current_save_path)
         self.file_dialog =  wx.FileDialog(self, "Open drawing", head, tail,
                                     "SVG files (*.svg)|*.svg",

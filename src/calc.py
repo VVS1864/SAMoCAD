@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-from math import sqrt, acos, sin, cos, pi
+from math import sqrt, acos, sin, cos, pi,  radians
 import copy
 min_e = 0.00001
 def intersection_l_l(x1,y1, x2,y2, x3, y3, x4, y4):#Пересечение векторов. Принимает координаты 2 линий, проверяет их на параллельность, если не параллельны - ищет точку пересечения, если такая есть - возвращает ее координаты, иначе вернет None, None
@@ -102,7 +102,49 @@ def min_distanse(x1,y1, x2,y2, x3, y3):
 
     return x, y
 
-def intersection_stright(x1,y1, x2,y2, x3, y3, x4, y4):#По координатам 2 линий находит уравнения их прямых и определяет, есть ли у них общая точка - если есть возвращает ее.
+def intersection_stright_circle(xc,yc,R, x1,y1, x2,y2, x_c, y_c):
+    #пересечение прямой и круга
+
+    #Переносим все в начало координат (на координаты центра круга)
+    xp1 = x1 - xc
+    yp1 = y1 - yc
+    xp2 = x2 - xc
+    yp2 = y2 - yc
+    x_pc = x_c - xc
+    y_pc = y_c - yc
+    #Уравнение прямой
+    A = yp1-yp2
+    B = xp1-xp2
+    C = xp2*(yp2-yp1) + yp2*(xp1-xp2)
+    try:
+        x0 = -A*C/(A*A+B*B)
+        y0 = -B*C/(A*A+B*B)
+    except ZeroDivisionError:
+        return None, None
+    #if sqrt(x0*x0 + y0*y0)<=R:
+    d = sqrt(R*R - C*C/(A*A + B*B))
+    mult = sqrt(d*d/(A*A+B*B))
+    ax = x0 + B*mult
+    ay = -(y0 - A*mult)
+    bx = x0 - B*mult
+    by = -(y0 + A*mult)
+    if abs(x_pc-ax)<abs(x_pc-bx):
+        x = ax
+    else:
+        x = bx
+    if abs(y_pc-ay)<abs(y_pc-by):
+        y = ay
+    else:
+        y = by
+    #else:
+        #return None, None
+    x += xc
+    y += yc
+    return x, y
+
+def intersection_stright(x1,y1, x2,y2, x3, y3, x4, y4):
+    #По координатам 2 линий находит уравнения их прямых и определяет,
+    #есть ли у них общая точка - если есть возвращает ее.
     x = None
     y = None
     if x1 == x3 and y1 == y3:
@@ -551,7 +593,7 @@ def get_dim_direction(x1, y1, x2, y2, x3, y3):
 
     return ort, derect
 
-def oval_lines(x, y, R, sector_angle, step = 20):
+def circle_lines(x, y, R, step = 20):
     #Возвращает список линий круга
     w = h = 2.0*R
     angle_increment = pi*2 / step
@@ -560,7 +602,31 @@ def oval_lines(x, y, R, sector_angle, step = 20):
     pointdata = []
     x1 = x+R
     y1 = y
-    while theta < pi*2:
+    while theta < 2*pi:
+        theta += angle_increment
+        x2 = w/2 * cos(theta) + x
+        y2 = h/2 * sin(theta) + y
+        lines.append([x1, y1, x2, y2])
+        pointdata.extend([x1, y1, x2, y2])
+        x1 = x2
+        y1 = y2
+    return lines, pointdata
+
+def oval_lines(x, y, R, sector_angle, step = 20, x1 = None, y1 = None):
+    #Возвращает список линий дуги, круга
+    w = h = 2.0*R
+    angle_increment = pi*2 / step
+    if sector_angle[0] == 360:
+        theta = 0
+    else:
+        theta = radians(sector_angle[0])
+    
+    lines = []
+    pointdata = []
+    if not x1:
+        x1 = x+R
+        y1 = y
+    while theta < radians(sector_angle[1]):
         theta += angle_increment
         x2 = w/2 * cos(theta) + x
         y2 = h/2 * sin(theta) + y

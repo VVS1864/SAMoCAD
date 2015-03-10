@@ -25,8 +25,14 @@ def get_snap(x, y, snap_s, find, par):
                 else:
                     d = None
                 cath = False
+
+                if c <= snap_s and tip_p != 'r':
+                    yi=y0#Текущимь координатами взять координаты первой точки приметива
+                    xi=x0
+                    #cath = True
+                    tip_p = 'c'#Тип привязки - к середине
                 
-                if a <= snap_s:
+                elif a <= snap_s:
                     yt=xy[1]#Текущимь координатами взять координаты первой точки приметива
                     xt=xy[0]
                     cath = True
@@ -37,12 +43,6 @@ def get_snap(x, y, snap_s, find, par):
                     xt=xy[2]
                     cath = True
                     tip_p = 'r'#Тип привязки - к конточке
-                    
-                elif c <= snap_s:
-                    yt=y0#Текущимь координатами взять координаты первой точки приметива
-                    xt=x0
-                    cath = True
-                    tip_p = 'c'#Тип привязки - к середине
 
                 elif len(find) > 1:
                     # Если привязка к 2 приметивам возможна
@@ -70,6 +70,7 @@ def get_snap(x, y, snap_s, find, par):
                         yi = yt
                         stopFlag = True#Остановить назначение возвращаемых координат
                     break
+                
 
         elif par.ALLOBJECT[i]['snap_type'] == 'circle':
             R = par.ALLOBJECT[i]['R']
@@ -83,11 +84,12 @@ def get_snap(x, y, snap_s, find, par):
             xn, yn, N_dist = calc.min_distanse_cir(xc, yc, R, x, y)
             
             cath = False
-            if a <= snap_s:
-                yt = yc #Текущимь координатами взять координаты первой точки приметива
-                xt = xc
-                cath = True
-                tip_p = 'c'#Тип привязки - к конточке
+            if a <= snap_s and tip_p != 'r':
+                yi = yc #Текущимь координатами взять координаты первой точки приметива
+                xi = xc
+                #cath = True
+                tip_p = 'c'#Тип привязки - к середине
+                
             elif b <= snap_s:
                 yt = yc #Текущимь координатами взять координаты первой точки приметива
                 xt = xc-R
@@ -119,6 +121,64 @@ def get_snap(x, y, snap_s, find, par):
                         xi = xt
                         yi = yt
                         tip_p = p
+                        #break
+
+            elif abs(N_dist) <= snap_s and par.snap_near == True and par.resFlag == True:
+                xi = xn#Назначить координаты выхода полученным координатам
+                yi = yn
+                tip_p = 'N'
+                #break
+
+            if cath:
+                #priv_coord_list.append((xy,'line'))
+                par.find_privs.append(i)#Добавить приметив в список привязок
+                if stopFlag == False:#Если точка привязки не была найдена ранее
+                    xi = xt#Назначить возвращаемые координаты равными координатам точки
+                    yi = yt
+                    stopFlag = True#Остановить назначение возвращаемых координат
+                #break
+            
+        elif par.ALLOBJECT[i]['snap_type'] == 'arc':
+            R = par.ALLOBJECT[i]['R']
+            xc = par.ALLOBJECT[i]['x1']
+            yc = par.ALLOBJECT[i]['y1']
+            x1 = par.ALLOBJECT[i]['x2']
+            y1 = par.ALLOBJECT[i]['y2']
+            x2 = par.ALLOBJECT[i]['x3']
+            y2 = par.ALLOBJECT[i]['y3']
+            
+            a = sqrt((x-xc)**2 + (y-yc)**2)
+            b = sqrt((x-x1)**2 + (y-y1)**2)
+            c = sqrt((x-x2)**2 + (y-y2)**2)
+            xn, yn, N_dist = calc.min_distanse_cir(xc, yc, R, x, y)
+            cath = False
+            if a <= snap_s and tip_p != 'r':
+                yi = yc #Текущимь координатами взять координаты первой точки приметива
+                xi = xc
+                #cath = True
+                tip_p = 'c'#Тип привязки - к середине
+                
+            elif b <= snap_s:
+                
+                yt = y1 #Текущимь координатами взять координаты первой точки приметива
+                xt = x1
+                cath = True
+                tip_p = 'r'#Тип привязки - к конточке
+
+            elif c <= snap_s:
+                
+                yt = y2 #Текущимь координатами взять координаты первой точки приметива
+                xt = x2
+                cath = True
+                tip_p = 'r'#Тип привязки - к конточке
+
+            elif len(find) > 1:
+                    # Если привязка к 2 приметивам возможна
+                    xt, yt, p = intersect_2_objects(par, x, y, find, ind, i, snap_s)
+                    if p == 'X':
+                        xi = xt
+                        yi = yt
+                        tip_p = p
                         break
 
             elif abs(N_dist) <= snap_s and par.snap_near == True and par.resFlag == True:
@@ -135,6 +195,12 @@ def get_snap(x, y, snap_s, find, par):
                     yi = yt
                     stopFlag = True#Остановить назначение возвращаемых координат
                 break
+
+        
+            
+            
+            
+        
 
         '''
         if 'priv' in tags and 'line' in tags:#Если у приметива есть тег привязки

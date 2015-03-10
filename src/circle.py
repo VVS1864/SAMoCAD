@@ -37,30 +37,12 @@ class Circle(Base):
         self.par.kill()
         super(Circle, self).func_1(Circle, self.circle, 'Circle - center point:', 'Enter - stop')
 
-        '''
-        self.par.kill()
-        self.par.standart_unbind()
-        self.par.old_func = 'self.risCircle()'
-        self.par.c.bind('<Button-1>', self.circle)
-        self.par.dialog.config(text = 'Circle - center point:')
-        self.par.info.config(text = 'Enter - stop')
-        '''
-
     def circle(self, event):
         self.par.ex, self.par.ey = super(Circle, self).func_2(
             self.circle2,
             'Circle - radius:',
             True,
             )
-        '''
-        self.par.command.focus_set()
-        self.par.set_coord()
-        self.par.ex = self.par.priv_coord[0]
-        self.par.ey = self.par.priv_coord[1]
-        self.par.c.bind_class(self.par.c,"<1>", self.circle2)
-        self.par.dialog.config(text = 'Circle - radius:')
-        self.par.circle_clone = True
-        '''
 
     def circle2(self, event=None):
         kwargs = {
@@ -78,25 +60,6 @@ class Circle(Base):
             }
         super(Circle, self).func_3(event, c_circle, kwargs)
 
-        '''
-        self.par.command.focus_set()
-        self.par.ex2 = self.par.priv_coord[0]
-        self.par.ey2 = self.par.priv_coord[1]
-        self.par.ex,self.par.ey = self.par.coordinator(self.par.ex,self.par.ey)
-        self.par.ex2,self.par.ey2 = self.par.commer(self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
-        if event:
-            c_circle(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2)
-            self.par.history_undo.append(('c_', self.par.Ncircle))
-            #self.par.com = None
-            self.par.changeFlag = True
-            self.par.circle_clone = False
-            self.par.enumerator_p()
-            self.par.risCircle()
-
-        else:
-            self.par.set_coord()
-            c_circle(self.par, self.par.ex,self.par.ey,self.par.ex2,self.par.ey2, temp = 'Yes')
-        '''
         if event:
             self.risCircle()
         
@@ -118,10 +81,10 @@ def c_circle(
     ):
     if not R:
         R = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))
-    xbox1=x1-R
-    xbox2=x1+R
-    ybox1=y1-R
-    ybox2=y1+R
+    xbox1 = x1 - R
+    xbox2 = x1 + R
+    ybox1 = y1 - R
+    ybox2 = y1 + R
         
     if not (0 <= xbox1 <= par.drawing_w
             and 0 <= ybox1 <= par.drawing_h
@@ -132,23 +95,21 @@ def c_circle(
     s = R/20.0
     lines = [[x1,y1-s,x1,y1+s], [x1-s,y1,x1+s,y1]]
     pointdata = [x1,y1-s,x1,y1+s, x1-s,y1,x1+s,y1]
-    lines_c, pointdata_c = calc.oval_lines(x1, y1, R, (0, 360))
+    lines_c, pointdata_c = calc.circle_lines(x1, y1, R)
+    
+    if not lines_c:
+        return False
+        
     lines.extend(lines_c)
     pointdata.extend(pointdata_c)
     if not temp:
-        par.total_N+=1
+        par.total_N += 1
         
-        if not lines:
-            return
-        else:
+        par.IDs.append(par.total_N)
+        par.IDs.extend([0,]*(len(lines)-1))
+        par.pointdata.extend(pointdata)
+        par.colordata.extend(color*2*len(lines))
             
-            par.IDs.append(par.total_N)
-            par.IDs.extend([0,]*(len(lines)-1))
-            par.pointdata.extend(pointdata)
-            par.colordata.extend(color*2*len(lines))
-            
-
-
         object_circle = Object_circle(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():
@@ -176,52 +137,6 @@ def c_circle(
     else:
         par.dynamic_data.extend(pointdata)
         par.dynamic_color.extend(color*2*len(lines))
-
-                
-        '''    
-        id_dict = {}
-        if R == None:
-            R = sqrt((xr-x0)*(xr-x0) + (yr-y0)*(yr-y0))
-        x1=x0-R
-        x2=x0+R
-        y1=y0-R
-        y2=y0+R
-        s = R/20.0
-        R = par.n_coordinator(R)
-        id = par.c.create_oval(x1,y1,x2,y2,outline=fill, full=None,width=width,tags = ('obj', ID))
-        id_dict[id] = ('cir', 'priv')
-        id = par.c.create_line(x0-s,y0-s,x0+s,y0+s,fill=fill,tags = ('obj', ID, 'cir_centr'))
-        id_dict[id] = ('line', 'priv', 'cir_centr')
-        id = par.c.create_line(x0+s,y0-s,x0-s,y0+s,fill=fill,tags = ('obj', ID, 'cir_centr'))
-        id_dict[id] = ('line', 'priv', 'cir_centr')
-
-        object_circle = Object_circle(par, ID)
-        dict_prop = {}
-        for k,v in locals().iteritems():
-            if k in list_prop:
-                dict_prop[k] = v
-
-        par.ALLOBJECT[ID] = {
-                            'object':'circle',
-                            'id':id_dict,
-                            'class':object_circle,
-                            }
-        par.ALLOBJECT[ID].update(dict_prop)
-    else:
-        if R == None:
-            R = sqrt((xr-x0)*(xr-x0) + (yr-y0)*(yr-y0))
-        x1=x0-R
-        x2=x0+R
-        y1=y0-R
-        y2=y0+R
-        s = R/20.0
-        R = par.n_coordinator(R)
-        par.c.create_oval(x1,y1,x2,y2,outline=fill, full=None,width=width,tags = ('obj', 'temp'))
-        par.c.create_line(x0-s,y0-s,x0+s,y0+s,fill=fill,tags = ('obj', 'temp'))
-        par.c.create_line(x0+s,y0-s,x0-s,y0+s,fill=fill,tags = ('obj', 'temp'))
-        '''
-
-
     
 class Object_circle(Base_object):
     def __init__(self, par, obj):
@@ -249,7 +164,7 @@ class Object_circle(Base_object):
         return cNew
 
 
-    ### Edit_prop method ###
+    ### Save method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd['y1'] = drawing_h - cd['y1']

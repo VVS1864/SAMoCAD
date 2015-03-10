@@ -5,6 +5,7 @@ from calc import min_distanse, intersection_stright
 import src.line as line
 import src.dimension as dimension
 import src.circle as circle
+import src.arc as arc
 
 import src.text_line as text_line
 import src.sectors_alg as sectors_alg
@@ -97,7 +98,7 @@ class Open_from_SVG:
                     temp = False,
                     )
 
-            if obj['object'] == 'circle':
+            elif obj['object'] == 'circle':
                 obj['x2'], obj['y2'] = 0, 0
                 circle.c_circle(
                     self.par,
@@ -111,6 +112,26 @@ class Open_from_SVG:
                     color = obj['color'],
                     in_mass = True,
                     temp = False
+                )
+
+            elif obj['object'] == 'arc':
+                arc.c_arc(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    obj['x3'],
+                    obj['y3'],
+                    R = obj['R'],
+                    width = obj['width'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    start = obj['start'],
+                    extent = obj['extent'],
+                    in_mass = True,
+                    temp = False
+                    
                 )
                 
 
@@ -288,6 +309,109 @@ class Open_from_SVG:
                             config[name] = value
 
                 self.config_list.append(config)
+
+            elif tag == '{http://www.w3.org/2000/svg}path':
+                
+                config['object'] = 'arc'
+                attrib = i.attrib
+                re_o = re.compile('M([^," ]+)[, ]?([^," ]+)[, ]?A([^," ]+)[, ?]([^," ]+) 0[, ]?([^," ]+)[, ]?([^," ]+)[, ]?([^," ]+)[, ]?([^," ]+)')
+                try:
+                    coord = re_o.search(attrib['d']).groups()
+                except:
+                    continue
+                
+                config['x3'] = float(coord[0])
+                config['y3'] = self.par.drawing_h - float(coord[1])
+                config['R'] = float(coord[2])
+                config['lf'] = float(coord[4])
+                config['sf'] = float(coord[5])
+                config['x2'] = float(coord[6])
+                config['y2'] = self.par.drawing_h - float(coord[7])
+                if coord[2] != coord[3]:
+                    print 111
+                    continue
+                
+               
+                
+                                        
+                x2 = config['x2']
+                y2 = config['y2']
+                x3 = config['x3']
+                y3 = config['y3']
+                R = config['R']
+                d1 = sqrt((x2-x3)**2 + (y2-y3)**2)/2.0
+                p0x = (x2+x3)/2.0
+                p0y = (y2+y3)/2.0
+                sin = (p0x-x2)/d1
+                cos = (p0y-y2)/d1
+                try:
+                    d2 = sqrt(R*R-d1*d1)
+                except:
+                    print ('error, bad arc!', R, d1)
+                    continue
+
+                 #if config['sf'] == 1:
+                sf = 1
+                #else:
+                    #sf = -1
+                
+                if config['lf'] == 0:
+                    lf = -1
+                    '''
+                    x2 = config['x2']
+                    y2 = config['y2']
+                    config['x2'] = config['x3']
+                    config['y2'] = config['y3']
+                    config['x3'] = x2
+                    config['y3'] = y2
+                    '''
+                    
+                    
+                    
+                    
+                else:
+                    lf = 1
+                    
+                x0 = p0x - d2*cos*sf*lf
+                y0 = p0y + d2*sin*sf*lf
+                
+                config['x1'] = x0
+                config['y1'] = y0
+                config['start'] = None
+                config['extent'] = None
+                
+                config['layer'] = attrib['class'][2:]
+                from_style = self.styles_dict[config['layer']]
+                config.update(from_style)
+                if 'style' in attrib:
+                    style_attrib = re_class.findall(attrib['style'])
+                    if style_attrib:
+                        for prop_n_v in style_attrib:
+                            name, value = self.proper(prop_n_v)
+                            config[name] = value
+
+                self.config_list.append(config)
+                
+                
+                '''
+                config['object'] = 'circle'
+                config['x1'] = float(attrib['cx'])
+                config['y1'] = self.par.drawing_h - float(attrib['cy'])
+                config['R'] = float(attrib['r'])
+                config['layer'] = attrib['class'][2:]
+
+                from_style = self.styles_dict[config['layer']]
+                config.update(from_style)
+
+                if 'style' in attrib:
+                    style_attrib = re_class.findall(attrib['style'])
+                    if style_attrib:
+                        for prop_n_v in style_attrib:
+                            name, value = self.proper(prop_n_v)
+                            config[name] = value
+
+                self.config_list.append(config)
+                '''
 
                     
                 
