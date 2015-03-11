@@ -24,7 +24,6 @@ import src.open_file as open_file
 import wx
 from wx.lib.masked import NumCtrl
 from wx.glcanvas import GLCanvas
-import OpenGL.GL
 import os
 appPath = os.getcwd()
 

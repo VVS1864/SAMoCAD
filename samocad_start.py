@@ -6,11 +6,16 @@ import src.line as line
 import src.gui  as gui
 
 import src.sectors_alg as sectors_alg
+import src.opengl_wrapper as opengl_wrapper
 
 import src.grab_object as grab_object
 import src.select_clone as select_clone
 import src.motion_event as motion_event
 import src.edit as edit
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
 
 import time as t
 import wx
@@ -18,19 +23,14 @@ from random import random, randint, uniform
 import copy
 import os
 import sys
-import numpy
-import ctypes
 
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-from OpenGL.GL.ARB.vertex_buffer_object import *
-from OpenGL.raw import GL
+
+
+
 
 class Graphics:
-    def __init__(self):
-       
+    def __init__(self):       
         self.init = False
         self.scale_size = 1.5
         
@@ -210,14 +210,16 @@ class Graphics:
         
 
         self.interface = gui.Window(None, self.current_file + ' - '+ self.prog_version, self)
+        self.gl_wrap = opengl_wrapper.GL_wrapper(self)
         self.c = self.interface.canvas
         self.info = self.interface.info
         self.info2 = self.interface.info2
         self.cmd = self.interface.cmd
         self.cmd.SetFocus()
         #self.interface.Show(True)
-        wx.EVT_ERASE_BACKGROUND(self.c, self.OnEraseBackground)
-        wx.EVT_PAINT(self.c, self.OnDraw)
+        wx.EVT_ERASE_BACKGROUND(self.c, self.gl_wrap.OnEraseBackground)
+        wx.EVT_PAINT(self.c, self.gl_wrap.OnDraw)
+        wx.EVT_SIZE(self.c, self.gl_wrap.OnSize)
         
         
     def initial(self):
@@ -279,14 +281,13 @@ class Graphics:
         print 'Create lines', t.time() - t1
         
         
-        wx.EVT_SIZE(self.c, self.OnSize)
+        
         self.standart_binds()
         self.interface.Show(True)
         for i in xrange(10):
             self.zoom((0,500), -1)
 
-    def OnEraseBackground(self, event):
-        pass
+    
 
     def create_sectors(self):
         t1 = t.time()
@@ -342,27 +343,8 @@ class Graphics:
         else:
             self.info2.SetValue((''))
 
-    def change_pointdata(self):        
-        self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
-        if not self.vbo:
-            #a = range(3000000)
-            #b = a*6
-            #self.vbo_size = len((GLfloat*len(a))(*a))#len(c_pointdata)#numpy.array(a, dtype = numpy.float32)
-            #self.color_vbo_size = len((GLfloat*len(b))(*b))#len(c_colordata)#numpy.array(b, dtype = numpy.ubyte)
-            
-            if self.GL_version == '3':
-                self.vbo = glGenBuffers(1)
-                self.color_vbo = glGenBuffers(1)
-            else:
-                self.vbo = glGenBuffersARB(1)
-                self.color_vbo = glGenBuffersARB(1)
-    
-        self.vbo, self.color_vbo = self.c_VBO(self.vbo, self.color_vbo, self.pointdata, self.colordata)
-
-        #else:
-            #self.update_VBO()
-        
-
+    def change_pointdata(self):
+        self.gl_wrap.change_pointdata()    
 
     def action(self, object_class):
         self.curent_class = object_class(self)
@@ -462,7 +444,7 @@ class Graphics:
                                                             self.collection,
                                                             self.select_color,
                                                             )
-        self.c_collection_VBO()
+        self.gl_wrap.c_collection_VBO()
 
     def edit_collector(self, objects, x, y):
         #Проверяет, какие объекты находятся в коллекции:
@@ -696,7 +678,7 @@ class Graphics:
         self.standart_state()
         self.collection_data = []
         self.collection_color = []
-        self.c_collection_VBO()
+        self.gl_wrap.c_collection_VBO()
         self.collectionBack = self.collection
         self.collection = []
 
@@ -704,408 +686,14 @@ class Graphics:
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()
-        
-
-    def draw_VBO(self):
-        if self.GL_version == '3':
-            glBindBuffer( GL_ARRAY_BUFFER, self.color_vbo)
-            # Указываем, где взять массив цветов:
-            # Параметры аналогичны, но указывается массив цветов
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-            glBindBuffer( GL_ARRAY_BUFFER, self.vbo )       # Активирует VBO
-            # Указываем, где взять массив верши:
-            # Первый параметр - сколько используется координат на одну вершину
-            # Второй параметр - определяем тип данных для каждой координаты вершины
-            # Третий парметр - определяет смещение между вершинами в массиве
-            # Если вершины идут одна за другой, то смещение 0
-            # Четвертый параметр - указатель на первую координату первой вершины в массиве
-            glVertexPointer(2, GL_FLOAT, 0, None) # None - потому что VBO активирован
-            
-            # Рисуем данные массивов за один проход:
-            # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-            # Второй параметр - начальный индекс в указанных массивах
-            # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-            glDrawArrays(GL_LINES, 0, len(self.pointdata)//2)
-            
-            
-            if self.collection_data:
-                #glBindBuffer( GL_ARRAY_BUFFER, 0)
-                glBindBuffer( GL_ARRAY_BUFFER, self.color_vbo_col)
-                glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-                glBindBuffer( GL_ARRAY_BUFFER, self.vbo_col )       
-                glVertexPointer(2, GL_FLOAT, 0, None) 
-            
-                glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
-            glBindBuffer( GL_ARRAY_BUFFER, 0)
-
-        else:
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.color_vbo)
-            # Указываем, где взять массив цветов:
-            # Параметры аналогичны, но указывается массив цветов
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.vbo )       # Активирует VBO
-            # Указываем, где взять массив верши:
-            # Первый параметр - сколько используется координат на одну вершину
-            # Второй параметр - определяем тип данных для каждой координаты вершины
-            # Третий парметр - определяет смещение между вершинами в массиве
-            # Если вершины идут одна за другой, то смещение 0
-            # Четвертый параметр - указатель на первую координату первой вершины в массиве
-            glVertexPointer(2, GL_FLOAT, 0, None) # None - потому что VBO активирован
-            
-            # Рисуем данные массивов за один проход:
-            # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-            # Второй параметр - начальный индекс в указанных массивах
-            # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-            glDrawArrays(GL_LINES, 0, len(self.pointdata)//2)
-            
-            
-            if self.collection_data:
-                #glBindBuffer( GL_ARRAY_BUFFER, 0)
-                glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.color_vbo_col)
-                glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-                glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.vbo_col )       
-                glVertexPointer(2, GL_FLOAT, 0, None) 
-            
-                glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0)
-    '''
-    def draw_array(self):
-        #glBindBuffer( GL_ARRAY_BUFFER, self.color_vbo)
-        # Указываем, где взять массив цветов:
-        # Параметры аналогичны, но указывается массив цветов
-        glColorPointer(3, GL_UNSIGNED_BYTE, 0, self.colordata)
-        
-        #glBindBuffer( GL_ARRAY_BUFFER, self.vbo )       # Активирует VBO
-        # Указываем, где взять массив верши:
-        # Первый параметр - сколько используется координат на одну вершину
-        # Второй параметр - определяем тип данных для каждой координаты вершины
-        # Третий парметр - определяет смещение между вершинами в массиве
-        # Если вершины идут одна за другой, то смещение 0
-        # Четвертый параметр - указатель на первую координату первой вершины в массиве
-        glVertexPointer(2, GL_FLOAT, 0, self.pointdata) # None - потому что VBO активирован
-        
-        # Рисуем данные массивов за один проход:
-        # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-        # Второй параметр - начальный индекс в указанных массивах
-        # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-        glDrawArrays(GL_LINES, 0, len(self.pointdata)//2)
-        
-        
-        if self.collection_data:
-            #glBindBuffer( GL_ARRAY_BUFFER, 0)
-            #glBindBuffer( GL_ARRAY_BUFFER, self.color_vbo_col)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, self.collection_color)
-        
-            #glBindBuffer( GL_ARRAY_BUFFER, self.vbo_col )       
-            glVertexPointer(2, GL_FLOAT, 0, self.collection_data) 
-        
-            glDrawArrays(GL_LINES, 0, len(self.collection_data)//2)
-    '''
-
-    def OnDraw(self,event):
-        self.c.SetCurrent(self.c.context)
-        if not self.c.init:
-            self.InitGL()
-            self.c.init = True
-        
-        
-        glClear(GL_COLOR_BUFFER_BIT)                    # Очищаем экран и заливаем серым цветом
-        
-        glEnableClientState(GL_VERTEX_ARRAY)            # Включаем использование массива вершин
-        glEnableClientState(GL_COLOR_ARRAY)             # Включаем использование массива цветов
-
-        self.draw()
-        
-        tempdata = (
-            self.current_data +
-            self.snap_data +
-            self.drawing_rect_data +
-            self.red_line_data
-            )
-        tempcolor = (
-            self.current_color +
-            self.snap_color +
-            self.drawing_rect_color +
-            self.red_line_color
-            )
-        w_tempdata = (
-            self.trace_data +
-            self.rect_data +
-            self.dynamic_data
-            )
-        w_tempcolor = (
-            self.trace_color +
-            self.rect_color +
-            self.dynamic_color
-            )
-       
-        if tempdata or w_tempdata:
-            c_tempdata = numpy.array(tempdata, dtype = numpy.float32)
-            c_tempcolor = numpy.array(tempcolor, dtype = numpy.ubyte)
-            c_w_tempdata = numpy.array(w_tempdata, dtype = numpy.float32)
-            c_w_tempcolor = numpy.array(w_tempcolor, dtype = numpy.ubyte)
-
-            glLineWidth(3)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, c_tempcolor)
-            glVertexPointer(2, GL_FLOAT, 0, c_tempdata)
-            glDrawArrays(GL_LINES, 0, len(tempdata)//2)
-            glLineWidth(1)
-            #glBindBuffer( GL_ARRAY_BUFFER, 0)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, c_w_tempcolor)
-            glVertexPointer(2, GL_FLOAT, 0, c_w_tempdata)
-            glDrawArrays(GL_LINES, 0, len(w_tempdata)//2)
-            
-        glDisableClientState(GL_VERTEX_ARRAY)           # Отключаем использование массива вершин
-        glDisableClientState(GL_COLOR_ARRAY)            # Отключаем использование массива цветов
-        #glutSwapBuffers() Не работает                  # Выводим все нарисованное в памяти на экран
-        self.c.SwapBuffers()
-        #glFinish()
-            
-    def InitGL(self): # Стандартная инициализация матриц
-        print 'starn init GL...'
-        glClearColor(0, 0, 0, 0)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        #glOrtho(0,1000,0,1000,-100,100)
-        size = glGetIntegerv(GL_VIEWPORT)
-        glViewport(0, 0, size[2], size[3])
-        #Заново задать проекционную матрицу
-        glOrtho(0,size[2],0,size[3],-100,100)
-        
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glTranslatef(0.0, 0.0, 100.0)
-        ver = glGetString(GL_VERSION)
-        ver = float(ver[:3])
-        print 'OpenGL version', ver
-        if ver > 2:
-            self.GL_version = '3'
-        else:
-            self.GL_version = '1'
-        
-        self.draw = self.draw_VBO
-            
-        if self.GL_version == '3':
-            vertex = create_shader(GL_VERTEX_SHADER, """
-            varying vec4 vertex_color;
-                        void main(){
-                            gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-                            vertex_color = gl_Color;
-                        }""")
-            # Создаем фрагментный шейдер:
-            # Определяет цвет каждого фрагмента как "смешанный" цвет его вершин
-            fragment = create_shader(GL_FRAGMENT_SHADER, """
-            varying vec4 vertex_color;
-                        void main() {
-                            gl_FragColor = vertex_color;
-            }""")
-            # Создаем пустой объект шейдерной программы
-            program = glCreateProgram()
-            # Приcоединяем вершинный шейдер к программе
-            glAttachShader(program, vertex)
-            # Присоединяем фрагментный шейдер к программе
-            glAttachShader(program, fragment)
-            # "Собираем" шейдерную программу
-            glLinkProgram(program)
-            # Сообщаем OpenGL о необходимости использовать данную шейдерну программу при отрисовке объектов
-            glUseProgram(program)
-            
-            #self.c_VBO()
-        #else:
-        print 'end init GL'
-        print 'start init VBO...'
-        self.change_pointdata()
-        #self.vbo, self.color_vbo = self.c_VBO(self.pointdata, self.colordata)
-        print 'end init VBO'
-            #from OpenGL.GL.ARB.vertex_buffer_object import *
 
     def destroy(self, event):
         print 'destroy'
-        if self.vbo: # Если уже есть - удалить
+        if self.vbo: # Если VBO есть - удалить
             glDeleteBuffers(1, [self.vbo])
             glDeleteBuffers(1, [self.color_vbo])
         self.interface.Destroy()
-
-    
-    
-    def c_collection_VBO(self):
-        c_pointdata = numpy.array(self.collection_data, dtype = numpy.float32)
-        c_colordata = numpy.array(self.collection_color, dtype = numpy.ubyte)
-        
-        if self.GL_version == '3':
-            if not self.vbo_col:
-                self.vbo_col = glGenBuffers(1)
-                self.color_vbo_col = glGenBuffers(1)
-            '''
-            if self.vbo_col: # Если уже есть - удалить
-                glDeleteBuffers(1, [self.vbo_col])
-                glDeleteBuffers(1, [self.color_vbo_col])
-            '''
-
-            ### Стандартная процедура создания VBO ###
-            #self.vbo_col = glGenBuffers(1)
-            glBindBuffer (GL_ARRAY_BUFFER, self.vbo_col)
-            # 2 Параметр - указатель на массив pointdata
-            glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_STATIC_DRAW)
-            glBindBuffer (GL_ARRAY_BUFFER, 0)
-            
-            #self.color_vbo_col = glGenBuffers(1)
-            glBindBuffer (GL_ARRAY_BUFFER, self.color_vbo_col)
-            # 2 Параметр - указатель на массив colordata
-            glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
-            glBindBuffer (GL_ARRAY_BUFFER, 0)
-
-        else:
-            #if self.vbo_col: # Если уже есть - удалить
-                #glDeleteBuffers(1, [self.vbo_col])
-                #glDeleteBuffers(1, [self.color_vbo_col])
-
-            if not self.vbo_col:
-                self.vbo_col = glGenBuffersARB(1)
-                self.color_vbo_col = glGenBuffersARB(1)
-
-            ### Стандартная процедура создания VBO ###
-            #self.vbo_col = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.vbo_col)
-            # 2 Параметр - указатель на массив pointdata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-            
-            self.color_vbo_col = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.color_vbo_col)
-            # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-
-    def update_VBO(self):
-        glBindBuffer (GL_ARRAY_BUFFER, self.vbo)
-        
-        vbo_pointer = ctypes.cast(
-            glMapBuffer(
-                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
-                ctypes.POINTER(ctypes.c_float)
-            )
-        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
-                    (self.vbo_size,))
-        
-        data = numpy.array(self.pointdata, dtype = numpy.float32)#numpy.ctypeslib.as_ctypes(numpy.array(self.pointdata, dtype = numpy.float32))
-        #numpy.array(pointdata, dtype = numpy.float32)
-        vbo_array[0:len(data)] = data.view(dtype=numpy.float32)
-
-        glUnmapBuffer(GL_ARRAY_BUFFER)
-        glBindBuffer (GL_ARRAY_BUFFER, 0)
-        glBindBuffer (GL_ARRAY_BUFFER, self.color_vbo)
-
-        vbo_pointer = ctypes.cast(
-            glMapBuffer(
-                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
-                ctypes.POINTER(ctypes.c_ubyte)
-            )
-        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
-                    (self.color_vbo_size,))
-        
-        data = numpy.array(self.colordata, dtype = numpy.ubyte)#numpy.ctypeslib.as_ctypes(numpy.array(self.colordata, dtype = numpy.ubyte))
-        #numpy.array(pointdata, dtype = numpy.float32)
-        vbo_array[0:len(data)] = data.view(dtype=numpy.ubyte)
-
-        glUnmapBuffer(GL_ARRAY_BUFFER)
-        
-        
-    def c_VBO(self, vbo, color_vbo, pointdata, colordata):
-        
-        #c_pointdata = (GLfloat*len(pointdata))(*pointdata)#
-        c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
-        #c_colordata = (GLubyte*len(colordata))(*colordata)#
-        c_colordata = numpy.array(colordata, dtype = numpy.ubyte)
-        
-        
-        if self.GL_version == '3':
-            '''
-            if self.vbo: # Если уже есть - удалить
-                glDeleteBuffers(1, [self.vbo])
-                glDeleteBuffers(1, [self.color_vbo])
-            '''
-                
-            ### Стандартная процедура создания VBO ###            
-            glBindBuffer (GL_ARRAY_BUFFER, vbo)
-            
-            # 2 Параметр - указатель на массив pointdata
-            glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_DYNAMIC_DRAW)
-            glBindBuffer (GL_ARRAY_BUFFER, 0)
-            
-            
-            glBindBuffer (GL_ARRAY_BUFFER, color_vbo)
-            
-            # 2 Параметр - указатель на массив colordata
-            glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_DYNAMIC_DRAW)
-            glBindBuffer (GL_ARRAY_BUFFER, 0)
-
-        else:            
-            ### Стандартная процедура создания VBO ###
-            #vbo = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, vbo)
-            
-            # 2 Параметр - указатель на массив pointdata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-            
-            #color_vbo = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, color_vbo)
-            
-            # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-
-        return vbo, color_vbo
-        
-    def OnSize(self, event): # Перисовывает окно при ресайзе
-        #Получить новый размер окна
-        try:
-            width, height = event.GetSize()
-        except:
-            width = event.GetSize().width
-            height = event.GetSize().height
-        #Запомнить модельную матрицу (все перемещения и зуммы)
-        try:
-            glPushMatrix()
-        except:
-            print 'Error in OnSize - GL Context not be created'
-            return
-        #Установить текущей проекционную матрицу
-        glMatrixMode(GL_PROJECTION)
-        #Отчистить ее
-        glLoadIdentity()
-        #Задать новую область просмотра
-        glViewport(0, 0, width, height)
-        #Заново задать проекционную матрицу
-        glOrtho(0,width,0,height,-100,100)
-        #Сделать текущей модельную матрицу
-        glMatrixMode(GL_MODELVIEW)
-        #Вернуть все перемещения и зуммы
-        glPopMatrix()
-        #Перерисовать
-        self.c.Refresh()
-        #self.c.Update()
-        event.Skip()
-
-
-# Процедура подготовки шейдера (тип шейдера, текст шейдера)
-def create_shader(shader_type, source):
-    # Создаем пустой объект шейдера
-    shader = glCreateShader(shader_type)
-    # Привязываем текст шейдера к пустому объекту шейдера
-    glShaderSource(shader, source)
-    # Компилируем шейдер
-    glCompileShader(shader)
-    # Возвращаем созданный шейдер
-    return shader
-            
-
-
+           
 app = wx.App()
 graf = Graphics()
 
