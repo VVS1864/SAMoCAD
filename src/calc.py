@@ -1,5 +1,5 @@
 # -*- coding: utf-8; -*-
-from math import sqrt, acos, sin, cos, pi,  radians
+from math import sqrt, acos, sin, cos, pi, radians, degrees, atan2
 import copy
 min_e = 0.00001
 def intersection_l_l(x1,y1, x2,y2, x3, y3, x4, y4):#Пересечение векторов. Принимает координаты 2 линий, проверяет их на параллельность, если не параллельны - ищет точку пересечения, если такая есть - возвращает ее координаты, иначе вернет None, None
@@ -456,6 +456,36 @@ def calc_angle(x0, y0, px1, py1, px2, py2):
         return a
     else:
         return -a
+
+def calc_angle_360(x1, y1, x2, y2):
+    a = x2 - x1
+    b = y2 - y1
+    c = (x1+100) - x1
+    d = 0
+    atanA = atan2(a, b)
+    atanB = atan2(c, d)
+    aa = (-degrees(atanA - atanB))%360        
+    return aa
+
+def calc_angles_360(x1, y1, x2, y2, x3, y3):
+    a = x2 - x1
+    b = y2 - y1
+    c = (x1+100) - x1
+    d = 0
+    atanA = atan2(a, b)
+    atanB = atan2(c, d)
+    aa = (-degrees(atanA - atanB))%360
+
+    a = x2 - x1
+    b = y2 - y1
+    c = x3 - x1
+    d = y3 - y1
+    atanA = atan2(a, b)
+    atanB = atan2(c, d)
+    bb = (-degrees(atanA - atanB))%360
+    start = aa
+    extent = bb
+    return start, extent
         
 
 def rotateCalc(x0, y0, xold, yold, mcos, msin): #считает координаты поворота

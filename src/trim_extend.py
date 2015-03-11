@@ -73,7 +73,7 @@ class Object:
         y = self.par.y_priv
         #object = #self.par.get_current_objects(rect)
         #el = self.par.get_obj(event.x, event.y)
-        if self.par.current:
+        if self.par.current and self.par.ALLOBJECT[self.par.current]['object'] == 'line':
             self.par.info.SetValue('%s - Cuted objects:'%(self.par.trim_extend))
             self.par.c.Unbind(wx.EVT_LEFT_DOWN)
             self.par.c.Bind(wx.EVT_LEFT_DOWN, self.trimEvent3)

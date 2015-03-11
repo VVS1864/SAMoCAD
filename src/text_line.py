@@ -31,7 +31,7 @@ class Object(Base):
         super(Object, self).Y_N(self.textEvent3, 'Text [%s]:' %(self.par.old_text))
         
 
-    def textEvent3(self, event=None):
+    def textEvent3(self, event):
         kwargs = {
             'par' : self.par,
             'x' : self.par.ex,
@@ -57,6 +57,7 @@ class Object(Base):
                 self.par.old_text = kwargs['text']
             super(Object, self).func_4_r(event, c_text, kwargs)
             self.par.kill()
+            return
             
         elif key == wx.WXK_ESCAPE:
             self.par.kill()
