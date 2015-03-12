@@ -410,10 +410,17 @@ class GL_wrapper:
         self.par.c.Refresh()
         #self.par.c.Update()
         event.Skip()
+        
+    def destroy(self, event):
+        print 'destroy'
+        if self.par.vbo: # Если VBO есть - удалить
+            glDeleteBuffers(1, [self.par.vbo])
+            glDeleteBuffers(1, [self.par.color_vbo])
+        self.par.interface.Destroy()
 
 def use_ARB():
     import OpenGL.GL.ARB.vertex_buffer_object as ARB
-    global glBindBuffer, glGenBuffers, glBufferData, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER
+    global glBindBuffer, glGenBuffers, glBufferData, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER, glDeleteBuffers
 
     glBindBuffer = ARB.glBindBufferARB
     glGenBuffers = ARB.glGenBuffersARB
@@ -421,6 +428,7 @@ def use_ARB():
     GL_STATIC_DRAW = ARB.GL_STATIC_DRAW_ARB
     GL_DYNAMIC_DRAW = ARB.GL_DYNAMIC_DRAW_ARB
     GL_ARRAY_BUFFER = ARB.GL_ARRAY_BUFFER_ARB
+    glDeleteBuffers = ARB.glDeleteBuffersARB
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
 def create_shader(shader_type, source):

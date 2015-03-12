@@ -227,7 +227,7 @@ class Graphics:
         self.c.Bind(wx.EVT_MIDDLE_DOWN, self.move_on)
         self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
-        self.interface.Bind(wx.EVT_CLOSE, self.destroy)
+        self.interface.Bind(wx.EVT_CLOSE, self.gl_wrap.destroy)
         
         if 'linux' in sys.platform:
             self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
@@ -686,13 +686,9 @@ class Graphics:
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()
-
-    def destroy(self, event):
-        print 'destroy'
-        if self.vbo: # Если VBO есть - удалить
-            glDeleteBuffers(1, [self.vbo])
-            glDeleteBuffers(1, [self.color_vbo])
-        self.interface.Destroy()
+    
+    
+    
            
 app = wx.App()
 graf = Graphics()
