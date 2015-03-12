@@ -258,14 +258,15 @@ def c_dim(
         one = 0
         for i in lines:
             pointdata.extend(i)
-            colordata.extend(color * 2)
+            #colordata.extend(color * 2)
             if one:
                 IDs.append(0)
             else:
                 IDs.append(par.total_N)
                 one = 1
+        par.colordata.extend(color*(len(pointdata)/2))
         par.pointdata.extend(pointdata)
-        par.colordata.extend(colordata)
+        #par.colordata.extend(colordata)
         par.IDs.extend(IDs)
         object_dim = Object_dim(par, par.total_N)
         #Записать в ALLOBJECT параметры размера
@@ -279,6 +280,7 @@ def c_dim(
                                 'sectors': [],
                                 'coords': snap_lines,
                                 'lines': lines,
+                                'pointdata': pointdata,
                                 'arrow_lines' : list_arrow,
                                 'line3' : line3,
                                 'snap_type':'line',

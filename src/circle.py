@@ -122,6 +122,7 @@ def c_circle(
                                     'sectors':[],
                                     'coords': lines,
                                     'lines': lines,
+                                    'pointdata': pointdata,
                                     'x1': x1,
                                     'y1': y1,
                                     'snap_type':'circle',

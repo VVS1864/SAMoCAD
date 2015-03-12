@@ -92,15 +92,19 @@ def c_text(
         par.total_N+=1        
         lines = (tt.nabor[1:])
         one = 0
+        pointdata = []
+        
         for i in tt.nabor[1:]:
-            par.pointdata.extend(i)
-            par.colordata.extend(color * 2)
+            pointdata.extend(i)
+            #par.pointdata.extend(i)
+            #par.colordata.extend(color * 2)
             if one:
                 par.IDs.append(0)
             else:
                 par.IDs.append(par.total_N)
                 one = 1
-
+        par.pointdata.extend(pointdata)
+        par.colordata.extend(color*(len(pointdata)/2))
         object_text = Object_text(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():
@@ -113,6 +117,7 @@ def c_text(
                                         'sectors':[],
                                         'coords': (sl,),
                                         'lines': lines,
+                                        'pointdata': pointdata,
                                         'x' : x,
                                         'y' : y,
                                         'snap_type':'line',

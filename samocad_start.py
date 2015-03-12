@@ -419,22 +419,38 @@ class Graphics:
         if add_history:
             pass
         else:
-            begin_list, end_list = self.get_indexes(objects)
-            all_indexes = set()
             for i, o in enumerate(objects):
-                all_indexes.update(xrange(begin_list[i], end_list[i]))
                 for s in self.ALLOBJECT[o]['sectors']:
                     self.sectors[s].remove(o)
-                del self.ALLOBJECT[o]            
+                del self.ALLOBJECT[o]
+                
+            if 'trace' in self.ALLOBJECT:
+                for s in self.ALLOBJECT['trace']['sectors']:
+                    self.sectors[s].remove('trace')
+                del self.ALLOBJECT['trace']
             #self.colordata = [x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes]
             #self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]     
-            pointdata = array.array('f', [])
-            colordata = array.array('B', [])
+            self.pointdata = array.array('f', [])
+            self.colordata = array.array('B', [])
+            self.IDs = []
+            '''
             colordata.fromlist([x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes])
             pointdata.fromlist([x for i, x in enumerate(self.pointdata) if i not in all_indexes])
-            self.pointdata = pointdata
-            self.colordata = colordata
-            self.IDs = [x for i, x in enumerate(self.IDs) if i*4 not in all_indexes]
+            '''
+            if 'trace' in self.ALLOBJECT:
+                del self.ALLOBJECT['trase']
+            for obj in self.ALLOBJECT.values():                
+                pointdata = obj['pointdata']
+                len_pointdata = len(pointdata)/2
+                self.pointdata.fromlist(pointdata)
+                self.colordata.fromlist(len_pointdata*obj['color'])
+
+                self.IDs.append(obj['class'].obj)
+                self.IDs.extend( (len_pointdata/2 - 1)*(0,) )
+                
+            #self.pointdata = pointdata
+            #self.colordata = colordata
+            #self.IDs = [x for i, x in enumerate(self.IDs) if i*4 not in all_indexes]
 
         
     def mass_collector(self, objects, select):

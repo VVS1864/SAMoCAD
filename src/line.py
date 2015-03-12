@@ -95,7 +95,8 @@ def c_line(
         
         if not stipple:
             lines = ((x1,y1,x2,y2),)
-            par.pointdata.extend([x1,y1,x2,y2])
+            pointdata = [x1,y1,x2,y2]
+            par.pointdata.extend(pointdata)
             par.colordata.extend(color * 2)
             par.IDs.append(par.total_N)
                         
@@ -121,6 +122,7 @@ def c_line(
                                     'sectors':[],
                                     'coords': ([x1,y1,x2,y2],),
                                     'lines': lines,
+                                    'pointdata': pointdata,
                                     'x1': x1,
                                     'y1': y1,
                                     'x2': x2,

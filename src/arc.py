@@ -180,6 +180,7 @@ def c_arc(
                                     'sectors':[],
                                     'coords': lines,
                                     'lines': lines,
+                                    'pointdata': pointdata,
                                     'x1': x1,
                                     'y1': y1,
                                     'x3': xstart,
