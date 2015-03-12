@@ -23,6 +23,8 @@ from random import random, randint, uniform
 import copy
 import os
 import sys
+import array
+
 
 
 
@@ -30,7 +32,7 @@ import sys
 
 
 class Graphics:
-    def __init__(self):       
+    def __init__(self):
         self.init = False
         self.scale_size = 1.5
         
@@ -189,8 +191,8 @@ class Graphics:
             self.drawing_w, self.drawing_h, 0.0, self.drawing_h
                                   ]
         self.drawing_rect_color = [255, 255, 255]*(len(self.drawing_rect_data)//2)
-        self.pointdata = []
-        self.colordata = []
+        self.pointdata = array.array('f', [])
+        self.colordata = array.array('B', [])
         
 
         self.collection_data = []
@@ -423,12 +425,17 @@ class Graphics:
                 all_indexes.update(xrange(begin_list[i], end_list[i]))
                 for s in self.ALLOBJECT[o]['sectors']:
                     self.sectors[s].remove(o)
-                del self.ALLOBJECT[o]
-            
-            self.colordata = [x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes]
-            self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]
+                del self.ALLOBJECT[o]            
+            #self.colordata = [x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes]
+            #self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]     
+            pointdata = array.array('f', [])
+            colordata = array.array('B', [])
+            colordata.fromlist([x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes])
+            pointdata.fromlist([x for i, x in enumerate(self.pointdata) if i not in all_indexes])
+            self.pointdata = pointdata
+            self.colordata = colordata
             self.IDs = [x for i, x in enumerate(self.IDs) if i*4 not in all_indexes]
-        
+
         
     def mass_collector(self, objects, select):
         a = set(self.collection)

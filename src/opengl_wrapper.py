@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy
 import ctypes
+import time as t
 
 from OpenGL.GL import *
 
@@ -288,6 +289,10 @@ class GL_wrapper:
                 self.par.vbo = glGenBuffersARB(1)
                 self.par.color_vbo = glGenBuffersARB(1)
             '''
+        else:
+            if self.par.vbo: # Если VBO есть - удалить
+                glDeleteBuffers(1, [self.par.vbo, self.par.color_vbo])
+                #glDeleteBuffers(1, [self.par.color_vbo])
     
         self.par.vbo, self.par.color_vbo = self.c_VBO(self.par.vbo, self.par.color_vbo, self.par.pointdata, self.par.colordata)
 
@@ -338,46 +343,31 @@ class GL_wrapper:
     '''
         
     def c_VBO(self, vbo, color_vbo, pointdata, colordata):
-        
+        t1 = t.time()
         #c_pointdata = (GLfloat*len(pointdata))(*pointdata)#
-        c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
+        #c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
+        c_pointdata = pointdata.tostring()
+        c_colordata = colordata.tostring()
         #c_colordata = (GLubyte*len(colordata))(*colordata)#
-        c_colordata = numpy.array(colordata, dtype = numpy.ubyte)
-        size_point = c_pointdata.nbytes
-        size_color = c_colordata.nbytes
+        #c_colordata = numpy.array(colordata, dtype = numpy.ubyte)
+        #size_point = c_pointdata.nbytes
+        #size_color = c_colordata.nbytes
+        #print size_point, size_color, size_point+size_color
             
         ### Стандартная процедура создания VBO ###            
         glBindBuffer (GL_ARRAY_BUFFER, vbo)
         
         # 2 Параметр - указатель на массив pointdata
-        glBufferData (GL_ARRAY_BUFFER, size_point, c_pointdata, GL_STATIC_DRAW)
+        glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_STATIC_DRAW)
         #glBufferSubData(GL_ARRAY_BUFFER, 0, size_point, c_pointdata)
         glBindBuffer (GL_ARRAY_BUFFER, 0)
         
-        
         glBindBuffer (GL_ARRAY_BUFFER, color_vbo)
-        
+
         # 2 Параметр - указатель на массив colordata
-        glBufferData (GL_ARRAY_BUFFER, size_color,  c_colordata, GL_STATIC_DRAW)
+        glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
         #glBufferSubData(GL_ARRAY_BUFFER, 0, size_color, c_colordata)
         glBindBuffer (GL_ARRAY_BUFFER, 0)
-        '''
-        else:            
-            ### Стандартная процедура создания VBO ###
-            #vbo = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, vbo)
-            
-            # 2 Параметр - указатель на массив pointdata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-            
-            #color_vbo = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, color_vbo)
-            
-            # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-        '''
 
         return vbo, color_vbo
         
