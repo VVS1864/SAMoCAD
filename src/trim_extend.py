@@ -182,7 +182,7 @@ class Object:
             self.par.change_pointdata()
             
             
-            
+    '''
     def find_rline(self):
         if self.par.collection:
             col = self.par.collection
@@ -194,4 +194,5 @@ class Object:
             if col == [None]:
                 col = None
             return col
+        '''
             

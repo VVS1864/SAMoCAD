@@ -2,6 +2,7 @@ class Base_object(object):
     def __init__(self, par, obj):
         self.par = par
         self.obj = obj
+        self.text_changeble = False
 
     ### History_undo method ###
     def undo(self, cd, zoomOLDres, xynachres):

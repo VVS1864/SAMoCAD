@@ -11,6 +11,7 @@ import src.opengl_wrapper as opengl_wrapper
 import src.grab_object as grab_object
 import src.select_clone as select_clone
 import src.motion_event as motion_event
+import src.right_mouse_event as right_mouse_event
 import src.edit as edit
 
 from OpenGL.GL import *
@@ -24,12 +25,6 @@ import copy
 import os
 import sys
 import array
-
-
-
-
-
-
 
 class Graphics:
     def __init__(self):
@@ -162,7 +157,6 @@ class Graphics:
         
         self.s_dxf = False
         self.curent_class = None
-        #self.unpriv = False
         
         self.rect = False #True если рисуется рамка выделения
         self.print_flag = False #True если выбор области печати
@@ -227,7 +221,7 @@ class Graphics:
     def initial(self):
         #События мыши
         self.c.Bind(wx.EVT_MIDDLE_DOWN, self.move_on)
-        self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
+        
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
         self.interface.Bind(wx.EVT_CLOSE, self.gl_wrap.destroy)
         
@@ -311,9 +305,12 @@ class Graphics:
 
     def standart_binds(self):
         self.c.Unbind(wx.EVT_LEFT_DOWN)
+        self.c.Unbind(wx.EVT_RIGHT_DOWN)
         self.c.Unbind(wx.EVT_MOTION)
         self.interface.cmd.Unbind(wx.EVT_KEY_DOWN)
         
+        #self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
+        self.c.Bind(wx.EVT_RIGHT_DOWN, lambda x: right_mouse_event.right_mouse_event(self))
         self.c.Bind(wx.EVT_LEFT_DOWN, self.left_mouse_event)
         self.c.Bind(wx.EVT_MOTION, self.motion)
         self.interface.cmd.Bind(wx.EVT_KEY_DOWN, self.key)
@@ -593,12 +590,13 @@ class Graphics:
         
     def motion(self, e):
         motion_event.motion(self, e)
-
+    '''
     def right_mouse_event(self, e):
         state = wx.GetMouseState()
         if state.ControlDown():
             self.back_collection()
         self.focus_cmd()
+    '''
 
     def left_mouse_event(self, e):
         x = e.GetX()

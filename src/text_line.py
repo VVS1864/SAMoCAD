@@ -137,6 +137,7 @@ def c_text(
 class Object_text(Base_object):
     def __init__(self, par, obj):
         super(Object_text, self).__init__(par, obj)
+        self.text_changeble = True
 
     def create_object(self, cd):
         cNew = c_text(
@@ -188,6 +189,13 @@ class Object_text(Base_object):
             cd['svg_strings'] = [e,]
             
         return cd
+
+    ### Edit method ###
+    def edit(self, x1, y1, x2, y2):
+        pass
+
+    def edit_temp(self, x1, y1, x2, y2):
+        pass
 
     ### Rotate methods ###
     def rotate(self, x0, y0, msin, mcos, angle):

@@ -41,7 +41,6 @@ list_prop = (
     )
 
 temp_dict = {
-    'text' : None,
     'layer' : 't',
     'color' : [255, 255, 0],
     'in_mass' : False,
@@ -232,7 +231,6 @@ def c_dim(
     dim_text_font,
     in_mass,
     temp,
-    #ID = None
     ):
     if not (0 <= x1 <= par.drawing_w and
             0 <= y1 <= par.drawing_h and
@@ -509,6 +507,7 @@ def get_dim_lines(
 class Object_dim(Base_object):
     def __init__(self, par, obj):
         super(Object_dim, self).__init__(par, obj)
+        self.text_changeble = True
         self.temp_dict = temp_dict
     
     def create_object(self, cd):
