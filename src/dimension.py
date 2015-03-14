@@ -376,8 +376,7 @@ def get_dim_lines(
             ym = y2
             x = x1
             y = y1
-        [ [x,y], [x3,y3], [ text_place[0], text_place[1] ] ]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)
-        #text_place[0], text_place[1] = a, b        
+        [ [x,y], [x3,y3], [ text_place[0], text_place[1] ] ]  = calc.rotate_points(xm, ym, [[x,y], [x3,y3], [text_place[0], text_place[1]]], msin, mcos)      
 
     else:
         
@@ -421,14 +420,7 @@ def get_dim_lines(
     # 1 = 'unchange' - auto
     # 2 = 'online3'
     # 3 = 'online3_m_l'
-    '''
-    if text_change == 1:
-        text_place = [xm+dx/2.0, y3+s] 
-    elif text_change == 2  or text_change == 3:
-        text_place[1] = y3+s
-    '''
     line3 = [xm-vr_s, y3, x+vr_s, y3]
-    
     
     if text_change == 1:
         text_place = [xm+dx/2.0, y3+s]
@@ -449,68 +441,22 @@ def get_dim_lines(
     
     elif text_change == 3:
         if abs(y3 - text_place[1]) < s:
-            #text_place[1] = y3+s
             text_change = 2
         else:
             list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
 
-    if text_change == 2:
-        
-        #if abs(list_text_lines.nabor[0][0]+list_text_lines.Ltext / 2.0 - (xm+dx/2.0)) < par.min_e:
-        #if abs(y3 - text_place[1]) < s:
-            text_place[1] = y3+s
-            list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
-            text_line = list_text_lines.nabor[0]
+    if text_change == 2:        
+        text_place[1] = y3+s
+        list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+        text_line = list_text_lines.nabor[0]
+        if abs(text_line[0]+list_text_lines.Ltext / 2.0 - (xm+dx/2.0)) < par.min_e:
+            text_change = 1
+        else: 
             if text_line[0] < xm:
                 line3[0] = text_line[0]
             elif text_line[2] > x:
-                line3[2] = text_line[2]
-            else:
-                text_change = 1     
+                line3[2] = text_line[2]   
             
-        
-    
-    
-    
-        
-    #list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
-
-    '''
-    i = 1
-    if text_change == 2:
-        e2 = list_text_lines.nabor[0][0]
-        e3 = list_text_lines.nabor[0][2]
-        if x < e3:
-            line3 = [xm-vr_s, y3, e3, y3]
-        else:
-            line3 = [e2, y3, x+vr_s, y3]
-    elif text_change == 1:
-        line3 = [xm-vr_s, y3, x+vr_s, y3]
-        
-        #Если текст не вмещается между выносными линиями - нарисовать сбоку
-        if list_text_lines.Ltext > dx - arrow_s:
-
-            list_text_lines.nabor = calc.move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3+s, list_text_lines.nabor)
-            e = list_text_lines.nabor[0][0]
-            line3 = [x+vr_s, y3, e, y3]
-            i = -1
-            #text_change = 2
-            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
-    '''
-    '''
-    if text_change == 1:
-
-        e = list_text_lines.Ltext
-        #Если текст не вмещается между выносными линиями - нарисовать сбоку
-        if e>dx-arrow_s:
-
-            list_text_lines.nabor = calc.move_lines(text_place[0], text_place[1], xm-arrow_s-list_text_lines.Ltext/2.0, y3+s, list_text_lines.nabor)
-            e = list_text_lines.nabor[0][0]
-            line3 = [x+vr_s, y3, e, y3]
-            i = -1
-            #text_change = 2
-            text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
-        '''
     list_lines.append(line3)       
     #Засечки
     if type_arrow == 'Arch':
@@ -540,7 +486,6 @@ def get_dim_lines(
         list_arrow = calc.rotate_lines(xm, ym, list_arrow, msin, mcos)
         list_lines = calc.rotate_lines(xm, ym, list_lines, msin, mcos)
         list_snap_lines = calc.rotate_lines(xm, ym, list_snap_lines, msin, mcos)
-        #[line3,] = calc.rotate_lines(xm, ym, [line3,], msin, mcos)
         (text_place,) = calc.rotate_points(xm, ym, [text_place,], msin, mcos)
     list_lines.extend(list_arrow)
     
