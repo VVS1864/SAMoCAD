@@ -8,11 +8,11 @@ import src.gui  as gui
 import src.sectors_alg as sectors_alg
 import src.opengl_wrapper as opengl_wrapper
 
-import src.grab_object as grab_object
 import src.select_clone as select_clone
 import src.motion_event as motion_event
 import src.right_mouse_event as right_mouse_event
-import src.edit as edit
+import src.left_mouse_event as left_mouse_event
+
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -590,55 +590,9 @@ class Graphics:
         
     def motion(self, e):
         motion_event.motion(self, e)
-    '''
-    def right_mouse_event(self, e):
-        state = wx.GetMouseState()
-        if state.ControlDown():
-            self.back_collection()
-        self.focus_cmd()
-    '''
-
+    
     def left_mouse_event(self, e):
-        x = e.GetX()
-        y = e.GetY()
-        x, y = self.get_world_coords(x, y)
-        state = wx.GetMouseState()
-        if self.resFlag:
-            pass
-        else:
-            #добавить - убрать из коллекции
-            if state.ShiftDown():
-                select = 'deselect'
-            else:
-                select = 'select'
-                
-            if self.rect:
-                self.rectx2 = x
-                self.recty2 = y
-                objects = grab_object.select(self, [self.rectx, self.recty, self.rectx2, self.recty2])
-                self.mass_collector(objects, select)
-                self.amount_of_select()
-                self.rect = False
-                self.rect_data = []
-                self.rect_color = []
-                self.c.Refresh()
-                
-            elif self.current_select:
-                self.mass_collector([self.current,], select = select)
-                self.amount_of_select()
-                self.c.Refresh()
-                
-            elif not self.current_change:
-                #Если объект под курсором нельзя изменить
-                self.rect = True
-                self.rectx = x
-                self.recty = y
-            elif self.current_change:
-                edit.Object(self)
-        if not self.current_change:        
-            self.standart_state()
-        #e.Skip()
-        self.focus_cmd()
+        left_mouse_event.left_mouse_event(self)
 
     def move_on(self, e):        
         self.motion_flag = True
@@ -686,7 +640,8 @@ class Graphics:
         self.rect = False
         self.trace_on = False
         if 'trace' in self.ALLOBJECT:
-            self.ALLOBJECT, self.sectors = sectors_alg.delete(self.ALLOBJECT, self.sectors, ['trace',])
+            self.delete_objects(['trace',], False)
+            #self.ALLOBJECT, self.sectors = sectors_alg.delete(self.ALLOBJECT, self.sectors, ['trace',])
             
         self.curent_class = None
         self.resFlag = False

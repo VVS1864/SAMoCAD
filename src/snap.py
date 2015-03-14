@@ -27,9 +27,9 @@ def get_snap(x, y, snap_s, find, par):
                 cath = False
 
                 if c <= snap_s and tip_p != 'r':
-                    yi=y0#Текущимь координатами взять координаты первой точки приметива
-                    xi=x0
-                    #cath = True
+                    yt=y0#Текущимь координатами взять координаты первой точки приметива
+                    xt=x0
+                    cath = True
                     tip_p = 'c'#Тип привязки - к середине
                 
                 elif a <= snap_s:
@@ -85,9 +85,9 @@ def get_snap(x, y, snap_s, find, par):
             
             cath = False
             if a <= snap_s and tip_p != 'r':
-                yi = yc #Текущимь координатами взять координаты первой точки приметива
-                xi = xc
-                #cath = True
+                yt = yc #Текущимь координатами взять координаты первой точки приметива
+                xt = xc
+                cath = True
                 tip_p = 'c'#Тип привязки - к середине
                 
             elif b <= snap_s:
@@ -153,9 +153,9 @@ def get_snap(x, y, snap_s, find, par):
             xn, yn, N_dist = calc.min_distanse_cir(xc, yc, R, x, y)
             cath = False
             if a <= snap_s and tip_p != 'r':
-                yi = yc #Текущимь координатами взять координаты первой точки приметива
-                xi = xc
-                #cath = True
+                yt = yc #Текущимь координатами взять координаты первой точки приметива
+                xt = xc
+                cath = True
                 tip_p = 'c'#Тип привязки - к середине
                 
             elif b <= snap_s:

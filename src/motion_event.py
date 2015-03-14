@@ -89,6 +89,7 @@ def motion(self, e):
                         ])
                     self.snap = True
                     #Объект можно изменять
+                    self.current_change = True 
                     #self.current_change = True 
                     self.snap_color.extend(self.priv_color * (len(self.snap_data)//2))
 

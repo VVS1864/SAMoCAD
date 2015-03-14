@@ -276,15 +276,26 @@ class Object_line(Base_object):
     
     ### Edit method ###
     def edit_object(self, x1, y1, x2, y2, cd):
+        '''
         a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
         b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)
         cd['x2'], cd['y2'] = cd['coords'][0][2], cd['coords'][0][3]
         cd['x1'], cd['y1'] = cd['coords'][0][0], cd['coords'][0][1]
-
+        '''
+        a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
+        b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
+        c = sqrt(((cd['x1']+cd['x2'])/2.0 - x1)**2 + ((cd['y1']+cd['y2'])/2.0 - y1)**2)
         if a < self.par.min_e:
             cd['x1'], cd['y1'] = x2, y2
         elif b < self.par.min_e:
             cd['x2'], cd['y2'] = x2, y2
+        elif c < self.par.min_e:
+            dx = x2 - x1
+            dy = y2 - y1
+            cd['x1'] += dx
+            cd['y1'] += dy
+            cd['x2'] += dx
+            cd['y2'] += dy
         else:
             return False
             

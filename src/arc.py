@@ -289,14 +289,17 @@ class Object_arc(Base_object):
     def edit_object(self, x1, y1, x2, y2, cd ):
         a = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
         b = sqrt((cd['x3'] - x1)**2 + (cd['y3'] - y1)**2)
-
+        c = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
+        
         if b < self.par.min_e:
-            #cd['x3'], cd['y3'] = cd['x2'], cd['y2']
             cd['x3'], cd['y3'] = x2, y2
         
         elif a < self.par.min_e:
-            #cd['x2'], cd['y2'] = cd['x3'], cd['y3']
             cd['x2'], cd['y2'] = x2, y2
+
+        elif c < self.par.min_e:
+            cd['x1'], cd['y1'] = x2, y2
+            cd['x2'], cd['y2'], cd['x2'], cd['y2'] = None, None, None, None
         else:
             return False
         cNew = self.create_object(cd)

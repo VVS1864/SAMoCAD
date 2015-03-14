@@ -407,6 +407,11 @@ def get_dim_lines(
     zvv_s = 1
     if y3 < y:
         zvv_s = -1
+        
+    if in_mass and temp:
+        temp = True
+    else:
+        temp = False
 
 
     list_lines.extend([[xm, ym, xm, y3+vv_s*zvv_s], [x, y, x, y3+vv_s*zvv_s]])
@@ -416,22 +421,61 @@ def get_dim_lines(
     # 1 = 'unchange' - auto
     # 2 = 'online3'
     # 3 = 'online3_m_l'
-   
+    '''
     if text_change == 1:
         text_place = [xm+dx/2.0, y3+s] 
     elif text_change == 2  or text_change == 3:
         text_place[1] = y3+s
+    '''
+    line3 = [xm-vr_s, y3, x+vr_s, y3]
+    
+    
+    if text_change == 1:
+        text_place = [xm+dx/2.0, y3+s]
+        line3 = [xm-vr_s, y3, x+vr_s, y3]
+        
+        list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+        text_line = list_text_lines.nabor[0]
+        i = 1
+        #Если текст не вмещается между выносными линиями - нарисовать сбоку
+        if list_text_lines.Ltext > dx - arrow_s:
+            old_text_place = text_place
+            text_place = [xm - arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
+            list_text_lines.nabor = calc.move_lines(old_text_place[0], old_text_place[1], text_place[0], text_place[1], list_text_lines.nabor)
+            text_line = list_text_lines.nabor[0]
+            line3 = [x+vr_s, y3, text_line[0], y3]
+            i = -1
+            #text_change = 2
+    
+    elif text_change == 3:
+        if abs(y3 - text_place[1]) < s:
+            #text_place[1] = y3+s
+            text_change = 2
+        else:
+            list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+
+    if text_change == 2:
+        
+        #if abs(list_text_lines.nabor[0][0]+list_text_lines.Ltext / 2.0 - (xm+dx/2.0)) < par.min_e:
+        #if abs(y3 - text_place[1]) < s:
+            text_place[1] = y3+s
+            list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+            text_line = list_text_lines.nabor[0]
+            if text_line[0] < xm:
+                line3[0] = text_line[0]
+            elif text_line[2] > x:
+                line3[2] = text_line[2]
+            else:
+                text_change = 1     
+            
         
     
-    if in_mass and temp:
-        temp = True
-    else:
-        temp = False
+    
     
         
-    list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+    #list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
 
-
+    '''
     i = 1
     if text_change == 2:
         e2 = list_text_lines.nabor[0][0]
@@ -452,6 +496,7 @@ def get_dim_lines(
             i = -1
             #text_change = 2
             text_place = [xm-arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
+    '''
     '''
     if text_change == 1:
 
@@ -784,21 +829,29 @@ class Object_dim(Base_object):
         
         cd['x4'] = cd['coords'][2][2]
         cd['y4'] = cd['coords'][2][3]
+        cd['text_place'] = cd['text_place'][:]
+        text_x = cd['text_place'][0]
+        text_y = cd['text_place'][1]
         
         
         a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
         b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
         c = sqrt((cd['x3'] - x1)**2 + (cd['y3'] - y1)**2)
         d = sqrt((cd['x4'] - x1)**2 + (cd['y4'] - y1)**2)
+        e = sqrt((text_x - x1)**2 + (text_y - y1)**2)
 
         if a < self.par.min_e:
             cd['x1'], cd['y1'] = x2, y2
         elif b < self.par.min_e:
             cd['x2'], cd['y2'] = x2, y2
         elif c < self.par.min_e or d < self.par.min_e:
-            cd['x3'], cd['y3'] = x2, y2
+            cd['x3'], cd['y3'] = x2, y2                
         elif abs(cd['x3'] - x1) < self.par.min_e or abs(cd['y3'] - y1) < self.par.min_e:
             cd['x3'], cd['y3'] = x2, y2
+        elif e < self.par.min_e:
+            cd['text_place'] = [x2, y2]
+            cd['text_change'] = 3
+        
         else:
             return False
             #text_change = cd['text_change']

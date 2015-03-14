@@ -202,8 +202,10 @@ class Object_circle(Base_object):
         a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
         if abs(a - cd['R']) < self.par.min_e:
             cd['R'] = sqrt((x2-cd['x1'])**2 + (y2-cd['y1'])**2)
-            cNew = self.create_object(cd)
-            return cNew
+        elif a < self.par.min_e:
+            cd['x1'], cd['y1'] = x2, y2
+        cNew = self.create_object(cd)
+        return cNew
 
     ### Rotate methods ###
     def rotate(self, x0, y0, msin, mcos, angle):
