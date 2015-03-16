@@ -3,6 +3,7 @@ import time
 import wx
 import src.sectors_alg as sectors_alg
 from src.calc import calc_angle
+import numpy
 
 from math import sqrt, sin, cos
 from base import Base
@@ -83,7 +84,7 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
         if angle == None:
             #Если угол указан - считать сразу
             angle = calc_angle(x0, y0, x1, y1, x2, y2)
-        if angle:
+        if angle != None:
             msin = sin(angle)
             mcos = cos(angle)
                 
@@ -108,8 +109,49 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
                 print 'rotate ', len(par.collection), ' objects', time.time() - t1, 'sec'
                 par.kill()
             else:
-                for content in objects:
-                    par.ALLOBJECT[content]['class'].rotate_temp(x0, y0, msin, mcos, angle)
+                c = mcos
+                s = -msin
+                x = 0
+                y = 0
+                z = 1
+                translate1Matrix = numpy.matrix(
+                   [[1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                    [-x0, -y0, 0.0, 1.0]], numpy.float32)
+                
+                rotateMatrix = numpy.matrix(
+                   [[x*x*(1-c)+c,     y*x*(1-c)+z*s,  z*x*(1-c)+y*s, 0.0],
+                    [y*x*(1-c)-z*s,   y*y*(1-c)+c,    y*z*(1-c)+x*s, 0.0],
+                    [x*z*(1-c)+y*s,   y*z*(1-c)-x*s,  z*z*(1-c)+c,   0.0],
+                    [0.0,             0.0,            0.0,           1.0]], numpy.float32)
+
+                translate2Matrix = numpy.matrix(
+                   [[1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                    [x0, y0, 0.0, 1.0]], numpy.float32)
+                   
+                par.dynamic_matrix = translate1Matrix.dot(rotateMatrix)
+                par.dynamic_matrix = par.dynamic_matrix.dot(translate2Matrix).flatten().tolist()
+                #par.dynamic_matrix = rotateMatrix.dot(translateMatrix).flatten().tolist()
+                '''
+                par.dynamic_matrix = [
+                    x*x*(1-c)+c,     y*x*(1-c)+z*s,  z*x*(1-c)+y*s, 0.0,
+                    y*x*(1-c)-z*s,   y*y*(1-c)+c,    y*z*(1-c)+x*s, 0.0,
+                    x*z*(1-c)+y*s,   y*z*(1-c)-x*s,  z*z*(1-c)+c,   0.0,
+                    0.0,             0.0,            0.0,           1.0,
+                    ]
+                '''
+                if par.first:
+                    '''
+                    for content in objects:
+                        par.ALLOBJECT[content]['class'].rotate_temp(x0, y0, msin, mcos, angle)
+                    '''
+                    par.dynamic_data = par.collection_data
+                    par.dynamic_color = []
+                    par.gl_wrap.dinamic_vbo_on()
+                    par.first = False
 
     else:
         if not temp:

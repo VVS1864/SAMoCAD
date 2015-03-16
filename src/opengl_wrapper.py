@@ -2,6 +2,7 @@
 import numpy
 import ctypes
 import time as t
+import array
 
 from OpenGL.GL import *
 
@@ -10,6 +11,7 @@ class GL_wrapper:
         self.par = par
 
     def InitGL(self):
+        '''
         # Стандартная инициализация матриц
         print 'starn init GL...'
         glClearColor(0, 0, 0, 0)
@@ -24,10 +26,11 @@ class GL_wrapper:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef(0.0, 0.0, 100.0)
+        '''
         ver = glGetString(GL_VERSION)
         ver = float(ver[:3])
         print 'OpenGL version', ver
-        ver = 1
+        #ver = 1
         if ver > 2:
             self.par.GL_version = '3'
         else:
@@ -38,8 +41,14 @@ class GL_wrapper:
             
         if self.par.GL_version == '3':
             vertex = create_shader(GL_VERTEX_SHADER, """
+            //uniform mat4 projection;
+            //uniform mat4 mvp;
             varying vec4 vertex_color;
+            //varying vec4 gl_Vertex;
                         void main(){
+                            
+                            //gl_Position = projection * mvp * gl_Vertex;
+                            //gl_Position = mvp * gl_Vertex;
                             gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
                             vertex_color = gl_Color;
                         }""")
@@ -51,17 +60,74 @@ class GL_wrapper:
                             gl_FragColor = vertex_color;
             }""")
             # Создаем пустой объект шейдерной программы
-            program = glCreateProgram()
-            # Приcоединяем вершинный шейдер к программе
-            glAttachShader(program, vertex)
-            # Присоединяем фрагментный шейдер к программе
-            glAttachShader(program, fragment)
-            # "Собираем" шейдерную программу
-            glLinkProgram(program)
-            # Сообщаем OpenGL о необходимости использовать данную шейдерну программу при отрисовке объектов
-            glUseProgram(program)
+            self.program = glCreateProgram()
             
+            
+            
+            # Приcоединяем вершинный шейдер к программе
+            glAttachShader(self.program, vertex)
+            # Присоединяем фрагментный шейдер к программе
+            glAttachShader(self.program, fragment)
+            # "Собираем" шейдерную программу
+            glLinkProgram(self.program)
+            # Сообщаем OpenGL о необходимости использовать данную шейдерну программу при отрисовке объектов
+            glUseProgram(self.program)
+            
+            #self.par.Matrix_proj_ID = glGetUniformLocation(self.program, "projection")
+            #self.par.Matrix_mvp_ID = glGetUniformLocation(self.program, "mvp")
+            # Стандартная инициализация матриц
+            print 'starn init GL...'
+            glClearColor(0, 0, 0, 0)
+            glMatrixMode(GL_PROJECTION)
+            glLoadIdentity()
+            '''
+            self.par.projMatrix = numpy.matrix(
+                [[1.0, 0.0, 0.0, 0.0], 
+                [0.0, 1.0, 0.0, 0.0], 
+                [0.0, 0.0, 1.0, 0.0], 
+                [0.0, 0.0, 0.0, 1.0]], numpy.float32)
+            
+            self.par.mvMatrix = numpy.matrix(
+                [[1.0, 0.0, 0.0, 0.0], 
+                [0.0, 1.0, 0.0, 0.0], 
+                [0.0, 0.0, 1.0, 0.0], 
+                [0.0, 0.0, 0.0, 1.0]], numpy.float32)
+            self.par.projMatrix.dot(self.par.mvMatrix)
+            glUseProgram(self.program)
+            glUniformMatrix4fv(self.par.Matrix_proj_ID, 1, GL_FALSE, self.par.projMatrix.flatten())
+            glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_FALSE, self.par.mvMatrix.flatten())
+            '''
+            size = glGetIntegerv(GL_VIEWPORT)
+            #self.ortho(0.0, float(size[2]), 0.0, float(size[3]),-100.0,100.0)
+            glViewport(0, 0, size[2], size[3])
+            
+            #Заново задать проекционную матрицу
+            glOrtho(0,size[2],0,size[3],-100,100)
+            
+            glMatrixMode(GL_MODELVIEW)
+            glLoadIdentity()
+            glTranslatef(0.0, 0.0, 100.0)
+            '''
+            self.par.mvMatrix = numpy.array([1.0, 0.0, 0.0, 0.0, 
+                                    0.0, 1.0, 0.0, 0.0, 
+                                    0.0, 0.0, 1.0, 0.0, 
+                                    0.0, 0.0, 0.0, 1.0], numpy.float32)
+            '''
+
+            #self.translate(0.0, 0.0, 100.0)
+            
+            
+            '''
+            translateMatrix = numpy.array([1.0, 0.0, 0.0, 0.0, 
+                                    0.0, 1.0, 0.0, 0.0, 
+                                    0.0, 0.0, 1.0, 100.0, 
+                                    0.0, 0.0, 0.0, 1.0], numpy.float32)
+                                    
+            self.par.mvMatrix = self.par.mvMatrix * translateMatrix
+            glUniformMatrix4fv(self.par.MatrixID, 1, GL_FALSE, self.par.mvMatrix)
+        '''  
         print 'end init GL'
+        
         print 'start init VBO...'
         self.par.change_pointdata()
         print 'end init VBO'
@@ -80,6 +146,9 @@ class GL_wrapper:
         glEnableClientState(GL_COLOR_ARRAY)             # Включаем использование массива цветов
 
         self.par.draw()
+        if not self.par.first:
+            self.draw_dinamic_vbo()
+        
         
         tempdata = (
             self.par.current_data +
@@ -92,7 +161,8 @@ class GL_wrapper:
             self.par.snap_color +
             self.par.drawing_rect_color +
             self.par.red_line_color
-            )
+            )          
+             
         w_tempdata = (
             self.par.trace_data +
             self.par.rect_data +
@@ -122,10 +192,55 @@ class GL_wrapper:
         glDisableClientState(GL_VERTEX_ARRAY)           # Отключаем использование массива вершин
         glDisableClientState(GL_COLOR_ARRAY)            # Отключаем использование массива цветов
         # Выводим все нарисованное в памяти на экран
-        self.par.c.SwapBuffers() 
+        self.par.c.SwapBuffers()
+
+    def ortho(self, l, r, b, t, n_v, f_v):
+        tx = -(r+l)/(r-l)
+        ty = -(t+b)/(t-b)
+        tz = -(f_v+n_v)/(f_v-n_v)
+        orthoMatrix = numpy.matrix(
+            [[2/(r-l), 0.0,     0.0,          tx], 
+             [0.0,     2/(t-b), 0.0,          ty], 
+             [0.0,     0.0,     -2/(f_v-n_v), tz], 
+             [0.0,     0.0,     0.0,          1.0]], numpy.float32)
+        
+        self.par.projMatrix = self.par.projMatrix.dot(orthoMatrix)
+        #self.par.MVP = self.par.projMatrix.dot(self.par.mvMatrix)
+        
+        glUseProgram(self.program)
+        glUniformMatrix4fv(self.par.Matrix_proj_ID, 1, GL_TRUE, self.par.projMatrix)
+        glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_TRUE, self.par.mvMatrix)
+        #glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_FALSE, self.par.MVP.flatten())
+
+    def translate(self, x, y, z):
+        translateMatrix = numpy.matrix(
+            [[1.0, 0.0, 0.0, float(x)], 
+             [0.0, 1.0, 0.0, float(y)], 
+             [0.0, 0.0, 1.0, float(y)], 
+             [0.0, 0.0, 0.0, 1.0]], numpy.float32)
+        
+        self.par.mvMatrix = self.par.mvMatrix.dot(translateMatrix)
+        #self.par.MVP = self.par.projMatrix.dot(self.par.mvMatrix)
+        
+        glUseProgram(self.program)
+        glUniformMatrix4fv(self.par.Matrix_proj_ID, 1, GL_TRUE, self.par.projMatrix)
+        glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_TRUE, self.par.mvMatrix)
+        #glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_FALSE, self.par.MVP.flatten())
 
     def OnEraseBackground(self, event):
-        pass            
+        pass
+
+    def draw_dinamic_vbo(self):
+        glPushMatrix()
+        glMultMatrixf(self.par.dynamic_matrix)
+        
+        glColor(255.0, 255.0, 0.0)
+        glBindBuffer( GL_ARRAY_BUFFER, self.par.dynamic_vbo)
+        glVertexPointer(2, GL_FLOAT, 0, None)
+        glDrawArrays(GL_LINES, 0, len(self.par.dynamic_vbo_data)//2)
+        glBindBuffer( GL_ARRAY_BUFFER, 0)
+        
+        glPopMatrix()
         
     def draw_VBO(self):
         glBindBuffer( GL_ARRAY_BUFFER, self.par.color_vbo)
@@ -343,7 +458,7 @@ class GL_wrapper:
     '''
         
     def c_VBO(self, vbo, color_vbo, pointdata, colordata):
-        t1 = t.time()
+        '''
         #c_pointdata = (GLfloat*len(pointdata))(*pointdata)#
         #c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
         c_pointdata = pointdata.tostring()
@@ -368,8 +483,31 @@ class GL_wrapper:
         glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
         #glBufferSubData(GL_ARRAY_BUFFER, 0, size_color, c_colordata)
         glBindBuffer (GL_ARRAY_BUFFER, 0)
+        '''
+        vbo = self.simple_c_VBO(vbo, pointdata)
+        color_vbo = self.simple_c_VBO(color_vbo, colordata)
 
         return vbo, color_vbo
+
+    def simple_c_VBO(self, vbo, pointdata):
+        if not vbo:
+            vbo = glGenBuffers(1)
+        c_pointdata = pointdata.tostring()           
+        glBindBuffer (GL_ARRAY_BUFFER, vbo)
+        glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_STATIC_DRAW)
+        glBindBuffer (GL_ARRAY_BUFFER, 0)
+        return vbo
+
+    def dinamic_vbo_on(self):
+        #self.par.dynamic_matrix = matrix
+        self.par.dynamic_vbo_data = array.array('f', [])
+        self.par.dynamic_vbo_data.fromlist(self.par.dynamic_data)
+        self.par.dynamic_data = []
+        self.par.dynamic_color = []
+        self.par.dynamic_vbo = self.simple_c_VBO(
+            self.par.dynamic_vbo,
+            self.par.dynamic_vbo_data,
+            )            
         
     def OnSize(self, event): # Перисовывает окно при ресайзе
         #Получить новый размер окна

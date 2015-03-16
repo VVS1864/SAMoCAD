@@ -66,6 +66,20 @@ def mover(x1, y1, x2, y2, objects, par, temp):
         par.collectionBack = new_objects
         
     else:
-        for content in objects:
-            par.ALLOBJECT[content]['class'].copy_temp(d)
+        par.dynamic_matrix = [
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            float(d[0]), float(d[1]), 0.0, 1.0,
+            ]
+        if par.first:
+            '''
+            for content in objects:
+                par.ALLOBJECT[content]['class'].copy_temp(d)
+            '''
+            par.dynamic_data = par.collection_data
+            par.dynamic_color = []
+
+            par.gl_wrap.dinamic_vbo_on()
+            par.first = False
         

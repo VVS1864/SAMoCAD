@@ -37,6 +37,8 @@ class Graphics:
         self.vbo_col = None
         self.color_vbo_col = None
 
+        self.dynamic_vbo = None
+
         # Ширина и высота рабочей области
         self.drawing_w = 1000000.0
         self.drawing_h = 1000000.0
@@ -216,6 +218,9 @@ class Graphics:
         wx.EVT_ERASE_BACKGROUND(self.c, self.gl_wrap.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.gl_wrap.OnDraw)
         wx.EVT_SIZE(self.c, self.gl_wrap.OnSize)
+
+        #Технические переменные
+        self.first = True 
         
         
     def initial(self):
@@ -334,6 +339,8 @@ class Graphics:
         self.rect_color = []
         self.dynamic_data = []
         self.dynamic_color = []
+        self.dynamic_vbo_data = []
+        
 
     def amount_of_select(self):
         amount = len(self.collection)
@@ -377,7 +384,9 @@ class Graphics:
         x, y = self.get_world_coords(xy[0], xy[1])
         xy1 = gluUnProject(1, 0, 0)
         xy2 = gluUnProject(0, 0, 0)
+        
         glTranslate(x, y, 0)
+        
         if w < 0:
             glScalef(1.0/self.scale_size, 1.0/self.scale_size, 1.0/self.scale_size)
         else:
@@ -398,6 +407,7 @@ class Graphics:
         xy2 = gluUnProject(self.mouse_x, self.mouse_y, 0)
         
         glTranslate((xy1[0] - xy2[0]), (xy2[1] - xy1[1]), 0)
+        #self.gl_wrap.translate((xy1[0] - xy2[0]), (xy2[1] - xy1[1]), 0)
         
         self.mouse_x = x
         self.mouse_y = y
@@ -649,6 +659,8 @@ class Graphics:
         self.current_flag = True
         self.current_select_flag = True
         self.snap_flag = True
+
+        self.first = True 
 
         self.standart_binds()
         self.standart_state()

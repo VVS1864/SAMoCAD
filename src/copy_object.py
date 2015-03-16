@@ -30,10 +30,10 @@ class Object(Base):
                                 'Copy - intersect point:',
                                 True,
                                 )
+        self.par.first = True
         
 
-    def copyEvent3(self, event = None):
-        
+    def copyEvent3(self, event = None):            
         kwargs = {
             'x1' : self.par.ex,
             'y1' : self.par.ey,
@@ -61,6 +61,26 @@ def copyer(x1, y1, x2, y2, objects, par, temp):
         par.c.Refresh()
         print 'copy ', len(par.collection), ' objects', time.time() - t1, 'sec'
     else:
-        for content in objects:
-            par.ALLOBJECT[content]['class'].copy_temp(d)
+        par.dynamic_matrix = [
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            float(d[0]), float(d[1]), 0.0, 1.0,
+            ]
+        if par.first:
+            '''
+            for content in objects:
+                par.ALLOBJECT[content]['class'].copy_temp(d)
+            '''
+            par.dynamic_data = par.collection_data
+            par.dynamic_color = []
+
+            
+                
+            par.gl_wrap.dinamic_vbo_on()
+            par.first = False
+
+        
+            
+            
         
