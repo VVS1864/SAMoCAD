@@ -247,7 +247,7 @@ class Graphics:
                 layer = self.layer,
                 color = self.color,
                 stipple = None,
-                factor_stipple = None,
+                factor_stipple = 1,
                 #stipple = (1,1),
                 #factor_stipple = 10,
                 in_mass = True,
@@ -259,7 +259,7 @@ class Graphics:
             layer = self.layer,
             color = self.color,
             stipple = None,
-            factor_stipple = None,
+            factor_stipple = 1,
             in_mass = True,
                     )
         line.c_line(
@@ -268,7 +268,7 @@ class Graphics:
             layer = self.layer,
             color = self.color,
             stipple = None,
-            factor_stipple = None,
+            factor_stipple = 1,
             in_mass = True,
                     )
         

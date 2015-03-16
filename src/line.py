@@ -21,7 +21,6 @@ temp_dict = {
     'layer' : 't',
     'color' : [255, 255, 0],
     'stipple' : None,
-    'factor_stipple' : None,
     'in_mass' : False,
     'temp' : True,
     }

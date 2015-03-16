@@ -265,3 +265,15 @@ class Object_circle(Base_object):
         cd['x1'] += d[0]
         cd['y1'] += d[1]
         cNew = self.create_object(cd)
+
+    ### Scale method ###    
+    def scale(self, x, y, scale_factor):
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        cd['x1'] = (cd['x1']-x)*scale_factor + x
+        cd['y1'] = (cd['y1']-y)*scale_factor + y
+        cd['R'] = cd['R']*scale_factor
+        
+        cd['in_mass'] = True
+        cd['temp'] = False
+        cNew = self.create_object(cd)
+        return cNew

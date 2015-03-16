@@ -89,8 +89,6 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
         #angle = calc_angle_360(x1, y1, x2, y2)
         angle = calc_angle(x1, y1, x1+100, y1, x2, y2)
         if angle:
-            
-            print angle
             msin = -sin(angle)
             mcos = cos(angle)
         else:

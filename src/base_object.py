@@ -57,3 +57,7 @@ class Base_object(object):
 
     def copy_temp(self, d):
         pass
+
+    ### Scale method ###    
+    def scale(self, x, y, scale_factor):
+        pass

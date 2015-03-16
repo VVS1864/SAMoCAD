@@ -55,10 +55,10 @@ def scale(par, x, y, scale_factor, objects):
     t1 = time.time()
     start = par.total_N
     for content in par.collection:
-        if 'scale' in dir(par.ALLOBJECT[content]['class']):
-            cNew = par.ALLOBJECT[content]['class'].scale(x, y, scale_factor)
-            if cNew:
-                del_list.append(content)
+        #if 'scale' in dir(par.ALLOBJECT[content]['class']):
+        cNew = par.ALLOBJECT[content]['class'].scale(x, y, scale_factor)
+        if cNew:
+            del_list.append(content)
             
     end = par.total_N
     if del_list:
