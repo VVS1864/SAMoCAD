@@ -41,6 +41,36 @@ AcDbLine
  31
 0.0
  0"""
+        self.dxf_arc = """ARC
+5
+%(handle)s
+330
+1F
+100
+AcDbEntity
+8
+0
+6
+ByLayer
+62
+%(color)s
+370
+%(width)s
+100
+AcDbCircle
+10
+%(x1)s
+20
+%(y1)s
+40
+%(R)s
+100
+AcDbArc
+50
+%(start)s
+51
+%(extent)s
+0"""
 
         
 
@@ -88,6 +118,7 @@ AcDbLine
         
 
         for ind, i in enumerate(self.config_list):
+            support = False
             if i['object'] == 'line':
                 hand()
                 i['handle'] = self.handle
@@ -124,10 +155,33 @@ AcDbLine
                 else:
                     i['dash'] = 'Continuous'
 
-                MY_ENTITIES += ((self.dxf_line % i))
+                support = self.dxf_line
+
+                
+
+            elif i['object'] == 'arc':
+                hand()
+                i['handle'] = self.handle
+                i['width'] = widther(i['width'])
+                y1 = i['y1']
+                i['y1'] = formater(y1)
+                x1 = i['x1']
+                i['x1'] = formater(x1)
+                support = self.dxf_arc
+                '''
+                start = self.config_dict[i]['start']
+                extent = self.config_dict[i]['extent'] + start
+                if extent < start:
+                    start = extent
+                    extent = self.config_dict[i]['start']
+                self.config_dict[i]['start'] = start
+                self.config_dict[i]['extent'] = extent
+                '''
+            if support:
+                MY_ENTITIES += ((support % i))
                 if ind != len(self.config_list)-1:
                     MY_ENTITIES += '\n'
-                
+                                
 
         hand()
         MY_LAST_HANDLE = self.handle
