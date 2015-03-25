@@ -154,7 +154,7 @@ class Graphics:
         self.changeFlag = False
         
         self.current_print_file = os.path.join(os.getcwd(), 'print_1')
-        self.current_file = 'New draft'
+        self.current_file = 'New_draft.dxf'
         self.current_save_path = os.path.join(os.getcwd(), self.current_file)
         
         self.s_dxf = False

@@ -9,15 +9,15 @@ class Base_save(object):
         
         def dxf_colorer(color):
             color_tab = {
-                        "white":7,
-                        "light blue":4,
-                        "blue":5,
-                        "green":96,
-                        "gray":8,
-                        "black":7,
-                        "yellow":2,
-                        "orange":30,
-                        "red":10
+                        (255, 255, 255):7,#"white":7,
+                        #"light blue":4,
+                        (0, 0, 255):5,#"blue":5,
+                        (0, 255, 0):96,#"green":96,
+                        #"gray":8,
+                        (0, 0, 0):7,#"black":7,
+                        #"yellow":2,
+                        #"orange":30,
+                        (255, 0, 0):10,#"red":10
                         }
             return color_tab[color]
         
@@ -28,9 +28,9 @@ class Base_save(object):
                 continue
             config = self.AL[obj]['class'].save(file_format, layers, drawing_w, drawing_h)
             self.config_list.append(config)
-        if file_format == 'dxf':
+        if file_format == '.dxf':
             for i in self.config_list:
-                i['color'] = dxf_colorer(i['color'])
+                i['color'] = dxf_colorer(tuple(i['color']))
                 
 class Save_to_SVG(Base_save):
     def __init__(self, file_name, file_format, ALLOBJECT, layers, drawing_w, drawing_h):

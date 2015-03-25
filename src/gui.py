@@ -20,6 +20,7 @@ import src.fillet as fillet
 import src.print_to_file as print_to_file
 import src.save_file as save_file
 import src.open_file as open_file
+import src.dxf_library.dxf_write as dxf_write
 
 import wx
 from wx.lib.masked import NumCtrl
@@ -455,15 +456,27 @@ class Window(wx.Frame):
     def OnSave(self, e):
         head, tail = os.path.split(self.par.current_save_path)
         self.file_dialog =  wx.FileDialog(self, "Save drawing", head, tail,
-                                    "SVG files (*.svg)|*.svg",
+                                    "DXF files (*.dxf)|*.dxf|SVG files (*.svg)|*.svg",
                                     style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
         self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
         self.par.current_file = self.par.current_save_path
-        save_file.Save_to_SVG(
+        name, f_format = os.path.splitext(self.par.current_save_path)
+        if f_format == '.dxf':
+            dxf_write.Save_to_DXF(
                             self.par.current_file,
-                            'svg',
+                            f_format,
+                            self.par.ALLOBJECT,
+                            self.par.layers,
+                            self.par.stipples,
+                            self.par.drawing_w,
+                            self.par.drawing_h,
+                            )
+        else:
+            save_file.Save_to_SVG(
+                            self.par.current_file,
+                            f_format,
                             self.par.ALLOBJECT,
                             self.par.layers,
                             self.par.drawing_w,

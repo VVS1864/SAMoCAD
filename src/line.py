@@ -227,11 +227,12 @@ class Object_line(Base_object):
     ### Save method ###
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
-        cd['y1'] = drawing_h - cd['y1']
         
-        cd['y2'] = drawing_h - cd['y2']
 
         if file_format == 'svg':
+            cd['y1'] = drawing_h - cd['y1']
+        
+            cd['y2'] = drawing_h - cd['y2']
             try:
                 dash_str = ', '.join([str(x*cd['factor_stipple']) for x in cd['stipple']])
             except:
