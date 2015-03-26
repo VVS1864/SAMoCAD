@@ -72,6 +72,31 @@ AcDbArc
 %(extent)s
 0"""
 
+        self.dxf_circle = """CIRCLE
+5
+%(handle)s
+330
+1F
+100
+AcDbEntity
+  8
+0
+ 62
+  %(color)s
+370
+   %(width)s
+100
+AcDbCircle
+ 10
+%(x1)s
+ 20
+%(y1)s
+ 30
+0.0
+ 40
+%(R)s
+  0"""
+
         
 
         
@@ -131,19 +156,7 @@ AcDbArc
                 i['x1'] = formater(x1)
                 x2 = i['x2']
                 i['x2'] = formater(x2)
-                '''
-                self.stipples = {'_____________':None,
-                         '_ _ _ _ _ _ _':c,
-                         '____ _ ____ _':(4,1,1,1),
-                         '____ _ _ ____':(4,1,1,1,1,1)}
-                if i['stipple']:
-                    for j in self.stipples:
-                        if self.stipples[j]:
-                            t = map(lambda x: x*float(self.AL[i]['factor_stip']), self.stipples[j])
-                            if t == self.AL[i]['stipple']:
-                                stip = j
-                                break
-                '''
+                
                 if i['stipple']:
                     
                     if i['stipple'] == (4,1,1,1):
@@ -168,15 +181,18 @@ AcDbArc
                 x1 = i['x1']
                 i['x1'] = formater(x1)
                 support = self.dxf_arc
-                '''
-                start = self.config_dict[i]['start']
-                extent = self.config_dict[i]['extent'] + start
-                if extent < start:
-                    start = extent
-                    extent = self.config_dict[i]['start']
-                self.config_dict[i]['start'] = start
-                self.config_dict[i]['extent'] = extent
-                '''
+
+
+            elif i['object'] == 'circle':
+                hand()
+                i['handle'] = self.handle
+                i['width'] = widther(i['width'])
+                y1 = i['y1']
+                i['y1'] = formater(y1)
+                x1 = i['x1']
+                i['x1'] = formater(x1)
+                support = self.dxf_circle
+                
             if support:
                 MY_ENTITIES += ((support % i))
                 if ind != len(self.config_list)-1:
