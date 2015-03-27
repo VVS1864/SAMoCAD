@@ -1,7 +1,9 @@
 
 import src.save_file as save_file
 import os
+from math import degrees
 appPath = os.getcwd()
+
 
 class Save_to_DXF(save_file.Base_save):
     def __init__(self, file_name, file_format, ALLOBJECT, layers, stipples, drawing_w, drawing_h):
@@ -96,6 +98,36 @@ AcDbCircle
  40
 %(R)s
   0"""
+        self.dxf_text = """TEXT
+5
+%(handle)s
+330
+1F
+100
+AcDbEntity
+8
+0
+62
+%(color)s
+100
+AcDbText
+10
+%(x1)s
+20
+%(y1)s
+30
+0.0
+40
+%(text_size)s
+50
+%(angle)s
+1
+%(text)s
+41
+%(text_w)s
+100
+AcDbText
+0"""
 
         
 
@@ -192,6 +224,25 @@ AcDbCircle
                 x1 = i['x1']
                 i['x1'] = formater(x1)
                 support = self.dxf_circle
+
+            elif i['object'] == 'text_line':
+                hand()
+                i['handle'] = self.handle
+                y1 = i['y1']
+                i['y1'] = formater(y1)
+                x1 = i['x1']
+                i['x1'] = formater(x1)
+
+                size = i['text_size']
+                i['text_size'] = str(-size)
+                angle = i['angle']
+                i['angle'] = str(degrees(-angle))
+                w_text = i['text_w']
+                i['text_w'] = str(w_text)
+                text = i['text']
+                i['text'] = text.encode("cp1251")
+                
+                support = self.dxf_text
                 
             if support:
                 MY_ENTITIES += ((support % i))

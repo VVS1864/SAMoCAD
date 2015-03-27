@@ -163,10 +163,11 @@ class Object_text(Base_object):
     def save(self, file_format, layers, drawing_w, drawing_h):
         cd = self.par.ALLOBJECT[self.obj].copy()
         cd['x1'] = cd['coords'][0][0]
-        cd['y1'] = drawing_h - cd['coords'][0][1]
+        cd['y1'] = cd['coords'][0][1]
         cd['Ltext'] = sqrt((cd['coords'][0][0]-cd['coords'][0][2])**2+(cd['coords'][0][1]-cd['coords'][0][3])**2)
 
         if file_format == 'svg':
+            cd['y1'] = drawing_h - cd['coords'][0][1]
             SVG_style_list = []
             en = ' '
             
