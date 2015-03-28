@@ -658,6 +658,8 @@ AcDbBlockEnd
 
                 vr_s = i['vr_s']
                 i['vr_s'] = formater(vr_s)
+                s = i['arrow_s']
+                i['arrow_s'] = s*2.0
                 vv_s = i['vv_s']
                 i['vv_s'] = formater(vv_s)
                 #size = i['dim_text_size']

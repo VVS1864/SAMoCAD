@@ -432,10 +432,10 @@ def get_dim_lines(
         #Если текст не вмещается между выносными линиями - нарисовать сбоку
         if list_text_lines.Ltext > dx - arrow_s:
             old_text_place = text_place
-            text_place = [xm - arrow_s - list_text_lines.Ltext / 2.0, y3 + s]
+            text_place = [x + arrow_s*3.0 + list_text_lines.Ltext / 2.0, y3 + s]
             list_text_lines.nabor = calc.move_lines(old_text_place[0], old_text_place[1], text_place[0], text_place[1], list_text_lines.nabor)
             text_line = list_text_lines.nabor[0]
-            line3 = [x+vr_s, y3, text_line[0], y3]
+            line3 = [xm-vr_s, y3, text_line[2], y3]
             i = -1
             #text_change = 2
     
@@ -460,8 +460,8 @@ def get_dim_lines(
     list_lines.append(line3)       
     #Засечки
     if type_arrow == 'Arch':
-        L1 = [x - arrow_s, y3 + arrow_s, x + arrow_s, y3 - arrow_s]
-        L2 = [xm - arrow_s, y3 + arrow_s, xm + arrow_s, y3 - arrow_s]
+        L1 = [x - arrow_s, y3 - arrow_s, x + arrow_s, y3 + arrow_s]
+        L2 = [xm - arrow_s, y3 - arrow_s, xm + arrow_s, y3 + arrow_s]
         list_arrow.extend([L1, L2])
     elif type_arrow == 'Arrow':
         if dx < arrow_s*3.0:
