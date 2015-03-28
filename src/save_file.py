@@ -109,25 +109,26 @@ def get_object_lines(cd, drawing_h, file_format):
     for ind, i in enumerate(cd['coords']):
         lines_coord.update({
             'line_'+str(ind+1)+'_x1': i[0],
-            'line_'+str(ind+1)+'_y1': drawing_h - i[1],
+            'line_'+str(ind+1)+'_y1': i[1],
             'line_'+str(ind+1)+'_x2': i[2],
-            'line_'+str(ind+1)+'_y2': drawing_h - i[3]
+            'line_'+str(ind+1)+'_y2': i[3]
             })
     for ind, i in enumerate(cd['arrow_lines']):
         lines_coord.update({
             'arrow_'+str(ind+1)+'_x1': i[0],
-            'arrow_'+str(ind+1)+'_y1': drawing_h - i[1],
+            'arrow_'+str(ind+1)+'_y1': i[1],
             'arrow_'+str(ind+1)+'_x2': i[2],
-            'arrow_'+str(ind+1)+'_y2': drawing_h - i[3]
+            'arrow_'+str(ind+1)+'_y2': i[3]
             })
 
     x1 = cd['coords'][3][0]
-    y1 = drawing_h - cd['coords'][3][1]
+    y1 = cd['coords'][3][1]
     x2 = cd['coords'][3][2]
-    y2 = drawing_h - cd['coords'][3][3]
+    y2 = cd['coords'][3][3]
     # Длинна текста
     lines_coord['Ltext'] = sqrt((x1-x2)**2+(y1-y2)**2)
-    if file_format == 'dxf':
+    print file_format
+    if file_format == '.dxf':
         # Если DXF - берется центральная точка текста
         #!!!
         if cd['ort'] == "horizontal":
@@ -136,10 +137,11 @@ def get_object_lines(cd, drawing_h, file_format):
             x = cd['x3']#coord_list[2][0]
             xx = x1 - cd['dim_text_size']/2.0
         else:
+            print 111
             x = (x1+x2)/2.0
             xx = x
             y = cd['y3']#coord_list[2][1]
-            yy = y1 - cd['dim_text_size']/2.0
+            yy = y1 + cd['dim_text_size']/2.0
         #!!!
     else:
         # Иначе - нижняя  левая
@@ -161,12 +163,10 @@ def get_object_lines(cd, drawing_h, file_format):
             'arrow_point1_x': cd['x3'],
             'arrow_point1_y': cd['y1'],
             'arrow_point2_x': cd['x3'],
-            'arrow_point2_y': cd['y2']
-            })
-        cd.update({
+            'arrow_point2_y': cd['y2'],
             'angle': 90.0,
             'angle_arrow1': 90.0,
-            'angle_arrow2': 270.0
+            'angle_arrow2': 270.0,
             })
         
         if cd['type_arrow'] == 'Arrow':

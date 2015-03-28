@@ -607,6 +607,7 @@ AcDbBlockTableRecord
 340
 26
   0
+MY_BLOCK_RECORDS
 ENDTAB
   0
 ENDSEC

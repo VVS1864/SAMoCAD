@@ -121,4 +121,5 @@ AcDbEntity
 100
 AcDbBlockEnd
   0
+MY_BLOCKS
 ENDSEC

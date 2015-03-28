@@ -551,9 +551,7 @@ class Object_dim(Base_object):
         cd['ist_y2'] = cd['y2']
         cd['ist_y3'] = cd['y3']
         
-        cd['y1'] = drawing_h - cd['y1']
-        cd['y2'] = drawing_h - cd['y2']
-        cd['y3'] = drawing_h - cd['y3']
+        
 
         '''
         lines_coord = {}        
@@ -650,30 +648,61 @@ class Object_dim(Base_object):
         cd = save_file.get_object_lines(cd, drawing_h, file_format)
         
         if ort == "vertical":
-            cd['line_2_y2'] -= cd['vv_s']*derect
-            cd['line_1_y2'] -= cd['vv_s']*derect
+            cd['line_2_y2'] += cd['vv_s']*derect
+            cd['line_1_y2'] += cd['vv_s']*derect
+            cd.update({
+                'arrow_point1_x': cd['x1'],
+                'arrow_point1_y': cd['y3'],
+                'arrow_point2_x': cd['x2'],
+                'arrow_point2_y': cd['y3'],
+                'angle': 0.0,
+                'angle_arrow1': 180.0,
+                'angle_arrow2': 0.0,
+                })
         else:
+            cd.update({
+                'arrow_point1_x': cd['x3'],
+                'arrow_point1_y': cd['y1'],
+                'arrow_point2_x': cd['x3'],
+                'arrow_point2_y': cd['y2'],
+                'angle': 90.0,
+                'angle_arrow1': 90.0,
+                'angle_arrow2': 270.0,
+                })
             cd['line_2_x2'] += cd['vv_s']*derect
             cd['line_1_x2'] += cd['vv_s']*derect
         
         cd['line_3_x1'] = cd['line3'][0]
-        cd['line_3_y1'] = drawing_h - cd['line3'][1]
+        cd['line_3_y1'] = cd['line3'][1]
         cd['line_3_x2'] = cd['line3'][2]
-        cd['line_3_y2'] = drawing_h - cd['line3'][3]
+        cd['line_3_y2'] = cd['line3'][3]
         cd['angle'] = -cd['angle']
         if not cd['text']:
             text = str(cd['dim_distanse'])
         else:
             text = cd['text']
-        cd['svg_text'] = text.encode("utf-8")
-        cd['dim_text_size'] = str(cd['dim_text_size'])
+        
 
-        en = ' '
-        en_text = ' '
-        if cd['angle']:
-            en_text += '''transform="rotate(%(angle)s, %(text_x)s %(text_y)s)" '''
+        if file_format == '.svg':
+            cd['svg_text'] = text.encode("utf-8")
+            cd['dim_text_size'] = str(cd['dim_text_size'])
 
-        if file_format == 'svg':
+            en = ' '
+            en_text = ' '
+            if cd['angle']:
+                en_text += '''transform="rotate(%(angle)s, %(text_x)s %(text_y)s)" '''
+            cd['y1'] = drawing_h - cd['y1']
+            cd['y2'] = drawing_h - cd['y2']
+            cd['y3'] = drawing_h - cd['y3']
+            cd['line_1_y1'] = drawing_h - cd['line_1_y1']
+            cd['line_1_y2'] = drawing_h - cd['line_1_y2']
+            cd['line_2_y1'] = drawing_h - cd['line_2_y1']
+            cd['line_2_y2'] = drawing_h - cd['line_2_y2']
+            cd['line_3_y1'] = drawing_h - cd['line_3_y1']
+            cd['line_3_y2'] = drawing_h - cd['line_3_y2']
+
+            cd['text_y'] = drawing_h - cd['text_y']
+            cd['text_yy'] = drawing_h - cd['text_yy']
             color_rgb_str = 'rgb(' + ', '.join([str(x) for x in cd['color']]) + ')'
             # Перебрать свойства слоя объекта
             SVG_prop = {
