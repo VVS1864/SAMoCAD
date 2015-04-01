@@ -302,8 +302,8 @@ class Graphics:
                 self.sectors[c] = []
         print int(self.drawing_w/self.q_scale)
         print int(self.drawing_h/self.q_scale)
-        print int(self.drawing_w)
-        print int(self.drawing_h)
+        print 'set drawing width', int(self.drawing_w)
+        print 'set drawing hight', int(self.drawing_h)
         print 'Create sectors', t.time() - t1
         
 

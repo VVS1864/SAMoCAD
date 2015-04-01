@@ -45,17 +45,17 @@ class Load_from_DXF:
             for y in obj['yy']:
                 if y > h:
                     h = y
-        new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale*1000
-        new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale*1000
+        new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
+        new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
         #print new_h, new_w
         if new_h > self.par.drawing_h:
             self.par.drawing_h = new_h
         if new_w > self.par.drawing_w:
             self.par.drawing_w = new_w
-        print int(self.par.drawing_w)
-        print int(self.par.drawing_h)
+        #print int(self.par.drawing_w)
+        #print int(self.par.drawing_h)
         self.par.create_sectors()
-
+        print 'read', len(self.excavated_dxf['entities']), 'dxf entities'
         for obj in self.excavated_dxf['entities']:
             
             obj['color'] = self.DXF_colorer(obj['color'])
@@ -72,7 +72,7 @@ class Load_from_DXF:
                     factor_stipple = obj['factor_stipple'],
                     in_mass = True,
                     )
-        
+        print 'redraw...'
         
         
         self.par.change_pointdata()
@@ -89,6 +89,7 @@ class Load_from_DXF:
             self.par.drawing_w, self.par.drawing_h, self.par.drawing_w, 0.0,
             self.par.drawing_w, self.par.drawing_h, 0.0, self.par.drawing_h
                                   ]
+        print comment
         
 
     def dxf_parse(self, dxf_file):
@@ -162,9 +163,15 @@ class Load_from_DXF:
         #print self.dxf_sections['ENTITIES']
         dxf_ENTITIES = re.findall('0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
         dxf_ENTITIES_names = []
-        
+        #r = 0
         for i in dxf_ENTITIES:
-            #print i
+            '''
+            r+=1
+            
+            if r == 100:
+                break
+            '''
+            
             obj = i[0]
             if obj == 'LINE':
                 
@@ -194,11 +201,17 @@ class Load_from_DXF:
                     stipple_factor = stipple_factor[0]
                     
 
-                x1 = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)', i[1])[0]
-                y1 = re.findall('\r?\n[ ]*20\r?\n[ ]*([\d.]*)', i[1])[0]
-                x2 = re.findall('\r?\n[ ]*11\r?\n[ ]*([\d.]*)', i[1])[0]
-                y2 = re.findall('\r?\n[ ]*21\r?\n[ ]*([\d.]*)', i[1])[0]
-                    
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*31\r?\n[ ]*([\d.]*)', i[1])[0]
+                
+                x1 = xy[0]
+                y1 = xy[1]
+                x2 = xy[3]
+                y2 = xy[4]
+
+                #x2y2 = re.findall('\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)', i[1])[0]
+                #x2 = x2y2[0]
+                #y2 = x2y2[1]
+               
                 try:
                     dxf_ENTITIES_names.append({
                     'obj':obj,
