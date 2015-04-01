@@ -10,9 +10,9 @@ import src.arc as arc
 import src.text_line as text_line
 import src.sectors_alg as sectors_alg
 import xml.etree.ElementTree as etree
-
+    
 class Open_from_SVG:
-    def __init__(self, par, _file, file_format):
+    def __init__(self, par, _file):
         self.par = par
         
         self.par.delete_objects(self.par.ALLOBJECT.keys())

@@ -42,6 +42,7 @@ class Graphics:
         # Ширина и высота рабочей области
         self.drawing_w = 1000000.0
         self.drawing_h = 1000000.0
+        self.q_scale = 10000
 
         self.ex = 0.0
         self.ey = 0.0
@@ -198,7 +199,7 @@ class Graphics:
         self.activIDs = set() #Массив активных ID (которые в активных секторах)
         self.activSectors = [] #Активные сектора
         self.IDs = []
-        self.q_scale = 10000
+        
         
         
         self.trace_x1 = 0

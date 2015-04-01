@@ -27,7 +27,7 @@ AcDbEntity
  62
   %(color)s
  48
-30.0
+%(factor_stipple)s
 370
    %(width)s
 100
@@ -554,7 +554,7 @@ AcDbBlockEnd
                 i['x1'] = formater(x1)
                 x2 = i['x2']
                 i['x2'] = formater(x2)
-                
+                i['factor_stipple'] /= 8.0
                 if i['stipple']:
                     
                     if i['stipple'] == (4,1,1,1):
@@ -795,7 +795,7 @@ AcDbBlockEnd
         SECTION_OBJECTS = SECTION_OBJECTS.replace('MY_LAST_HANDLE', MY_LAST_HANDLE)
         SECTION_TABLES = SECTION_TABLES.replace('MY_ACAD_REACTORS', MY_ACAD_REACTORS)
         f = open(file_name, 'w')
-        for section in (SECTION_HEADER, SECTION_TABLES, SECTION_BLOCKS, SECTION_ENTITIES, SECTION_OBJECTS):
+        for section in (SECTION_HEADER, SECTION_CLASSES, SECTION_TABLES, SECTION_BLOCKS, SECTION_ENTITIES, SECTION_OBJECTS):
         
             f.writelines("%s\n" % section)
 

@@ -127,7 +127,6 @@ def get_object_lines(cd, drawing_h, file_format):
     y2 = cd['coords'][3][3]
     # Длинна текста
     lines_coord['Ltext'] = sqrt((x1-x2)**2+(y1-y2)**2)
-    print file_format
     if file_format == '.dxf':
         # Если DXF - берется центральная точка текста
         #!!!
@@ -137,7 +136,6 @@ def get_object_lines(cd, drawing_h, file_format):
             x = cd['x3']#coord_list[2][0]
             xx = x1 - cd['dim_text_size']/2.0
         else:
-            print 111
             x = (x1+x2)/2.0
             xx = x
             y = cd['y3']#coord_list[2][1]

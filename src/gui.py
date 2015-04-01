@@ -21,6 +21,7 @@ import src.print_to_file as print_to_file
 import src.save_file as save_file
 import src.open_file as open_file
 import src.dxf_library.dxf_write as dxf_write
+import src.dxf_library.dxf_read as dxf_read
 
 import wx
 from wx.lib.masked import NumCtrl
@@ -486,13 +487,18 @@ class Window(wx.Frame):
     def OnOpen(self, e):
         head, tail = os.path.split(self.par.current_save_path)
         self.file_dialog =  wx.FileDialog(self, "Open drawing", head, tail,
-                                    "SVG files (*.svg)|*.svg",
+                                    "DXF files (*.dxf)|*.dxf|DXF files (*.DXF)|*.DXF|SVG files (*.svg)|*.svg",
                                     style = wx.FD_OPEN)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
         self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
         self.par.current_file = self.par.current_save_path
-        open_file.Open_from_SVG(self.par, self.par.current_file,'svg')
+        name, f_format = os.path.splitext(self.par.current_save_path)
+        f_format = f_format.lower()
+        if f_format == '.dxf':
+            dxf_read.Load_from_DXF(self.par, self.par.current_file)
+        else:
+            open_file.Open_from_SVG(self.par, self.par.current_file)
         
     def OnAbout(self, e):
         pass
