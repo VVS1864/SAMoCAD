@@ -296,12 +296,14 @@ class Graphics:
         #del self.sectors
         self.sectors = {}
         #Разбивка поля на сектора
-        for i in xrange(int(self.drawing_w//self.q_scale)):
-            for j in xrange(int(self.drawing_h//self.q_scale)):
+        for i in xrange(int(self.drawing_w/self.q_scale)):
+            for j in xrange(int(self.drawing_h/self.q_scale)):
                 c = str(i) +' '+ str(j)
                 self.sectors[c] = []
-        print int(self.drawing_w//self.q_scale)
-        print int(self.drawing_h//self.q_scale)
+        print int(self.drawing_w/self.q_scale)
+        print int(self.drawing_h/self.q_scale)
+        print int(self.drawing_w)
+        print int(self.drawing_h)
         print 'Create sectors', t.time() - t1
         
 

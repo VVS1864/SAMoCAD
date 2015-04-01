@@ -33,6 +33,28 @@ class Load_from_DXF:
             print 'DXF fatal error:'
             print comment
             print 'Invalid or incomplete DXF input -- drawing discarded.'
+            return
+
+        w = 0.0
+        h = 0.0
+        for obj in self.excavated_dxf['entities']:
+            for x in obj['xx']:
+                if x > w:
+                    w = x
+
+            for y in obj['yy']:
+                if y > h:
+                    h = y
+        new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale*1000
+        new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale*1000
+        #print new_h, new_w
+        if new_h > self.par.drawing_h:
+            self.par.drawing_h = new_h
+        if new_w > self.par.drawing_w:
+            self.par.drawing_w = new_w
+        print int(self.par.drawing_w)
+        print int(self.par.drawing_h)
+        self.par.create_sectors()
 
         for obj in self.excavated_dxf['entities']:
             
@@ -50,22 +72,7 @@ class Load_from_DXF:
                     factor_stipple = obj['factor_stipple'],
                     in_mass = True,
                     )
-        w = 0.0
-        h = 0.0
-        for obj in self.excavated_dxf['entities']:
-            for x in obj['xx']:
-                if x > w:
-                    w = x
-
-            for y in obj['yy']:
-                if y > h:
-                    h = y
-        new_h = math.ceil(h/self.par.q_scale)*self.par.q_scale
-        new_w = math.ceil(w/self.par.q_scale)*self.par.q_scale
-        if new_h > self.par.drawing_h:
-            self.par.drawing_h = h
-        if new_w > self.par.drawing_w:
-            self.par.drawing_w = w
+        
         
         
         self.par.change_pointdata()
@@ -119,8 +126,8 @@ class Load_from_DXF:
 
         #DXF ENTITIES
         self.dxf_entities()
-        print 'excavar', self.excavated_dxf
-        print len(self.excavated_dxf['entities'])
+        #print 'excavar', self.excavated_dxf
+        #print len(self.excavated_dxf['entities'])
          
         return self.excavated_dxf, 'Opening an AutoCAD 2000 DXF file'
 
@@ -152,12 +159,12 @@ class Load_from_DXF:
         self.excavated_dxf['layers'] = dxf_LAYER_names
 
     def dxf_entities(self):
-        print self.dxf_sections['ENTITIES']
+        #print self.dxf_sections['ENTITIES']
         dxf_ENTITIES = re.findall('0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
         dxf_ENTITIES_names = []
         
         for i in dxf_ENTITIES:
-            print i
+            #print i
             obj = i[0]
             if obj == 'LINE':
                 
@@ -192,21 +199,23 @@ class Load_from_DXF:
                 x2 = re.findall('\r?\n[ ]*11\r?\n[ ]*([\d.]*)', i[1])[0]
                 y2 = re.findall('\r?\n[ ]*21\r?\n[ ]*([\d.]*)', i[1])[0]
                     
-                
-                dxf_ENTITIES_names.append({
-                'obj':obj,
-                'color':color,
-                'ltype':ltype,
-                'width':float(width),
-                'x1':float(x1),
-                'y1':float(y1),
-                'x2':float(x2),
-                'y2':float(y2),
-                'xx':(float(x1), float(x2)),
-                'yy':(float(y1), float(y2)),
-                'factor_stipple':float(stipple_factor)*8.0,
-                })
-                
+                try:
+                    dxf_ENTITIES_names.append({
+                    'obj':obj,
+                    'color':color,
+                    'ltype':ltype,
+                    'width':float(width),
+                    'x1':float(x1),
+                    'y1':float(y1),
+                    'x2':float(x2),
+                    'y2':float(y2),
+                    'xx':(float(x1), float(x2)),
+                    'yy':(float(y1), float(y2)),
+                    'factor_stipple':float(stipple_factor)*8.0,
+                    })
+                except:
+                    print x1, x2, y1, y2
+                    return
         self.excavated_dxf['entities'] = dxf_ENTITIES_names
 
     def DXF_widther(self, DXF_width):
@@ -226,7 +235,7 @@ class Load_from_DXF:
         try:
             c = self.DXF_RGB_colores[int(DXF_color)]
         except:
-            print 'unknow DXF color:', DXF_color
+            #print 'unknow DXF color:', DXF_color
             c = self.DXF_RGB_colores[7]
         return list(c)
 
@@ -234,7 +243,7 @@ class Load_from_DXF:
         try:
             c = self.DXF_my_ltypes[DXF_ltype]
         except:
-            print 'unknow DXF ltype:', DXF_ltype
+            #print 'unknow DXF ltype:', DXF_ltype
             c = self.DXF_my_ltypes['Continuous']
         return c
         
