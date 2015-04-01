@@ -130,7 +130,7 @@ class Open_from_SVG:
                     start = obj['start'],
                     extent = obj['extent'],
                     in_mass = True,
-                    temp = False
+                    temp = False,
                     
                 )
                 

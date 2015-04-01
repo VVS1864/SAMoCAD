@@ -3,6 +3,8 @@ import re
 import math
 
 import src.line as line
+import src.arc as arc
+import src.circle as circle
 
 import src.sectors_alg as sectors_alg
 class Load_from_DXF:
@@ -59,10 +61,11 @@ class Load_from_DXF:
         for obj in self.excavated_dxf['entities']:
             
             obj['color'] = self.DXF_colorer(obj['color'])
+            obj['layer'] = '1' #Временно
             if obj['obj'] == 'LINE':
                 obj['width'] = self.DXF_widther(obj['width'])
                 obj['stipple'] = self.DXF_ltyper(obj['ltype'])
-                obj['layer'] = '1' #Временно
+                #obj['layer'] = '1' #Временно
                 line.c_line(
                     self.par, obj['x1'], obj['y1'], obj['x2'], obj['y2'],
                     width = obj['width'],
@@ -72,6 +75,43 @@ class Load_from_DXF:
                     factor_stipple = obj['factor_stipple'],
                     in_mass = True,
                     )
+            elif obj['obj'] == 'ARC':
+                obj['width'] = self.DXF_widther(obj['width'])
+                #obj['stipple'] = self.DXF_ltyper(obj['ltype'])
+                #obj['layer'] = '1' #Временно
+                arc.c_arc(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    obj['x3'],
+                    obj['y3'],
+                    R = obj['R'],
+                    width = obj['width'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    start = obj['start'],
+                    extent = obj['extent'],
+                    in_mass = True,
+                    temp = False,
+                    
+                )
+            elif obj['obj'] == 'CIRCLE':
+                obj['x2'], obj['y2'] = 0, 0
+                circle.c_circle(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    R = obj['R'],
+                    width = obj['width'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    in_mass = True,
+                    temp = False
+                )
         print 'redraw...'
         
         
@@ -160,28 +200,17 @@ class Load_from_DXF:
         self.excavated_dxf['layers'] = dxf_LAYER_names
 
     def dxf_entities(self):
-        #print self.dxf_sections['ENTITIES']
         dxf_ENTITIES = re.findall('0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
         dxf_ENTITIES_names = []
-        #r = 0
-        for i in dxf_ENTITIES:
-            '''
-            r+=1
-            
-            if r == 100:
-                break
-            '''
-            
+        for i in dxf_ENTITIES:            
             obj = i[0]
-            if obj == 'LINE':
-                
-                layer = re.findall('\r?\n[ ]*8\r?\n[ ]*([\w]*)', i[1])[0]                
-                color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)', i[1])
-                if not color:
-                    color = self.excavated_dxf['layers'][layer]['color']
-                else:
-                    color = color[0]
-                    
+            layer = re.findall('\r?\n[ ]*8\r?\n[ ]*([\w]*)', i[1])[0]                
+            color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)', i[1])
+            if not color:
+                color = self.excavated_dxf['layers'][layer]['color']
+            else:
+                color = color[0]
+            if obj == 'LINE': 
                 ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
                 if not ltype:
                     ltype = self.excavated_dxf['layers'][layer]['ltype']
@@ -208,9 +237,6 @@ class Load_from_DXF:
                 x2 = xy[3]
                 y2 = xy[4]
 
-                #x2y2 = re.findall('\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)', i[1])[0]
-                #x2 = x2y2[0]
-                #y2 = x2y2[1]
                
                 try:
                     dxf_ENTITIES_names.append({
@@ -229,6 +255,96 @@ class Load_from_DXF:
                 except:
                     print x1, x2, y1, y2
                     return
+
+            elif obj == 'ARC':                    
+                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
+                if not ltype:
+                    ltype = self.excavated_dxf['layers'][layer]['ltype']
+                else:
+                    ltype = ltype[0]
+                    
+                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', i[1])
+                if not width:
+                    width = self.excavated_dxf['layers'][layer]['width']
+                else:
+                    width = width[0]
+                    
+                #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
+                #if not stipple_factor:
+                    #stipple_factor = 1.0
+                #else:
+                    #stipple_factor = stipple_factor[0]
+                    
+
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*40\r?\n[ ]*([\d.]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.]*)\r?\n[ ]*51\r?\n[ ]*([\d.]*)', i[1])[0]
+                x1 = float(xy[0])
+                y1 = float(xy[1])
+                R = float(xy[3])
+                start = float(xy[4])
+                extent = float(xy[5])
+                
+                if start > extent:
+                    #e = start
+                    #start = extent
+                    extent += 360
+                
+
+                dxf_ENTITIES_names.append({
+                'obj':obj,
+                'color':color,
+                #'ltype':ltype,
+                'width':float(width),
+                'x1':x1,
+                'y1':y1,
+                'x2':None,
+                'y2':None,
+                'x3':None,
+                'y3':None,
+                'R':R,
+                'start':start,
+                'extent':extent,
+                'xx':(x1-R, x1+R),
+                'yy':(y1-R, y1+R),
+                #'factor_stipple':float(stipple_factor)*8.0,
+                })
+
+            elif obj == 'CIRCLE':                    
+                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
+                if not ltype:
+                    ltype = self.excavated_dxf['layers'][layer]['ltype']
+                else:
+                    ltype = ltype[0]
+                    
+                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', i[1])
+                if not width:
+                    width = self.excavated_dxf['layers'][layer]['width']
+                else:
+                    width = width[0]
+                    
+                #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
+                #if not stipple_factor:
+                    #stipple_factor = 1.0
+                #else:
+                    #stipple_factor = stipple_factor[0]
+                    
+
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*40\r?\n[ ]*([\d.]*)', i[1])[0]
+                x1 = float(xy[0])
+                y1 = float(xy[1])
+                R = float(xy[3])
+               
+                dxf_ENTITIES_names.append({
+                'obj':obj,
+                'color':color,
+                #'ltype':ltype,
+                'width':float(width),
+                'x1':x1,
+                'y1':y1,
+                'R':R,
+                'xx':(x1-R, x1+R),
+                'yy':(y1-R, y1+R),
+                #'factor_stipple':float(stipple_factor)*8.0,
+                })
         self.excavated_dxf['entities'] = dxf_ENTITIES_names
 
     def DXF_widther(self, DXF_width):

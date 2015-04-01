@@ -84,8 +84,7 @@ def c_circle(
     xbox1 = x1 - R
     xbox2 = x1 + R
     ybox1 = y1 - R
-    ybox2 = y1 + R
-        
+    ybox2 = y1 + R  
     if not (0 <= xbox1 <= par.drawing_w
             and 0 <= ybox1 <= par.drawing_h
             and 0 <= xbox2 <= par.drawing_w

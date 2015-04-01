@@ -304,7 +304,7 @@ class Graphics:
         print int(self.drawing_h/self.q_scale)
         print 'set drawing width', int(self.drawing_w)
         print 'set drawing hight', int(self.drawing_h)
-        print 'Create sectors', t.time() - t1
+        print 'Create sectors', t.time() - t1, 'sec'
         
 
     def focus_cmd(self, e = None):
