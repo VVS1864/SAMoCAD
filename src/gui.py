@@ -22,11 +22,13 @@ import src.save_file as save_file
 import src.open_file as open_file
 import src.dxf_library.dxf_write as dxf_write
 import src.dxf_library.dxf_read as dxf_read
+import src.dxf_library.color_acad_rgb as color_acad_rgb
 
 import wx
 from wx.lib.masked import NumCtrl
 from wx.glcanvas import GLCanvas
 import os
+import math
 appPath = os.getcwd()
 
 class Window(wx.Frame):
@@ -306,9 +308,26 @@ class Window(wx.Frame):
         
     def color(self, e):
         RGB = e.GetColour().Get()
-        if RGB == (0, 0, 0):
-            RGB = (255, 255, 255)
-            self.color_pick.SetColour(RGB)
+        
+        norm_RGB = []
+        min_dist = (2500,None)
+        for dxf_color in self.par.RGB_DXF_colores:
+            r1 = dxf_color[0]
+            g1 = dxf_color[1]
+            b1 = dxf_color[2]
+            r2 = RGB[0]
+            g2 = RGB[1]
+            b2 = RGB[2]
+            color_distanse = math.sqrt((r1-r2)**2+(g1-g2)**2+(b1-b2)**2)
+            if color_distanse < min_dist[0]:
+                min_dist = (color_distanse, dxf_color)
+
+        norm_RGB = list(min_dist[1])
+                        
+        RGB = norm_RGB
+        if RGB == [0, 0, 0]:
+            RGB = [255, 255, 255]
+        self.color_pick.SetColour(tuple(RGB))
         self.par.color = list(RGB)
         self.edit_prop({'color':self.par.color})
         #edit_prop.Edit_prop(self.par, {'color':self.par.color}, self.par.collection)
@@ -466,6 +485,7 @@ class Window(wx.Frame):
         name, f_format = os.path.splitext(self.par.current_save_path)
         if f_format == '.dxf':
             dxf_write.Save_to_DXF(
+                            self.par,
                             self.par.current_file,
                             f_format,
                             self.par.ALLOBJECT,
@@ -476,6 +496,7 @@ class Window(wx.Frame):
                             )
         else:
             save_file.Save_to_SVG(
+                            self.par,
                             self.par.current_file,
                             f_format,
                             self.par.ALLOBJECT,

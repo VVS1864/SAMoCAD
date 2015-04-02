@@ -6,8 +6,8 @@ appPath = os.getcwd()
 
 
 class Save_to_DXF(save_file.Base_save):
-    def __init__(self, file_name, file_format, ALLOBJECT, layers, stipples, drawing_w, drawing_h):
-        super(Save_to_DXF, self).__init__(file_format, ALLOBJECT, layers, drawing_w, drawing_h)
+    def __init__(self, par, file_name, file_format, ALLOBJECT, layers, stipples, drawing_w, drawing_h):
+        super(Save_to_DXF, self).__init__(par, file_format, ALLOBJECT, layers, drawing_w, drawing_h)
         self.handle = 'BA'
         self._OBLIQUE = False
         self.dim_list = {}

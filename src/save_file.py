@@ -1,25 +1,19 @@
 # -*- coding: utf-8; -*-
 from math import ceil, degrees, sqrt
+
+import src.dxf_library.color_acad_rgb as color_acad_rgb
 import os
 class Base_save(object):
     # Базовый класс сохранения
-    def __init__(self, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
+    def __init__(self, par, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
+        self.par = par
         self.AL = ALLOBJECT 
         self.config_list = []
+        #color_tab = color_acad_rgb.DXF_RGB_colores
+        #self.RGB_DXF_colores = {v: k for k, v in color_tab.items()}
+        #print self.RGB_DXF_colores
+            
         
-        def dxf_colorer(color):
-            color_tab = {
-                        (255, 255, 255):7,#"white":7,
-                        #"light blue":4,
-                        (0, 0, 255):5,#"blue":5,
-                        (0, 255, 0):96,#"green":96,
-                        #"gray":8,
-                        (0, 0, 0):7,#"black":7,
-                        #"yellow":2,
-                        #"orange":30,
-                        (255, 0, 0):10,#"red":10
-                        }
-            return color_tab[color]
         
         for obj in self.AL:
             if obj == 'trace':
@@ -30,10 +24,28 @@ class Base_save(object):
             self.config_list.append(config)
         if file_format == '.dxf':
             for i in self.config_list:
-                i['color'] = dxf_colorer(tuple(i['color']))
+                i['color'] = self.dxf_colorer(tuple(i['color']))
+
+    def dxf_colorer(self, color):
+            
+        '''
+        color_tab = {
+                    (255, 255, 255):7,#"white":7,
+                    #"light blue":4,
+                    (0, 0, 255):5,#"blue":5,
+                    (0, 255, 0):96,#"green":96,
+                    #"gray":8,
+                    (0, 0, 0):7,#"black":7,
+                    #"yellow":2,
+                    #"orange":30,
+                    (255, 0, 0):10,#"red":10
+                    }
+        '''
+        return self.par.RGB_DXF_colores[color]
                 
 class Save_to_SVG(Base_save):
-    def __init__(self, file_name, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
+    def __init__(self, par, file_name, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
+        self.par = par
         self.w = ceil(drawing_w)
         self.h = ceil(drawing_h)
         '''

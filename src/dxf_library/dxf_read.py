@@ -5,11 +5,14 @@ import math
 import src.line as line
 import src.arc as arc
 import src.circle as circle
+import src.dxf_library.color_acad_rgb as color_acad_rgb
 
 import src.sectors_alg as sectors_alg
 class Load_from_DXF:
     def __init__(self, par, _file):
         self.par = par
+        #self.DXF_RGB_colores = color_acad_rgb.DXF_RGB_colores
+        '''
         self.DXF_RGB_colores = {
             7:(255, 255, 255),
             5:(0, 0, 255),
@@ -19,6 +22,7 @@ class Load_from_DXF:
             1:(255, 0, 0),
             2:(255, 255, 0),
             }
+        '''
         self.DXF_my_ltypes = {
             'CENTER':(4,1,1,1),
             'DASHED':(1,1),
@@ -238,8 +242,8 @@ class Load_from_DXF:
                 y2 = xy[4]
 
                
-                try:
-                    dxf_ENTITIES_names.append({
+
+                dxf_ENTITIES_names.append({
                     'obj':obj,
                     'color':color,
                     'ltype':ltype,
@@ -252,9 +256,6 @@ class Load_from_DXF:
                     'yy':(float(y1), float(y2)),
                     'factor_stipple':float(stipple_factor)*8.0,
                     })
-                except:
-                    print x1, x2, y1, y2
-                    return
 
             elif obj == 'ARC':                    
                 ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
@@ -284,8 +285,6 @@ class Load_from_DXF:
                 extent = float(xy[5])
                 
                 if start > extent:
-                    #e = start
-                    #start = extent
                     extent += 360
                 
 
@@ -362,17 +361,15 @@ class Load_from_DXF:
 
     def DXF_colorer(self, DXF_color):
         try:
-            c = self.DXF_RGB_colores[int(DXF_color)]
+            c = self.par.DXF_RGB_colores[int(DXF_color)]
         except:
-            #print 'unknow DXF color:', DXF_color
-            c = self.DXF_RGB_colores[7]
+            c = self.par.DXF_RGB_colores[7]
         return list(c)
 
     def DXF_ltyper(self, DXF_ltype):
         try:
             c = self.DXF_my_ltypes[DXF_ltype]
         except:
-            #print 'unknow DXF ltype:', DXF_ltype
             c = self.DXF_my_ltypes['Continuous']
         return c
         

@@ -152,12 +152,10 @@ def c_arc(
     s = R/20.0
     lines = [[x1,y1-s,x1,y1+s], [x1-s,y1,x1+s,y1]]
     pointdata = [x1,y1-s,x1,y1+s, x1-s,y1,x1+s,y1]
-    print (start, extent)
     lines_c, pointdata_c = calc.oval_lines(x1, y1, R, (start, extent), 180, xstart, ystart)
 
     if not lines_c:
         return False
-    print 'ttt'
     
     lines.extend(lines_c)
     pointdata.extend(pointdata_c)

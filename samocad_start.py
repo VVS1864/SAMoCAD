@@ -13,6 +13,7 @@ import src.motion_event as motion_event
 import src.right_mouse_event as right_mouse_event
 import src.left_mouse_event as left_mouse_event
 
+import src.dxf_library.color_acad_rgb as color_acad_rgb
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -117,7 +118,8 @@ class Graphics:
             ]
         
         self.stipples = dict((i, self.stipples_values[ind]) for ind, i in enumerate(self.stipples_list))       
-            
+        self.DXF_RGB_colores = color_acad_rgb.DXF_RGB_colores
+        self.RGB_DXF_colores = {v: k for k, v in self.DXF_RGB_colores.items()}
             
         #Толщины линий
         self.widthes = [
