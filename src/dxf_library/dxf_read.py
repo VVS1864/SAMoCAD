@@ -58,14 +58,14 @@ class Load_from_DXF:
             for x in ('x1', 'x2', 'x3'):
                 if x in obj:
                     
-                    obj[x] -= x_mov
+                    obj[x] -= x_mov-1
                     #else:
                         #print obj['obj']
 
             for y in ('y1', 'y2', 'y3'):
                 if y in obj:
                     
-                    obj[y] -= y_mov
+                    obj[y] -= y_mov-1
                     #else:
                         #print obj['obj']
     

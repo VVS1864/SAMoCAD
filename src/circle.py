@@ -94,7 +94,7 @@ def c_circle(
     s = R/20.0
     lines = [[x1,y1-s,x1,y1+s], [x1-s,y1,x1+s,y1]]
     pointdata = [x1,y1-s,x1,y1+s, x1-s,y1,x1+s,y1]
-    lines_c, pointdata_c = calc.circle_lines(x1, y1, R)
+    lines_c, pointdata_c = calc.circle_lines(x1, y1, R, 180)
     
     if not lines_c:
         return False
