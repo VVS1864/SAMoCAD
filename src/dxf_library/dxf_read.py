@@ -44,11 +44,35 @@ class Load_from_DXF:
 
         w = 0.0
         h = 0.0
+        x_mov = 0
+        y_mov = 0
+        for obj in self.excavated_dxf['entities']:
+            for x in obj['xx']:
+                if x<0 and x < x_mov:
+                    x_mov = x
+            for y in obj['yy']:
+                if y<0 and y < y_mov:
+                    y_mov = y
+
+        for obj in self.excavated_dxf['entities']:
+            for x in ('x1', 'x2', 'x3'):
+                if x in obj:
+                    
+                    obj[x] -= x_mov
+                    #else:
+                        #print obj['obj']
+
+            for y in ('y1', 'y2', 'y3'):
+                if y in obj:
+                    
+                    obj[y] -= y_mov
+                    #else:
+                        #print obj['obj']
+    
         for obj in self.excavated_dxf['entities']:
             for x in obj['xx']:
                 if x > w:
                     w = x
-
             for y in obj['yy']:
                 if y > h:
                     h = y
@@ -82,6 +106,8 @@ class Load_from_DXF:
                     )
             elif obj['obj'] == 'ARC':
                 obj['width'] = self.DXF_widther(obj['width'])
+                obj['x2'], obj['y2'] = 0, 0
+                obj['x3'], obj['y3'] = 0, 0
                 #obj['stipple'] = self.DXF_ltyper(obj['ltype'])
                 #obj['layer'] = '1' #Временно
                 arc.c_arc(
@@ -229,7 +255,6 @@ class Load_from_DXF:
                 'text_size':STYLE_size,
                 }
         self.excavated_dxf['styles'] = dxf_STYLE_names
-        print self.excavated_dxf['styles']
 
     def dxf_layers(self):
         dxf_TABLE_LAYER = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nLAYER([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
@@ -265,24 +290,27 @@ class Load_from_DXF:
                 stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1])
                 stipple_factor = self.get_val(stipple_factor, 1.0)
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*31\r?\n[ ]*([\d.]*)', i[1])[0]
-                
-                x1 = xy[0]
-                y1 = xy[1]
-                x2 = xy[3]
-                y2 = xy[4]
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)\r?\n[ ]*31\r?\n[ ]*(?:[\d.-]*)', i[1])
+                if not xy:
+                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)', i[1])
+                    
+                    
+                x1 = float(xy[0][0])
+                y1 = float(xy[0][1])
+                x2 = float(xy[0][2])
+                y2 = float(xy[0][3])
 
                 dxf_ENTITIES_names.append({
                     'obj':obj,
                     'color':color,
                     'ltype':ltype,
                     'width':float(width),
-                    'x1':float(x1),
-                    'y1':float(y1),
-                    'x2':float(x2),
-                    'y2':float(y2),
-                    'xx':(float(x1), float(x2)),
-                    'yy':(float(y1), float(y2)),
+                    'x1':x1,
+                    'y1':y1,
+                    'x2':x2,
+                    'y2':y2,
+                    'xx':(x1, x2),
+                    'yy':(y1, y2),
                     'factor_stipple':float(stipple_factor)*8.0,
                     })
 
@@ -313,12 +341,14 @@ class Load_from_DXF:
                     #stipple_factor = stipple_factor[0]
                     
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*40\r?\n[ ]*([\d.]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.]*)\r?\n[ ]*51\r?\n[ ]*([\d.]*)', i[1])[0]
-                x1 = float(xy[0])
-                y1 = float(xy[1])
-                R = float(xy[3])
-                start = float(xy[4])
-                extent = float(xy[5])
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1])
+                if not xy:
+                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1])
+                x1 = float(xy[0][0])
+                y1 = float(xy[0][1])
+                R = float(xy[0][2])
+                start = float(xy[0][3])
+                extent = float(xy[0][4])
                 
                 if start > extent:
                     extent += 360
@@ -331,10 +361,6 @@ class Load_from_DXF:
                 'width':float(width),
                 'x1':x1,
                 'y1':y1,
-                'x2':None,
-                'y2':None,
-                'x3':None,
-                'y3':None,
                 'R':R,
                 'start':start,
                 'extent':extent,
@@ -370,10 +396,12 @@ class Load_from_DXF:
                 '''
                     
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*40\r?\n[ ]*([\d.]*)', i[1])[0]
-                x1 = float(xy[0])
-                y1 = float(xy[1])
-                R = float(xy[3])
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
+                if not xy:
+                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
+                x1 = float(xy[0][0])
+                y1 = float(xy[0][1])
+                R = float(xy[0][2])
                
                 dxf_ENTITIES_names.append({
                 'obj':obj,
@@ -392,22 +420,23 @@ class Load_from_DXF:
                 style = re.findall('100\r?\n[ ]*AcDbText\r?\n[ ]*7\r?\n[ ]*7\r?\n[ ]*([\w ]*)\r?\n', i[1])
                 style = self.get_val(style, 'Standard')
                 
-                width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.-]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['styles'][style]['text_w'])
 
                 size = re.findall('\r?\n[ ]*40\r?\n[ ]*([-\d.]*)\r?\n', i[1])
                 size = self.get_val(size, self.excavated_dxf['styles'][style]['text_size'])
 
-                angle = re.findall('\r?\n[ ]*50\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                angle = re.findall('\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n', i[1])
                 angle = self.get_val(angle, 0.0)
 
-                text = re.findall('(?:AcDbText\r?\n[ ]*[\w\W]*?)\r?\n[ ]*1\r?\n[ ]*([\w. -]*?)\r?\n', i[1])
+                text = re.findall(r'(?:AcDbText\r?\n[ ]*[\w\W]*?)\r?\n[ ]*1\r?\n[ ]*([\w. -]*?)\r?\n', unicode(i[1], "cp1251"), re.U)
                 text = self.get_val(text, 'None')
                
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n', i[1])[0]
-                
-                x1 = xy[0]
-                y1 = xy[1]
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*([\d.-]*)\r?\n', i[1])
+                if not xy:
+                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)', i[1])
+                x1 = float(xy[0][0])
+                y1 = float(xy[0][1])
 
                 dxf_ENTITIES_names.append({
                     'obj':obj,
@@ -416,12 +445,13 @@ class Load_from_DXF:
                     'angle':-math.radians(float(angle)),
                     'text_size':abs(float(size)),
                     'text':text,
-                    'x1':float(x1),
-                    'y1':float(y1),
-                    'xx':(float(x1),),
-                    'yy':(float(y1),),
+                    'x1':x1,
+                    'y1':y1,
+                    'xx':(x1,),
+                    'yy':(y1,),
                     })
         self.excavated_dxf['entities'] = dxf_ENTITIES_names
+        #print self.excavated_dxf['entities']
 
     def DXF_widther(self, DXF_width):
         if 0 < DXF_width <= 20:
