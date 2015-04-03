@@ -5,7 +5,8 @@ import math
 import src.line as line
 import src.arc as arc
 import src.circle as circle
-import src.dxf_library.color_acad_rgb as color_acad_rgb
+import src.text_line as text_line
+#import src.dxf_library.color_acad_rgb as color_acad_rgb
 
 import src.sectors_alg as sectors_alg
 class Load_from_DXF:
@@ -98,8 +99,7 @@ class Load_from_DXF:
                     start = obj['start'],
                     extent = obj['extent'],
                     in_mass = True,
-                    temp = False,
-                    
+                    temp = False,  
                 )
             elif obj['obj'] == 'CIRCLE':
                 obj['x2'], obj['y2'] = 0, 0
@@ -116,6 +116,28 @@ class Load_from_DXF:
                     in_mass = True,
                     temp = False
                 )
+
+            elif obj['obj'] == 'TEXT':
+                #obj['text_s_s'] = 1.3
+                obj['text_w'] = obj['text_s_s']*1.4
+                obj['anchor'] = 'sw'
+                obj['text_font'] = 'txt'
+                text_line.c_text(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    text = obj['text'],
+                    anchor = obj['anchor'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    angle = obj['angle'],
+                    text_size = obj['text_size'],
+                    text_s_s = obj['text_s_s'],
+                    text_w = obj['text_w'],
+                    text_font = obj['text_font'],
+                    in_mass = True,
+                    temp = False,
+                    )
         print 'redraw...'
         
         
@@ -166,6 +188,9 @@ class Load_from_DXF:
         #DXF LTYPES
         self.dxf_ltypes()
 
+        #DXF STYLES
+        self.dxf_styles()
+
         #DXF LAYERS
         self.dxf_layers()
 
@@ -182,20 +207,39 @@ class Load_from_DXF:
         dxf_LTYPES = re.findall('LTYPE\r?\n[ ]*5([\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LTYPE)
         dxf_LTYPES_names = []
         for LTYPE in dxf_LTYPES:
-            LTYPE_name = re.findall('AcDbLinetypeTableRecord\r?\n[ ]*2\r?\n[ ]*(\w*)', LTYPE)[0]
+            LTYPE_name = re.findall('AcDbLinetypeTableRecord\r?\n[ ]*2\r?\n[ ]*(\w*)\r?\n', LTYPE)[0]
             if LTYPE_name in ('CENTER', 'DASHED', 'PHANTOM'):
                 dxf_LTYPES_names.append(LTYPE_name)
         self.excavated_dxf['ltypes'] = dxf_LTYPES_names
+
+    def dxf_styles(self):
+        dxf_TABLE_STYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_STYLES = re.findall('STYLE\r?\n[ ]*5([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_STYLE)
+        dxf_STYLE_names = {}
+        for STYLE in dxf_STYLES:
+            STYLE_name = re.findall('AcDbTextStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)', STYLE)[0]
+            STYLE_width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', STYLE)
+            STYLE_width = self.get_val(STYLE_width, 1.0)
+            STYLE_size = re.findall('\r?\n[ ]*42\r?\n[ ]*([\d.]*)\r?\n', STYLE)
+            STYLE_size = self.get_val(STYLE_size, 350.0)
+            #LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
+            #LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
+            dxf_STYLE_names[STYLE_name] = {
+                'text_w':STYLE_width,
+                'text_size':STYLE_size,
+                }
+        self.excavated_dxf['styles'] = dxf_STYLE_names
+        print self.excavated_dxf['styles']
 
     def dxf_layers(self):
         dxf_TABLE_LAYER = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nLAYER([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
         dxf_LAYERS = re.findall('LAYER\r?\n[ ]*5([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LAYER)
         dxf_LAYER_names = {}
         for LAYER in dxf_LAYERS:
-            LAYER_name = re.findall('AcDbLayerTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)', LAYER)[0]
-            LAYER_color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)', LAYER)[0]
-            LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
-            LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
+            LAYER_name = re.findall('AcDbLayerTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)\r?\n', LAYER)[0]
+            LAYER_color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', LAYER)[0]
+            LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', LAYER)[0]
+            LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', LAYER)[0]
             dxf_LAYER_names[LAYER_name] = {
                 'color':LAYER_color,
                 'ltype':LAYER_ltype,
@@ -208,31 +252,18 @@ class Load_from_DXF:
         dxf_ENTITIES_names = []
         for i in dxf_ENTITIES:            
             obj = i[0]
-            layer = re.findall('\r?\n[ ]*8\r?\n[ ]*([\w]*)', i[1])[0]                
-            color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)', i[1])
-            if not color:
-                color = self.excavated_dxf['layers'][layer]['color']
-            else:
-                color = color[0]
+            layer = re.findall('\r?\n[ ]*8\r?\n[ ]*([\w]*)\r?\n', i[1])[0]                
+            color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', i[1])
+            color = self.get_val(color, self.excavated_dxf['layers'][layer]['color'])
             if obj == 'LINE': 
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
-                if not ltype:
-                    ltype = self.excavated_dxf['layers'][layer]['ltype']
-                else:
-                    ltype = ltype[0]
-                    
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', i[1])
-                if not width:
-                    width = self.excavated_dxf['layers'][layer]['width']
-                else:
-                    width = width[0]
-                    
-                stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
-                if not stipple_factor:
-                    stipple_factor = 1.0
-                else:
-                    stipple_factor = stipple_factor[0]
-                    
+                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
+                ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
+      
+                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
+               
+                stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                stipple_factor = self.get_val(stipple_factor, 1.0)
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*31\r?\n[ ]*([\d.]*)', i[1])[0]
                 
@@ -240,8 +271,6 @@ class Load_from_DXF:
                 y1 = xy[1]
                 x2 = xy[3]
                 y2 = xy[4]
-
-               
 
                 dxf_ENTITIES_names.append({
                     'obj':obj,
@@ -257,7 +286,13 @@ class Load_from_DXF:
                     'factor_stipple':float(stipple_factor)*8.0,
                     })
 
-            elif obj == 'ARC':                    
+            elif obj == 'ARC':
+                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
+                ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
+      
+                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
+                '''
                 ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
                 if not ltype:
                     ltype = self.excavated_dxf['layers'][layer]['ltype']
@@ -269,6 +304,7 @@ class Load_from_DXF:
                     width = self.excavated_dxf['layers'][layer]['width']
                 else:
                     width = width[0]
+                '''
                     
                 #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
                 #if not stipple_factor:
@@ -307,7 +343,13 @@ class Load_from_DXF:
                 #'factor_stipple':float(stipple_factor)*8.0,
                 })
 
-            elif obj == 'CIRCLE':                    
+            elif obj == 'CIRCLE':
+                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
+                ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
+      
+                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
+                '''
                 ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
                 if not ltype:
                     ltype = self.excavated_dxf['layers'][layer]['ltype']
@@ -325,6 +367,7 @@ class Load_from_DXF:
                     #stipple_factor = 1.0
                 #else:
                     #stipple_factor = stipple_factor[0]
+                '''
                     
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n[ ]*40\r?\n[ ]*([\d.]*)', i[1])[0]
@@ -344,6 +387,40 @@ class Load_from_DXF:
                 'yy':(y1-R, y1+R),
                 #'factor_stipple':float(stipple_factor)*8.0,
                 })
+
+            elif obj == 'TEXT':
+                style = re.findall('100\r?\n[ ]*AcDbText\r?\n[ ]*7\r?\n[ ]*7\r?\n[ ]*([\w ]*)\r?\n', i[1])
+                style = self.get_val(style, 'Standard')
+                
+                width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                width = self.get_val(width, self.excavated_dxf['styles'][style]['text_w'])
+
+                size = re.findall('\r?\n[ ]*40\r?\n[ ]*([-\d.]*)\r?\n', i[1])
+                size = self.get_val(size, self.excavated_dxf['styles'][style]['text_size'])
+
+                angle = re.findall('\r?\n[ ]*50\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                angle = self.get_val(angle, 0.0)
+
+                text = re.findall('(?:AcDbText\r?\n[ ]*[\w\W]*?)\r?\n[ ]*1\r?\n[ ]*([\w. -]*?)\r?\n', i[1])
+                text = self.get_val(text, 'None')
+               
+                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*([\d.]*)\r?\n', i[1])[0]
+                
+                x1 = xy[0]
+                y1 = xy[1]
+
+                dxf_ENTITIES_names.append({
+                    'obj':obj,
+                    'color':color,
+                    'text_s_s':float(width)/0.57,
+                    'angle':-math.radians(float(angle)),
+                    'text_size':abs(float(size)),
+                    'text':text,
+                    'x1':float(x1),
+                    'y1':float(y1),
+                    'xx':(float(x1),),
+                    'yy':(float(y1),),
+                    })
         self.excavated_dxf['entities'] = dxf_ENTITIES_names
 
     def DXF_widther(self, DXF_width):
@@ -372,6 +449,14 @@ class Load_from_DXF:
         except:
             c = self.DXF_my_ltypes['Continuous']
         return c
+
+    def get_val(self, input_v, default):
+        if input_v:
+            output_v = input_v[0]
+        else:
+            output_v = default
+            
+        return output_v
         
             
         

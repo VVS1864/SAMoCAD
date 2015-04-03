@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #from __future__ import division
 
@@ -86,15 +87,15 @@ class Graphics:
         self.size_simbol_p = 20 #Размер значка привязки
         self.anchor = 'sw' #Текущая привязка текста
         self.text_font = 'TXT'#'Architectural'
-        self.text_s_s = 1.2 #Межбуквенное расстояние
-        self.text_w = 1 #Ширина буквы
+        self.text_s_s = 1.0 #Межбуквенное расстояние
+        self.text_w = 1.4 #Ширина буквы
         self.s = 50 #Переменная, определяющая пропорции в размерах
         self.arrow_s = 100
         self.vr_s = 200 #Вылет за размерную линию
         self.vv_s = 100 #Вылет размерной линии
         self.type_arrow = 'Arch'
-        self.dim_text_s_s = 1.3
-        self.dim_text_w = 1
+        self.dim_text_s_s = 1.0
+        self.dim_text_w = 1.5
         self.dim_text_font = 'TXT'#'Architectural'
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
         self.angle_s = 15.0

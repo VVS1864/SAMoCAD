@@ -128,7 +128,7 @@ AcDbText
 1
 %(text)s
 41
-%(text_w)s
+%(text_s_s)s
 100
 AcDbText
 0"""
@@ -602,11 +602,11 @@ AcDbBlockEnd
                 i['x1'] = formater(x1)
 
                 size = i['text_size']
-                i['text_size'] = str(-size)
+                i['text_size'] = str(size)
                 angle = i['angle']
                 i['angle'] = str(degrees(-angle))
-                w_text = i['text_w']
-                i['text_w'] = str(w_text)
+                text_s_s = i['text_s_s']
+                i['text_s_s'] = str(text_s_s*0.57)
                 text = i['text']
                 i['text'] = text.encode("cp1251")
                 

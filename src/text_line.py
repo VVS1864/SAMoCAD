@@ -85,7 +85,6 @@ def c_text(
             ):
     tt = symbols.font(x, y, text, text_size, text_s_s, text_w, anchor, text_font, angle, temp)
     sl = tt.nabor[0]
-
     if not (0 < sl[0] < par.drawing_w and 0 < sl[1] < par.drawing_h and 0 < sl[2] < par.drawing_w and 0 < sl[3] < par.drawing_h):
         return
     if not temp:
