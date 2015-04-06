@@ -6,6 +6,7 @@ import src.line as line
 import src.arc as arc
 import src.circle as circle
 import src.text_line as text_line
+import src.dimension as dimension
 #import src.dxf_library.color_acad_rgb as color_acad_rgb
 
 import src.sectors_alg as sectors_alg
@@ -109,7 +110,6 @@ class Load_from_DXF:
                 obj['x2'], obj['y2'] = 0, 0
                 obj['x3'], obj['y3'] = 0, 0
                 #obj['stipple'] = self.DXF_ltyper(obj['ltype'])
-                #obj['layer'] = '1' #Временно
                 arc.c_arc(
                     self.par,
                     obj['x1'],
@@ -161,6 +161,38 @@ class Load_from_DXF:
                     text_s_s = obj['text_s_s'],
                     text_w = obj['text_w'],
                     text_font = obj['text_font'],
+                    in_mass = True,
+                    temp = False,
+                    )
+
+            elif obj['obj'] == 'DIMENSION':
+                obj['dim_text_w'] = obj['dim_text_s_s']*1.4
+                obj['dim_text_font'] = 'txt'
+                obj['text_change'] = 1
+                obj['type_arrow'] = 'Arch'
+                cNew =  dimension.c_dim(
+                    self.par,
+                    obj['x1'],
+                    obj['y1'],
+                    obj['x2'],
+                    obj['y2'],
+                    obj['x3'],
+                    obj['y3'],
+                    text = obj['text'],
+                    layer = obj['layer'],
+                    color = obj['color'],
+                    dim_text_size = obj['dim_text_size'],
+                    ort = obj['ort'],
+                    text_change = obj['text_change'],
+                    text_place = obj['text_place'],
+                    s = obj['s'],
+                    vv_s = obj['vv_s'],
+                    vr_s = obj['vr_s'],
+                    arrow_s = obj['arrow_s'],
+                    type_arrow = obj['type_arrow'],
+                    dim_text_s_s = obj['dim_text_s_s'],
+                    dim_text_w = obj['dim_text_w'],
+                    dim_text_font = obj['dim_text_font'],
                     in_mass = True,
                     temp = False,
                     )
@@ -220,9 +252,12 @@ class Load_from_DXF:
         #DXF LAYERS
         self.dxf_layers()
 
+        #DXF STYLES
+        self.dxf_dimstyles()
+
         #DXF ENTITIES
         self.dxf_entities()
-        #print 'excavar', self.excavated_dxf
+        #print 'excavar', self.excavated_dxf['dimstyles']
         #print len(self.excavated_dxf['entities'])
          
         return self.excavated_dxf, 'Opening an AutoCAD 2000 DXF file'
@@ -240,9 +275,11 @@ class Load_from_DXF:
 
     def dxf_styles(self):
         dxf_TABLE_STYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_STYLES = re.findall('STYLE\r?\n[ ]*5([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_STYLE)
+        dxf_STYLES = re.findall('STYLE\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n[ ]*([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_STYLE)
         dxf_STYLE_names = {}
-        for STYLE in dxf_STYLES:
+        for STYLE_groups in dxf_STYLES:
+            STYLE_handle = STYLE_groups[0]
+            STYLE = STYLE_groups[1]
             STYLE_name = re.findall('AcDbTextStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)', STYLE)[0]
             STYLE_width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', STYLE)
             STYLE_width = self.get_val(STYLE_width, 1.0)
@@ -251,7 +288,8 @@ class Load_from_DXF:
             #LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
             #LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
             dxf_STYLE_names[STYLE_name] = {
-                'text_w':STYLE_width,
+                'handle':STYLE_handle,
+                'text_s_s':STYLE_width,
                 'text_size':STYLE_size,
                 }
         self.excavated_dxf['styles'] = dxf_STYLE_names
@@ -271,6 +309,38 @@ class Load_from_DXF:
                 'width':LAYER_width,
                 }
         self.excavated_dxf['layers'] = dxf_LAYER_names
+
+    def dxf_dimstyles(self):
+        dxf_TABLE_DIMSTYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nDIMSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_DIMSTYLES = re.findall('DIMSTYLE\r?\n[ ]*105([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_DIMSTYLE)
+        dxf_DIMSTYLE_names = {}
+        
+        for DIMSTYLE in dxf_DIMSTYLES:
+            DIMSTYLE_name = re.findall('AcDbDimStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w -]*)', DIMSTYLE)[0]
+            DIMSTYLE_arrow_s = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_arrow_s = self.get_val(DIMSTYLE_arrow_s, 200.0)
+            DIMSTYLE_vv_s = re.findall('\r?\n[ ]*44\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_vv_s = self.get_val(DIMSTYLE_vv_s, 150.0)
+            DIMSTYLE_s = re.findall('\r?\n[ ]*147\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_s = self.get_val(DIMSTYLE_s, 50.0)
+            DIMSTYLE_dim_text_size = re.findall('\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_dim_text_size = self.get_val(DIMSTYLE_dim_text_size, 350.0)
+            DIMSTYLE_dim_text_style_handle = re.findall('\r?\n[ ]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
+            for style in self.excavated_dxf['styles'].keys():
+                if self.excavated_dxf['styles'][style]['handle'] == DIMSTYLE_dim_text_style_handle:
+                    DIMSTYLE_dim_text_style = style
+                    
+            #LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
+            #LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
+            dxf_DIMSTYLE_names[DIMSTYLE_name] = {
+                'dim_text_s_s':self.excavated_dxf['styles'][DIMSTYLE_dim_text_style]['text_s_s'],
+                'dim_text_size':DIMSTYLE_dim_text_size,
+                'arrow_s':DIMSTYLE_arrow_s,
+                's':DIMSTYLE_s,
+                'vv_s':DIMSTYLE_vv_s,
+                'text_style':{DIMSTYLE_dim_text_style:self.excavated_dxf['styles'][DIMSTYLE_dim_text_style]},
+                }
+        self.excavated_dxf['dimstyles'] = dxf_DIMSTYLE_names
 
     def dxf_entities(self):
         dxf_ENTITIES = re.findall('0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
@@ -320,19 +390,6 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                '''
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
-                if not ltype:
-                    ltype = self.excavated_dxf['layers'][layer]['ltype']
-                else:
-                    ltype = ltype[0]
-                    
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', i[1])
-                if not width:
-                    width = self.excavated_dxf['layers'][layer]['width']
-                else:
-                    width = width[0]
-                '''
                     
                 #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
                 #if not stipple_factor:
@@ -375,25 +432,6 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                '''
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', i[1])
-                if not ltype:
-                    ltype = self.excavated_dxf['layers'][layer]['ltype']
-                else:
-                    ltype = ltype[0]
-                    
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', i[1])
-                if not width:
-                    width = self.excavated_dxf['layers'][layer]['width']
-                else:
-                    width = width[0]
-                    
-                #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
-                #if not stipple_factor:
-                    #stipple_factor = 1.0
-                #else:
-                    #stipple_factor = stipple_factor[0]
-                '''
                     
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
@@ -421,7 +459,7 @@ class Load_from_DXF:
                 style = self.get_val(style, 'Standard')
                 
                 width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.-]*)\r?\n', i[1])
-                width = self.get_val(width, self.excavated_dxf['styles'][style]['text_w'])
+                width = self.get_val(width, self.excavated_dxf['styles'][style]['text_s_s'])
 
                 size = re.findall('\r?\n[ ]*40\r?\n[ ]*([-\d.]*)\r?\n', i[1])
                 size = self.get_val(size, self.excavated_dxf['styles'][style]['text_size'])
@@ -450,6 +488,83 @@ class Load_from_DXF:
                     'xx':(x1,),
                     'yy':(y1,),
                     })
+
+            elif obj == 'DIMENSION':
+                dimstyle = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*3\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1])[0]
+                dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
+
+                text = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*1\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', unicode(i[1], "cp1251"), re.U)
+                text = self.get_val(text, None)
+                
+                vv_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*44\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                vv_s = self.get_val(vv_s, dimstyle_dict['vv_s'])
+
+                vr_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*46\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                vr_s = self.get_val(vr_s, 0.0)
+
+                arrow_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*41\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                arrow_s = self.get_val(arrow_s, dimstyle_dict['arrow_s'])
+                
+                s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*147\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                s = self.get_val(s, dimstyle_dict['s'])
+
+                dim_text_size = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*140\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                dim_text_size = self.get_val(dim_text_size, dimstyle_dict['dim_text_size'])
+
+                angle = re.findall('AcDbAlignedDimension\r?\n[\W\w]*\r?\n[ ]*50\r?\n[ ]*([\d.-]*)[\W\w]*100\r?\n[ ]*AcDbRotatedDimension', i[1])
+                angle = float(self.get_val(angle, 0.0))
+
+                if not angle:
+                    ort = 'vertical'
+                else:
+                    ort = 'horizontal'
+                    
+
+                dim_text_s_s = dimstyle_dict['dim_text_s_s']
+
+                
+               
+                xy12 = re.findall('13\r?\n[ ]*([\d.]*)\r?\n[ ]*23\r?\n[ ]*([\d.]*)\r?\n[ ]*33\r?\n[ ]*[\d.]*\r?\n[ ]*14\r?\n[ ]*([\d.]*)\r?\n[ ]*24\r?\n[ ]*([\d.]*)\r?\n[ ]*34\r?\n[ ]*[\d.]*\r?\n[ ]*', i[1])
+                if not xy12:
+                    xy12 = re.findall('13\r?\n[ ]*([\d.]*)\r?\n[ ]*23\r?\n[ ]*([\d.]*)\r?\n[ ]*14\r?\n[ ]*([\d.]*)\r?\n[ ]*24\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+
+                xy3text = re.findall('10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*[\d.]*\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*31\r?\n[ ]*[\d.]*\r?\n[ ]*', i[1])
+                if not xy3text:
+                    xy3text = re.findall('10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                    
+                x1 = float(xy12[0][0])
+                y1 = float(xy12[0][1])
+                x2 = float(xy12[0][2])
+                y2 = float(xy12[0][3])
+
+                x3 = float(xy3text[0][0])
+                y3 = float(xy3text[0][1])
+                text_x = float(xy3text[0][2])
+                text_y = float(xy3text[0][3])
+
+                dxf_ENTITIES_names.append({
+                    'obj':obj,
+                    'color':color,
+                    'dim_text_s_s':float(dim_text_s_s)/0.57,
+                    'angle':math.radians(abs(angle)),
+                    'dim_text_size':abs(float(dim_text_size)),
+                    'text_place':[text_x, text_y],
+                    'ort':ort,
+                    'text':text,
+                    's':float(s),
+                    'vv_s':float(vv_s),
+                    'vr_s':float(vr_s),
+                    'arrow_s':float(arrow_s)/2.0,
+                    'x1':x1,
+                    'y1':y1,
+                    'x2':x2,
+                    'y2':y2,
+                    'x3':x3,
+                    'y3':y3,
+                    'xx':(x1,x2,x3,text_x),
+                    'yy':(y1,y2,y3,text_y),
+                    })
+                
         self.excavated_dxf['entities'] = dxf_ENTITIES_names
         #print self.excavated_dxf['entities']
 

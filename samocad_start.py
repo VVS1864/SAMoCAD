@@ -89,8 +89,8 @@ class Graphics:
         self.text_font = 'TXT'#'Architectural'
         self.text_s_s = 1.0 #Межбуквенное расстояние
         self.text_w = 1.4 #Ширина буквы
-        self.s = 50 #Переменная, определяющая пропорции в размерах
-        self.arrow_s = 100
+        self.s = 50 #Расстоение от низа текста до размерной линии (в размере)
+        self.arrow_s = 100 #Размер стрелки
         self.vr_s = 200 #Вылет за размерную линию
         self.vv_s = 100 #Вылет размерной линии
         self.type_arrow = 'Arch'
@@ -98,9 +98,8 @@ class Graphics:
         self.dim_text_w = 1.5
         self.dim_text_font = 'TXT'#'Architectural'
         self.snap_s = 10 #Определяет дальнобойность привязки (расстояние в точках на экране)
-        self.angle_s = 15.0
+        self.angle_s = 15.0 #Угол трассировки
         self.auto_save_step = 30 #Количество действий между автосохранениями
-        self.max_clone = 5000
 
         self.total_N = 0 #тотальное количество нарисованных объектов (для ID)
 

@@ -163,6 +163,8 @@ AcDbDimension
 0.0
  70
     32
+1
+%(text)s
  71
      5
  42
@@ -213,6 +215,10 @@ DSTYLE
     44
 1040
 %(vv_s)s
+1070
+    46
+1040
+%(vr_s)s
 1070
     41
 1040
@@ -671,7 +677,9 @@ AcDbBlockEnd
                 #self.dim_list[i['dim_ind']] = copy(i)
                 if i['text']:
                     text = i['text']
-                    i['text'] = text.encode("cp1251")
+                else:
+                    text = ''
+                i['text'] = text.encode("cp1251")
 
                 e = """330
 %(handle)s"""

@@ -17,16 +17,6 @@ def font(x, y, text, size, s_s, w_text, anchor, font, angle, temp):
 class Text:
     #Общий класс шрифта
     def __init__(self, x, y, text, size, s_s, w_text, anchor, angle):
-        '''
-        if not zoomOLD:
-            self.sy = -size
-        else:
-            if zoomOLD>0:
-                self.sy = -size * (zoomp**zoomOLD)
-            else:
-                zoomOLDx=zoomOLD*(-1) 
-                self.sy = -size * (zoomm**zoomOLDx)
-        '''
         self.sy = -size
         self.w_text = w_text #Ширина символа
         self.s_s = s_s#смещение символов в строке
@@ -34,7 +24,7 @@ class Text:
         
         self.sx = -self.sy/4.0#Ширина символа = четверть высоты
         self.liter = -self.s_s#Позиция первого символа
-        self.Ltext = (len(text) * self.s_s * 2.0 * self.sx) - self.sx  #- self.sx#Длина готовой строки
+        self.Ltext = len(text) * (self.s_s * 2.0 * self.sx)  #- self.sx#Длина готовой строки
         axy = tuple(anchor)
         if axy[0] == 's':
             self.nachTextY = y

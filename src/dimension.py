@@ -676,14 +676,15 @@ class Object_dim(Base_object):
         cd['line_3_y1'] = cd['line3'][1]
         cd['line_3_x2'] = cd['line3'][2]
         cd['line_3_y2'] = cd['line3'][3]
-        cd['angle'] = -cd['angle']
-        if not cd['text']:
-            text = str(cd['dim_distanse'])
-        else:
-            text = cd['text']
+        #cd['angle'] = -cd['angle']
+        
         
 
         if file_format == '.svg':
+            if not cd['text']:
+                text = str(cd['dim_distanse'])
+            else:
+                text = cd['text']
             cd['svg_text'] = text.encode("utf-8")
             cd['dim_text_size'] = str(cd['dim_text_size'])
 
@@ -855,6 +856,7 @@ class Object_dim(Base_object):
         cd['y3'] += d[1]
         
         if cd['text_place']:
+            cd['text_place'] = cd['text_place'][:]
             cd['text_place'][0] += d[0]
             cd['text_place'][1] += d[1]
         cd['in_mass'] = True    
@@ -873,6 +875,7 @@ class Object_dim(Base_object):
         cd['y3'] += d[1]
     
         if cd['text_place']:
+            cd['text_place'] = cd['text_place'][:]
             cd['text_place'][0] += d[0]
             cd['text_place'][1] += d[1]
 
