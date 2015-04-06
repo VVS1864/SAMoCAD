@@ -325,7 +325,9 @@ class Load_from_DXF:
             DIMSTYLE_s = self.get_val(DIMSTYLE_s, 50.0)
             DIMSTYLE_dim_text_size = re.findall('\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
             DIMSTYLE_dim_text_size = self.get_val(DIMSTYLE_dim_text_size, 350.0)
-            DIMSTYLE_dim_text_style_handle = re.findall('\r?\n[ ]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
+            DIMSTYLE_dim_text_style_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
+            print DIMSTYLE_dim_text_style_handle
+            print self.excavated_dxf['styles']
             for style in self.excavated_dxf['styles'].keys():
                 if self.excavated_dxf['styles'][style]['handle'] == DIMSTYLE_dim_text_style_handle:
                     DIMSTYLE_dim_text_style = style
