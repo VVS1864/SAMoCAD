@@ -175,7 +175,7 @@ def get_object_lines(cd, drawing_h, file_format):
             'arrow_point1_y': cd['y1'],
             'arrow_point2_x': cd['x3'],
             'arrow_point2_y': cd['y2'],
-            'angle': 90.0,
+            #'angle': 90.0,
             'angle_arrow1': 90.0,
             'angle_arrow2': 270.0,
             })
@@ -193,7 +193,7 @@ def get_object_lines(cd, drawing_h, file_format):
             'arrow_point1_y': cd['y3'],
             'arrow_point2_x': cd['x2'],
             'arrow_point2_y': cd['y3'],
-            'angle': 0.0,
+            #'angle': 0.0,
             'angle_arrow1': 180.0,
             'angle_arrow2': 0.0
             })

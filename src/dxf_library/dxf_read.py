@@ -517,11 +517,12 @@ class Load_from_DXF:
 
                 dim_text_size = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*140\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
                 dim_text_size = self.get_val(dim_text_size, dimstyle_dict['dim_text_size'])
-
+                dim_text_size = abs(float(dim_text_size))
+                
                 angle = re.findall('AcDbAlignedDimension\r?\n[\W\w]*\r?\n[ ]*50\r?\n[ ]*([\d.-]*)[\W\w]*100\r?\n[ ]*AcDbRotatedDimension', i[1])
                 angle = float(self.get_val(angle, 0.0))
 
-                if not angle:
+                if angle == 0.0:
                     ort = 'vertical'
                 else:
                     ort = 'horizontal'
@@ -561,13 +562,19 @@ class Load_from_DXF:
                 y3 = float(xy3text[0][1])
                 text_x = float(xy3text[0][2])
                 text_y = float(xy3text[0][3])
+                if text_change == 3:
+                    if ort == 'horizontal':
+                        text_x += dim_text_size/2.0
+                    else:
+                        text_y -= dim_text_size/2.0
+                    
 
                 dxf_ENTITIES_names.append({
                     'obj':obj,
                     'color':color,
                     'dim_text_s_s':float(dim_text_s_s)/0.57,
                     'angle':math.radians(abs(angle)),
-                    'dim_text_size':abs(float(dim_text_size)),
+                    'dim_text_size':dim_text_size,
                     'text_place':[text_x, text_y],
                     'text_change':text_change,
                     'ort':ort,

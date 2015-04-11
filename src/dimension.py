@@ -24,7 +24,7 @@ list_prop = (
     'color',
     'text',
     'layer',
-    'angle',
+    #'angle',
     'anchor',
     'dim_text_size',
     'dim_text_s_s',
@@ -424,7 +424,7 @@ def get_dim_lines(
     line3 = [xm-vr_s, y3, x+vr_s, y3]
     
     if text_change == 3:
-        if abs(y3 - text_place[1]) < s:
+        if abs(y3 - text_place[1]) <= s:
             text_change = 2
         #elif text_place[0] != xm+dx/2.0:
             #text_change = 1
@@ -649,8 +649,7 @@ class Object_dim(Base_object):
                     })
         '''
         cd = save_file.get_object_lines(cd, drawing_h, file_format)
-        
-        if ort == "vertical":
+        if cd['ort'] == "vertical":
             cd['line_2_y2'] += cd['vv_s']*derect
             cd['line_1_y2'] += cd['vv_s']*derect
             cd.update({
@@ -682,7 +681,6 @@ class Object_dim(Base_object):
         #cd['angle'] = -cd['angle']
         
         
-
         if file_format == '.svg':
             if not cd['text']:
                 text = str(cd['dim_distanse'])
