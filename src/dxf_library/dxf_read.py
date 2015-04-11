@@ -168,7 +168,6 @@ class Load_from_DXF:
             elif obj['obj'] == 'DIMENSION':
                 obj['dim_text_w'] = obj['dim_text_s_s']*1.4
                 obj['dim_text_font'] = 'txt'
-                obj['text_change'] = 1
                 obj['type_arrow'] = 'Arch'
                 cNew =  dimension.c_dim(
                     self.par,
@@ -326,8 +325,6 @@ class Load_from_DXF:
             DIMSTYLE_dim_text_size = re.findall('\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
             DIMSTYLE_dim_text_size = self.get_val(DIMSTYLE_dim_text_size, 350.0)
             DIMSTYLE_dim_text_style_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
-            print DIMSTYLE_dim_text_style_handle
-            print self.excavated_dxf['styles']
             for style in self.excavated_dxf['styles'].keys():
                 if self.excavated_dxf['styles'][style]['handle'] == DIMSTYLE_dim_text_style_handle:
                     DIMSTYLE_dim_text_style = style
@@ -496,7 +493,15 @@ class Load_from_DXF:
                 dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
 
                 text = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*1\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', unicode(i[1], "cp1251"), re.U)
+                if text:
+                    text = text[0]
                 text = self.get_val(text, None)
+
+                
+                dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
+
+                text_change_2 = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*70\r?\n[ ]*([\d]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1])
+                text_change_2 = self.get_val(text_change_2, 32)
                 
                 vv_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*44\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
                 vv_s = self.get_val(vv_s, dimstyle_dict['vv_s'])
@@ -520,6 +525,19 @@ class Load_from_DXF:
                     ort = 'vertical'
                 else:
                     ort = 'horizontal'
+
+                text_change = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*279\r?\n[ ]*1070\r?\n[ ]*([\d]*)\r?\n[ ]*', i[1])
+                text_change = self.get_val(text_change, 0)
+                text_change = int(text_change)
+                text_change_2 = int(text_change_2)
+                if text_change == 0 and text_change_2 == 32:
+                    text_change = 1
+                elif text_change == 0 and text_change_2 == 160:
+                    text_change = 2
+                elif text_change == 2 and text_change_2 == 160:
+                    text_change = 3
+                else:
+                    text_change = 1
                     
 
                 dim_text_s_s = dimstyle_dict['dim_text_s_s']
@@ -551,6 +569,7 @@ class Load_from_DXF:
                     'angle':math.radians(abs(angle)),
                     'dim_text_size':abs(float(dim_text_size)),
                     'text_place':[text_x, text_y],
+                    'text_change':text_change,
                     'ort':ort,
                     'text':text,
                     's':float(s),

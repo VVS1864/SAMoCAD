@@ -142,6 +142,7 @@ def get_object_lines(cd, drawing_h, file_format):
     if file_format == '.dxf':
         # Если DXF - берется центральная точка текста
         #!!!
+        
         if cd['ort'] == "horizontal":
             y = (y1+y2)/2.0
             yy = y

@@ -357,10 +357,11 @@ def get_dim_lines(
     #elif ort == 'rotated':
         #pass
     
-            
+    if text_place == None:
+        text_place = [0, 0]   
     if ort == "horizontal":
-        if text_place == None:
-            text_place = [0, 0]
+        #if text_place == None:
+        #   text_place = [0, 0]
                     
         angle = radians(90)
         msin = sin(angle)
@@ -422,7 +423,27 @@ def get_dim_lines(
     # 3 = 'online3_m_l'
     line3 = [xm-vr_s, y3, x+vr_s, y3]
     
-    if text_change == 1:
+    if text_change == 3:
+        if abs(y3 - text_place[1]) < s:
+            text_change = 2
+        #elif text_place[0] != xm+dx/2.0:
+            #text_change = 1
+        else:
+            list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+
+    if text_change == 2:        
+        text_place[1] = y3+s
+        list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
+        text_line = list_text_lines.nabor[0]
+        if abs(text_line[0]+list_text_lines.Ltext / 2.0 - (xm+dx/2.0)) < par.min_e:
+            text_change = 1
+        else: 
+            if text_line[0] < xm:
+                line3[0] = text_line[0]
+            elif text_line[2] > x:
+                line3[2] = text_line[2]
+                
+    elif text_change == 1:
         text_place = [xm+dx/2.0, y3+s]
         line3 = [xm-vr_s, y3, x+vr_s, y3]
         
@@ -438,24 +459,6 @@ def get_dim_lines(
             line3 = [xm-vr_s, y3, text_line[2], y3]
             i = -1
             #text_change = 2
-    
-    elif text_change == 3:
-        if abs(y3 - text_place[1]) < s:
-            text_change = 2
-        else:
-            list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
-
-    if text_change == 2:        
-        text_place[1] = y3+s
-        list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
-        text_line = list_text_lines.nabor[0]
-        if abs(text_line[0]+list_text_lines.Ltext / 2.0 - (xm+dx/2.0)) < par.min_e:
-            text_change = 1
-        else: 
-            if text_line[0] < xm:
-                line3[0] = text_line[0]
-            elif text_line[2] > x:
-                line3[2] = text_line[2]   
             
     list_lines.append(line3)       
     #Засечки

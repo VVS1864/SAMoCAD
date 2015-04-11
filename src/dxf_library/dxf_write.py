@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import src.save_file as save_file
 import os
@@ -156,13 +157,13 @@ AcDbDimension
  30
 0.0
  11
-%(text_x)s
+%(text_xx)s
  21
-%(text_y)s
+%(text_yy)s
  31
 0.0
  70
-    32
+    %(text_change_2)s
 1
 %(text)s
  71
@@ -235,6 +236,10 @@ DSTYLE
    140
 1040
 %(dim_text_size)s
+1070
+   279
+1070
+     %(text_change)s
 1002
 }
 0"""
@@ -680,6 +685,19 @@ AcDbBlockEnd
                 else:
                     text = ''
                 i['text'] = text.encode("cp1251")
+
+                if i['text_change'] == 1:
+                    i['text_change'] = 0
+                    i['text_change_2'] = 32
+                    
+                elif i['text_change'] == 2:
+                    i['text_change'] = 0
+                    i['text_change_2'] = 160
+                
+                elif i['text_change'] == 3:
+                    i['text_change'] = 2
+                    #Х.З, но без этого при редактировании текст перемещается в середину размера
+                    i['text_change_2'] = 160
 
                 e = """330
 %(handle)s"""
