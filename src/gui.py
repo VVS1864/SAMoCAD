@@ -56,20 +56,27 @@ class Window(wx.Frame):
         self.SetSize((800, 640))
 
         self.menubar = wx.MenuBar()
-        menu = wx.Menu()
-        self.open_p = menu.Append(wx.ID_OPEN, "&Open")
-        self.save_p = menu.Append(wx.ID_SAVEAS, "&Save as")
-        self.print_p = menu.Append(wx.ID_PRINT, "&Print\tCtrl+P")
-        #aboutItem = menu.Append(wx.ID_ABOUT,"About")
-        self.exit_p = menu.Append(wx.ID_ANY,"&Exit")
+        
+        menu_file = wx.Menu()
+        self.open_p = menu_file.Append(wx.ID_OPEN, "&Open")
+        self.save_p = menu_file.Append(wx.ID_SAVEAS, "&Save as")
+        self.print_p = menu_file.Append(wx.ID_PRINT, "&Print\tCtrl+P")
+        self.exit_p = menu_file.Append(wx.ID_ANY,"&Exit")
+
+        menu_format = wx.Menu()
+        self.dim_style_p = menu_format.Append(-1, "Dimension style")
+        
         bar = wx.MenuBar()
-        bar.Append(menu,"File")
+        bar.Append(menu_file,"File")
+        bar.Append(menu_format,"Format")
         self.SetMenuBar(bar)
+        
         self.Bind(wx.EVT_MENU, self.OnOpen, self.open_p)
         self.Bind(wx.EVT_MENU, self.OnSave, self.save_p)
         self.Bind(wx.EVT_MENU, self.OnPrint, self.print_p)
-        #self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
         self.Bind(wx.EVT_MENU, self.OnExit, self.exit_p)
+        
+        self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
         
         self.sizer_parent = wx.BoxSizer(wx.VERTICAL)
 
@@ -464,14 +471,8 @@ class Window(wx.Frame):
     
 # ОБРАБОТЧИКИ МЕНЮ
     def OnPrint(self, e):
-        if not self.print_dialog:
-            self.print_dialog = Print_dialog(self.par)
-        if not self.print_dialog_on:
-            self.print_dialog.Show()
-            self.print_dialog_on = True
-        else:
-            self.print_dialog.Hide()
-            self.print_dialog_on = False
+        self.print_dialog, self.print_dialog_on = self.open_show_hide(self.print_dialog, Print_dialog, self.print_dialog_on)
+        
 
     def OnSave(self, e):
         head, tail = os.path.split(self.par.current_save_path)
@@ -519,14 +520,13 @@ class Window(wx.Frame):
         if f_format == '.dxf':
             dxf_read.Load_from_DXF(self.par, self.par.current_file)
         else:
-            open_file.Open_from_SVG(self.par, self.par.current_file)
-        
-    def OnAbout(self, e):
-        pass
-    
+            open_file.Open_from_SVG(self.par, self.par.current_file)    
        
     def OnExit(self, e):
         pass
+
+    def OnDimStyle(self, e):
+        self.dimstyle_dialog, self.dimstyle_dialog_on = self.open_show_hide(self.dimstyle_dialog, Dimstyle_dialog, self.dimstyle_dialog_on)
 
 # Изменяет цвет кнопок снизу
     def blue_reder(self, button, flag):
@@ -550,7 +550,19 @@ class Window(wx.Frame):
             self.par.collection = new_objects
             self.par.kill()
             self.par.mass_collector(new_objects, 'select')
-            #self.par.collectionBack = []    
+            #self.par.collectionBack = []
+
+    def open_show_hide(self, dialog, function, key_on):
+        if not dialog:
+            dialog = function(self.par)
+        if not key_on:
+            dialog.Show()
+            key_on = True
+        else:
+            dialog.Hide()
+            key_on = False
+            
+        return dialog, key_on
 
 class myGLCanvas(GLCanvas):
     def __init__(self, parent):
@@ -568,8 +580,11 @@ class Print_dialog(wx.Frame):
 
     def __init__(self, par):
         self.par = par
-        wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title, style = wx.FRAME_FLOAT_ON_PARENT)
+        wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title,
+                          style = wx.FRAME_FLOAT_ON_PARENT|wx.DEFAULT_FRAME_STYLE)
 
+        self.Bind(wx.EVT_CLOSE, par.interface.OnPrint)
+        
         self.scale = [
             500,
             200,

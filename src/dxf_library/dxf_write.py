@@ -778,6 +778,7 @@ AcDbBlockEnd
                 #ENDBLOCK
                 endblock_dim = (self.dxf_endblock_dim % i)
                 MY_BLOCKS += (endblock_dim + '\n')
+
                 if not self._OBLIQUE:
                     hand()
                     i['handle_block_record_dim_oblique'] = self.handle
