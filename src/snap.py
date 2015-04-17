@@ -15,6 +15,7 @@ def get_snap(x, y, snap_s, find, par):
     for ind, i in enumerate(find):#Перебрать список объектов
         tip_p = None
         if par.ALLOBJECT[i]['snap_type'] == 'line':
+            list_N_dist = []
             for xy in par.ALLOBJECT[i]['coords']:
                 
                 a = sqrt((x-xy[0])**2 + (y-xy[1])**2)
@@ -55,6 +56,20 @@ def get_snap(x, y, snap_s, find, par):
                         yi = yt
                         stopFlag = True#Остановить назначение возвращаемых координат
                     break
+                elif N_dist:
+                    list_N_dist.append([N_dist, xn, yn])
+            if not cath:
+                #print list_N_dist
+                N_dist = list_N_dist[0][0]
+                xn = list_N_dist[0][1]
+                yn = list_N_dist[0][2]
+                for N in list_N_dist:
+                    if N[0] < N_dist:
+                        
+                        N_dist = N[0]
+                        xn = N[1]
+                        yn = N[2]
+                #print N_dist
                 
 
         elif par.ALLOBJECT[i]['snap_type'] == 'circle':
@@ -148,7 +163,7 @@ def get_snap(x, y, snap_s, find, par):
                     stopFlag = True#Остановить назначение возвращаемых координат
                 break
 
-    if len(find) > 1:
+    if len(find) > 1 and not cath:
         # Если привязка к 2 приметивам возможна
         xt, yt, p = intersect_2_objects(par, x, y, find, snap_s)
         if p == 'X':

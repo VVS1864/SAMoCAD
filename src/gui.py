@@ -34,8 +34,13 @@ appPath = os.getcwd()
 class Window(wx.Frame):
     def __init__(self, parent, title, par):
         self.par = par
+
+#Dialogs
         self.print_dialog = None
         self.print_dialog_on = False
+
+        self.dimstyle_dialog = None
+        self.dimstyle_dialog_on = False
 
         self.hot_keys_dict = {
             'Z' : copy_object.Object,
@@ -681,9 +686,85 @@ class Print_dialog(wx.Frame):
             if not print_file_base[1]:
                 file_name = file_name + '.%s' %file_format.lower()
             print_to_file.print_to(self.par, self.par.print_rect, self.par.ALLOBJECT, scale, file_format, file_name) 
-                               
 
+
+class Dimstyle_dialog(wx.Frame):
+    title = "Dimension style"
+
+    def __init__(self, par):
+        self.par = par
+        self.actors = {}
+        wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title,
+                          style = wx.FRAME_FLOAT_ON_PARENT|(wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER))
+        self.Bind(wx.EVT_CLOSE, par.interface.OnDimStyle)                  
+
+        self.SetSize((510, 200))
+        
+        self.staticbox = wx.StaticBox (self, wx.NewId(), label="Dimension parametrs")
+        self.sizer_right = wx.StaticBoxSizer(self.staticbox, wx.HORIZONTAL)
+        self.sizer_right_1 = wx.BoxSizer(wx.VERTICAL)
+        self.sizer_right_2 = wx.BoxSizer(wx.VERTICAL)
+        
+        self.sizer_left = wx.BoxSizer(wx.VERTICAL)
+        
+        
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        png = wx.Bitmap(os.path.join(appPath, 'res', 'dim_prop.gif'))#, wx.BITMAP_TYPE_GIF)#.ConvertToBitmap()
+        r = wx.StaticBitmap(self, -1, png, (png.GetWidth(), png.GetHeight()))
+
+        self.sizer_left.Add(r)
+
+        
+        self.text_s, self.s = stroker(self, 'Offset from dim line [A]', self.par.s, self.sizer_right_1, self.sizer_right_2)
+        self.text_arrow_s, self.arrow_s = stroker(self, 'Arrowhead size [B]', self.par.arrow_s, self.sizer_right_1, self.sizer_right_2)
+        self.text_vr_s, self.vr_s = stroker(self, 'Extend dim lines [C]', self.par.vr_s, self.sizer_right_1, self.sizer_right_2)
+        self.text_vv_s, self.vv_s = stroker(self, 'Extend ticks [D]', self.par.vv_s, self.sizer_right_1, self.sizer_right_2)
+        
+
+        self.button_apply = wx.Button(self, wx.NewId(), 'Apply')
+        self.sizer_right_2.Add(self.button_apply, flag = wx.ALL, border = 8)
+        self.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
+
+        self.sizer_right.Add(self.sizer_right_1)
+        self.sizer_right.Add(self.sizer_right_2, flag = wx.EXPAND)
+
+        
+        self.sizer.Add(self.sizer_left, flag = wx.ALL, border = 8)
+        self.sizer.Add(self.sizer_right, flag = wx.ALL, border = 8)
+        self.SetSizer(self.sizer)
+
+    def apply_style(self, e):
+        s = float(self.s.GetValue())
+        self.par.s = s
+        s = float(self.arrow_s.GetValue())
+        self.par.arrow_s = s
+        s = float(self.vv_s.GetValue())
+        self.par.vv_s = s
+        s = float(self.vr_s.GetValue())
+        self.par.vr_s = s
+        
+        
+        print self.par.s, self.par.arrow_s, self.par.vv_s, self.par.vr_s
+
+
+def stroker(frame, text, var, sizer_1, sizer_2):
+    text_ctrl = wx.TextCtrl(frame, -1, text, size = (150, -1), style = wx.TE_READONLY | wx.BORDER_NONE)
+    text_ctrl.SetBackgroundColour((214, 210, 208))
+    entry = wx.lib.masked.NumCtrl(
+                                frame,
+                                style = wx.TE_PROCESS_ENTER,
+                                fractionWidth = 2,
+                                size = (80, -1),
+                                autoSize = False,
+                                )
+    entry.SetValue(var)
+    sizer_1.Add(text_ctrl, flag = wx.ALL, border = 4)
+    sizer_2.Add(entry, flag = wx.ALIGN_RIGHT | wx.ALL, border = 4)
+    return text_ctrl, entry
     
+            
+        
         
         
     
