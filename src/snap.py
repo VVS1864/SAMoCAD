@@ -59,18 +59,18 @@ def get_snap(x, y, snap_s, find, par):
                 elif N_dist:
                     list_N_dist.append([N_dist, xn, yn])
             if not cath:
-                #print list_N_dist
-                N_dist = list_N_dist[0][0]
-                xn = list_N_dist[0][1]
-                yn = list_N_dist[0][2]
-                for N in list_N_dist:
-                    if N[0] < N_dist:
+                if list_N_dist:
+                    N_dist = list_N_dist[0][0]
+                    xn = list_N_dist[0][1]
+                    yn = list_N_dist[0][2]
+                    
+                    for N in list_N_dist:
+                        if N[0] < N_dist:
+                            
+                            N_dist = N[0]
+                            xn = N[1]
+                            yn = N[2]
                         
-                        N_dist = N[0]
-                        xn = N[1]
-                        yn = N[2]
-                #print N_dist
-                
 
         elif par.ALLOBJECT[i]['snap_type'] == 'circle':
             R = par.ALLOBJECT[i]['R']

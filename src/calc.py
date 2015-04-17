@@ -96,9 +96,15 @@ def min_distanse(x1,y1, x2,y2, x3, y3):
         u = numerator / denumerator
         x = x1 + u*a
         y = y1 + u*b
+
+        p = sqrt((x-x1)**2 + (y-y1)**2) + sqrt((x-x2)**2 + (y-y2)**2) - sqrt((x1-x2)**2 + (y1-y2)**2)
+        if abs( p ) > min_e:
+            x = None
+            y = None
     else:
         x = None
         y = None
+        
 
     return x, y
 
