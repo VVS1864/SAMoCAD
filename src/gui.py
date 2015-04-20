@@ -698,11 +698,11 @@ class Dimstyle_dialog(wx.Frame):
                           style = wx.FRAME_FLOAT_ON_PARENT|(wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER))
         self.Bind(wx.EVT_CLOSE, par.interface.OnDimStyle)                  
 
-        self.SetSize((510, 200))
+        self.SetSize((550, 220))
         
         self.staticbox = wx.StaticBox (self, wx.NewId(), label="Dimension parametrs")
         self.sizer_right = wx.StaticBoxSizer(self.staticbox, wx.HORIZONTAL)
-        self.sizer_right_1 = wx.BoxSizer(wx.VERTICAL)
+        self.sizer_right_1 = wx.GridSizer(cols = 2)
         self.sizer_right_2 = wx.BoxSizer(wx.VERTICAL)
         
         self.sizer_left = wx.BoxSizer(wx.VERTICAL)
@@ -720,14 +720,20 @@ class Dimstyle_dialog(wx.Frame):
         self.text_arrow_s, self.arrow_s = stroker(self, 'Arrowhead size [B]', self.par.arrow_s, self.sizer_right_1, self.sizer_right_2)
         self.text_vr_s, self.vr_s = stroker(self, 'Extend dim lines [C]', self.par.vr_s, self.sizer_right_1, self.sizer_right_2)
         self.text_vv_s, self.vv_s = stroker(self, 'Extend ticks [D]', self.par.vv_s, self.sizer_right_1, self.sizer_right_2)
+
+        self.text_type_arrow, self.type_arrow = stroker(self, 'Arrowheads', self.par.type_arrow, self.sizer_right_1, self.sizer_right_2, 'combobox', ['Arch', 'Arrow'])
+
+        
+        
+        
         
 
         self.button_apply = wx.Button(self, wx.NewId(), 'Apply')
-        self.sizer_right_2.Add(self.button_apply, flag = wx.ALL, border = 8)
+        self.sizer_right_1.Add(self.button_apply)
         self.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
 
         self.sizer_right.Add(self.sizer_right_1)
-        self.sizer_right.Add(self.sizer_right_2, flag = wx.EXPAND)
+        #self.sizer_right.Add(self.sizer_right_2, flag = wx.EXPAND)
 
         
         self.sizer.Add(self.sizer_left, flag = wx.ALL, border = 8)
@@ -743,25 +749,43 @@ class Dimstyle_dialog(wx.Frame):
         self.par.vv_s = s
         s = float(self.vr_s.GetValue())
         self.par.vr_s = s
+        s = self.type_arrow.GetValue()
+        self.par.type_arrow = s
         
         
-        print self.par.s, self.par.arrow_s, self.par.vv_s, self.par.vr_s
+        print (self.par.s,
+               self.par.arrow_s,
+               self.par.vv_s,
+               self.par.vr_s,
+               self.par.type_arrow)
 
 
-def stroker(frame, text, var, sizer_1, sizer_2):
+def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices = None):        
     text_ctrl = wx.TextCtrl(frame, -1, text, size = (150, -1), style = wx.TE_READONLY | wx.BORDER_NONE)
     text_ctrl.SetBackgroundColour((214, 210, 208))
-    entry = wx.lib.masked.NumCtrl(
-                                frame,
-                                style = wx.TE_PROCESS_ENTER,
-                                fractionWidth = 2,
-                                size = (80, -1),
-                                autoSize = False,
-                                )
-    entry.SetValue(var)
-    sizer_1.Add(text_ctrl, flag = wx.ALL, border = 4)
-    sizer_2.Add(entry, flag = wx.ALIGN_RIGHT | wx.ALL, border = 4)
-    return text_ctrl, entry
+    if widget_type == 'entry':
+        widget = wx.lib.masked.NumCtrl(
+            frame,
+            style = wx.TE_PROCESS_ENTER,
+            fractionWidth = 2,
+            size = (100, -1),
+            autoSize = False,
+            )
+        widget.SetValue(var)
+    elif widget_type == 'combobox':
+        widget = wx.ComboBox(
+            frame,
+            choices = choices, 
+            style = wx.CB_READONLY,
+            size = (100, -1)
+            )
+        #widget.SetSelection(var)
+        widget.SetValue(var)
+        
+    sizer_1.Add(text_ctrl)
+    sizer_1.Add(widget, flag = wx.ALIGN_RIGHT)
+    #sizer_2.Add(widget, flag = wx.ALIGN_RIGHT | wx.ALL, border = 4)
+    return text_ctrl, widget
     
             
         

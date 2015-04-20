@@ -204,14 +204,7 @@ DSTYLE
    173
 1070
      1
-1070
-   343
-1005
-%(handle_block_record_dim_oblique)s
-1070
-   344
-1005
-%(handle_block_record_dim_oblique)s
+MY_ARROW_BLOCK_REF
 1070
     44
 1040
@@ -504,6 +497,47 @@ AcDbEntity
 AcDbBlockEnd
 0"""
 
+        ### /BLOCK_OBLIQUE ###
+        ### ARROW SOLID ###
+        self.dxf_block_dim_solid = """SOLID
+  5
+%(handle_block_dim_solid)s
+330
+%(handle_block_records_dim)s
+100
+AcDbEntity
+  8
+0
+ 62
+     0
+100
+AcDbTrace
+ 10
+%(arrow_1_x)s
+ 20
+%(arrow_1_y)s
+ 30
+0.0
+ 11
+%(arrow_2_x)s
+ 21
+%(arrow_2_y)s
+ 31
+0.0
+ 12
+%(arrow_3_x)s
+ 22
+%(arrow_3_y)s
+ 32
+0.0
+ 13
+%(arrow_4_x)s
+ 23
+%(arrow_4_y)s
+ 33
+0.0
+  0"""
+        ### /ARROW SOLID ###
 ###        /DIMENSION   ###
 
         
@@ -671,8 +705,7 @@ AcDbBlockEnd
 
                 vr_s = i['vr_s']
                 i['vr_s'] = formater(vr_s)
-                s = i['arrow_s']
-                i['arrow_s'] = s*2.0
+                
                 vv_s = i['vv_s']
                 i['vv_s'] = formater(vv_s)
                 #size = i['dim_text_size']
@@ -732,19 +765,50 @@ AcDbBlockEnd
                 i['line_y2'] = i['line_3_y2']
                 block_dim_line_3 = (self.dxf_block_dim_line % i)
                 MY_BLOCKS += (block_dim_line_3 + '\n')
-                #INSERT x 2
-                i['handle_block_dim_insert'] = i['handle_block_dim_insert_1']
-                i['arrow_x'] = i['arrow_point1_x']
-                i['arrow_y'] = i['arrow_point1_y']
-                i['angle_arrow'] = i['angle_arrow1']
-                block_dim_insert_1 = (self.dxf_block_dim_insert % i)
-                MY_BLOCKS += (block_dim_insert_1 + '\n')
-                i['handle_block_dim_insert'] = i['handle_block_dim_insert_2']
-                i['arrow_x'] = i['arrow_point2_x']
-                i['arrow_y'] = i['arrow_point2_y']
-                i['angle_arrow'] = i['angle_arrow2']
-                block_dim_insert_2 = (self.dxf_block_dim_insert % i)
-                MY_BLOCKS += (block_dim_insert_2 + '\n')
+                if i['type_arrow'] == 'Arch':
+                    s = i['arrow_s']
+                    i['arrow_s'] = s*2.0
+                    #INSERT x 2
+                    i['handle_block_dim_insert'] = i['handle_block_dim_insert_1']
+                    i['arrow_x'] = i['arrow_point1_x']
+                    i['arrow_y'] = i['arrow_point1_y']
+                    i['angle_arrow'] = i['angle_arrow1']
+                    block_dim_insert_1 = (self.dxf_block_dim_insert % i)
+                    MY_BLOCKS += (block_dim_insert_1 + '\n')
+                    
+                    i['handle_block_dim_insert'] = i['handle_block_dim_insert_2']
+                    i['arrow_x'] = i['arrow_point2_x']
+                    i['arrow_y'] = i['arrow_point2_y']
+                    i['angle_arrow'] = i['angle_arrow2']
+                    block_dim_insert_2 = (self.dxf_block_dim_insert % i)
+                    MY_BLOCKS += (block_dim_insert_2 + '\n')
+                elif i['type_arrow'] == 'Arrow':
+                    #SOLID x 2
+                    i['handle_block_dim_solid'] = i['handle_block_dim_insert_1']
+                    i['arrow_1_x'] = i['arrow_1_x2']
+                    i['arrow_1_y'] = i['arrow_1_y2']
+                    i['arrow_2_x'] = i['arrow_5_x']
+                    i['arrow_2_y'] = i['arrow_5_y']
+                    i['arrow_3_x'] = i['arrow_2_x2']
+                    i['arrow_3_y'] = i['arrow_2_y2']
+                    i['arrow_4_x'] = i['arrow_1_x1']
+                    i['arrow_4_y'] = i['arrow_1_y1']
+                    block_dim_solid_1 = (self.dxf_block_dim_solid % i)
+                    MY_BLOCKS += (block_dim_solid_1 + '\n')
+                    
+                    i['handle_block_dim_solid'] = i['handle_block_dim_insert_2']
+                    i['arrow_1_x'] = i['arrow_3_x2']
+                    i['arrow_1_y'] = i['arrow_3_y2']
+                    i['arrow_2_x'] = i['arrow_6_x']
+                    i['arrow_2_y'] = i['arrow_6_y']
+                    i['arrow_3_x'] = i['arrow_4_x2']
+                    i['arrow_3_y'] = i['arrow_4_y2']
+                    i['arrow_4_x'] = i['arrow_3_x1']
+                    i['arrow_4_y'] = i['arrow_3_y1']
+                    block_dim_solid_2 = (self.dxf_block_dim_solid % i)
+                    MY_BLOCKS += (block_dim_solid_2 + '\n')
+
+                    
                 #MTEXT
                 if i['ort'] == 'horizontal':
                     MY_TEXT_ROTATE = """
@@ -778,33 +842,51 @@ AcDbBlockEnd
                 #ENDBLOCK
                 endblock_dim = (self.dxf_endblock_dim % i)
                 MY_BLOCKS += (endblock_dim + '\n')
+                if i['type_arrow'] == 'Arch':
+                    if not self._OBLIQUE:
+                        hand()
+                        i['handle_block_record_dim_oblique'] = self.handle
+                        self.handle_block_record_dim_oblique = self.handle
+                        hand()
+                        i['handle_block_dim_oblique'] = self.handle
+                        hand()
+                        i['handle_endblock_dim_oblique'] = self.handle
+                        hand()
+                        i['handle_oblique_line'] = self.handle
+                        block_record_dim_oblique = (self.dxf_block_record_dim_oblique % i)
+                        MY_BLOCK_RECORDS += (block_record_dim_oblique + '\n')
+                        block_dim_oblique = (self.dxf_block_dim_oblique % i)
+                        MY_BLOCKS += (block_dim_oblique + '\n')
+                        self._OBLIQUE = True
+                    else: 
+                        i['handle_block_record_dim_oblique'] = self.handle_block_record_dim_oblique
 
-                if not self._OBLIQUE:
-                    hand()
-                    i['handle_block_record_dim_oblique'] = self.handle
-                    self.handle_block_record_dim_oblique = self.handle
-                    hand()
-                    i['handle_block_dim_oblique'] = self.handle
-                    hand()
-                    i['handle_endblock_dim_oblique'] = self.handle
-                    hand()
-                    i['handle_oblique_line'] = self.handle
-                    block_record_dim_oblique = (self.dxf_block_record_dim_oblique % i)
-                    MY_BLOCK_RECORDS += (block_record_dim_oblique + '\n')
-                    block_dim_oblique = (self.dxf_block_dim_oblique % i)
-                    MY_BLOCKS += (block_dim_oblique + '\n')
-                    self._OBLIQUE = True
-                else: 
-                    i['handle_block_record_dim_oblique'] = self.handle_block_record_dim_oblique
+                    MY_ARROW_BLOCK_REF = """1070
+   343
+1005
+%(handle_block_record_dim_oblique)s
+1070
+   344
+1005
+%(handle_block_record_dim_oblique)s
+"""
+                    
+                elif i['type_arrow'] == 'Arrow':
+                    MY_ARROW_BLOCK_REF = ''
+                    
 
+                
                 e = """331
 %(handle_block_dim_blkrefs_insert_1)s\n"""
                 MY_BLKREFS += (e % i)
                 e = """331
 %(handle_block_dim_blkrefs_insert_2)s\n"""
                 MY_BLKREFS += (e % i)
+                    
                 
-                support = self.dxf_dim
+                dxf_dim = self.dxf_dim.replace('MY_ARROW_BLOCK_REF\n', MY_ARROW_BLOCK_REF)   
+                
+                support = dxf_dim
                 
             if support:
                 MY_ENTITIES += (support % i)

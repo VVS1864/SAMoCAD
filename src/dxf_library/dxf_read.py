@@ -168,7 +168,7 @@ class Load_from_DXF:
             elif obj['obj'] == 'DIMENSION':
                 obj['dim_text_w'] = obj['dim_text_s_s']*1.4
                 obj['dim_text_font'] = 'txt'
-                obj['type_arrow'] = 'Arch'
+                #obj['type_arrow'] = 'Arch'
                 cNew =  dimension.c_dim(
                     self.par,
                     obj['x1'],
@@ -245,6 +245,9 @@ class Load_from_DXF:
         #DXF LTYPES
         self.dxf_ltypes()
 
+        #DXF BLOCK_RECORD
+        self.dxf_block_records()
+
         #DXF STYLES
         self.dxf_styles()
 
@@ -263,7 +266,6 @@ class Load_from_DXF:
 
     def dxf_ltypes(self):
         dxf_TABLE_LTYPE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nLTYPE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        #dxf_TABLE_LTYPE += '0'
         dxf_LTYPES = re.findall('LTYPE\r?\n[ ]*5([\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LTYPE)
         dxf_LTYPES_names = []
         for LTYPE in dxf_LTYPES:
@@ -271,6 +273,17 @@ class Load_from_DXF:
             if LTYPE_name in ('CENTER', 'DASHED', 'PHANTOM'):
                 dxf_LTYPES_names.append(LTYPE_name)
         self.excavated_dxf['ltypes'] = dxf_LTYPES_names
+
+    def dxf_block_records(self):
+        dxf_TABLE_BLOCK_RECORD = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nBLOCK_RECORD([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_BLOCK_RECORDS = re.findall('(BLOCK_RECORD\r?\n[ ]*5[\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_BLOCK_RECORD)
+        dxf_BLOCK_RECORD_handle_name = {}
+        for BLOCK_RECORD in dxf_BLOCK_RECORDS:
+            
+            BLOCK_RECORD_name = re.findall('AcDbBlockTableRecord\r?\n[ ]*2\r?\n[ ]*([\w_*-]*)\r?\n', BLOCK_RECORD)[0]
+            BLOCK_RECORD_handle = re.findall('BLOCK_RECORD\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n', BLOCK_RECORD)[0]
+            dxf_BLOCK_RECORD_handle_name[BLOCK_RECORD_handle] = BLOCK_RECORD_name
+        self.excavated_dxf['block_records'] = dxf_BLOCK_RECORD_handle_name
 
     def dxf_styles(self):
         dxf_TABLE_STYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
@@ -325,6 +338,15 @@ class Load_from_DXF:
             DIMSTYLE_dim_text_size = re.findall('\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
             DIMSTYLE_dim_text_size = self.get_val(DIMSTYLE_dim_text_size, 350.0)
             DIMSTYLE_dim_text_style_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
+
+            DIMSTYLE_dim_arrowhead_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*342\r?\n[ ]*([\w]*)', DIMSTYLE)
+            DIMSTYLE_dim_arrowhead_handle = self.get_val(DIMSTYLE_dim_arrowhead_handle, None)
+            DIMSTYLE_dim_arrowhead_type = None
+            if DIMSTYLE_dim_arrowhead_handle:
+                for block_record_handle in self.excavated_dxf['block_records'].keys():
+                    if block_record_handle == DIMSTYLE_dim_arrowhead_handle:
+                        DIMSTYLE_dim_arrowhead_type = self.excavated_dxf['block_records'][block_record_handle]
+            
             for style in self.excavated_dxf['styles'].keys():
                 if self.excavated_dxf['styles'][style]['handle'] == DIMSTYLE_dim_text_style_handle:
                     DIMSTYLE_dim_text_style = style
@@ -337,6 +359,7 @@ class Load_from_DXF:
                 'arrow_s':DIMSTYLE_arrow_s,
                 's':DIMSTYLE_s,
                 'vv_s':DIMSTYLE_vv_s,
+                'type_arrow' : DIMSTYLE_dim_arrowhead_type,
                 'text_style':{DIMSTYLE_dim_text_style:self.excavated_dxf['styles'][DIMSTYLE_dim_text_style]},
                 }
         self.excavated_dxf['dimstyles'] = dxf_DIMSTYLE_names
@@ -515,6 +538,29 @@ class Load_from_DXF:
                 s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*147\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
                 s = self.get_val(s, dimstyle_dict['s'])
 
+                
+                if dimstyle_dict['type_arrow']:
+                    default_type_arrow = dimstyle_dict['type_arrow']
+                else:
+                    default_type_arrow = 'Arrow'
+                arrowhead_handle = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*343\r?\n[ ]*1005\r?\n[ ]*(\w*)\r?\n[ ]*', i[1])
+                if arrowhead_handle:
+                    arrowhead_handle = arrowhead_handle[0]
+                    try:
+                        type_arrow = self.excavated_dxf['block_records'][arrowhead_handle]
+                    except:
+                        print 'Unknow arowhead'
+                        type_arrow = default_type_arrow
+                    if type_arrow in ('_Oblique', '_OBLIQUE', '_ArchTick'):
+                        type_arrow = 'Arch'
+                    else:
+                        type_arrow = 'Arrow'
+                else:
+                    type_arrow = default_type_arrow
+
+                if type_arrow == 'Arch':
+                    arrow_s = float(arrow_s)/2.0
+
                 dim_text_size = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*140\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
                 dim_text_size = self.get_val(dim_text_size, dimstyle_dict['dim_text_size'])
                 dim_text_size = abs(float(dim_text_size))
@@ -582,7 +628,8 @@ class Load_from_DXF:
                     's':float(s),
                     'vv_s':float(vv_s),
                     'vr_s':float(vr_s),
-                    'arrow_s':float(arrow_s)/2.0,
+                    'arrow_s':float(arrow_s),
+                    'type_arrow':type_arrow,
                     'x1':x1,
                     'y1':y1,
                     'x2':x2,
