@@ -80,7 +80,7 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
                     im.setLineWidth(width)
                     im.setStrokeColorRGB(*color)
                     im.line(x1, y1, x2, y2)
-
+        im.setAuthor(par.prog_version)
         im.save()
 
     else:

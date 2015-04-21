@@ -133,7 +133,7 @@ class GL_wrapper:
         print 'end init VBO'
 
 
-    def OnDraw(self,event):
+    def OnDraw(self, event):
         self.par.c.SetCurrent(self.par.c.context)
         if not self.par.c.init:
             self.InitGL()

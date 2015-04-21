@@ -53,6 +53,7 @@ class Window(wx.Frame):
             }
         
         wx.Frame.__init__(self, parent, -1, title = title)
+        self.SetBackgroundColour((214, 210, 208))
         #self.sizer_panel = wx.BoxSizer()
         #self.sizer_panel.Add(self.panel)
         self.icon = wx.Icon(os.path.join(appPath, 'res', 'icon2.gif'), wx.BITMAP_TYPE_GIF)
@@ -486,7 +487,10 @@ class Window(wx.Frame):
                                     style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
-        self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
+        direct = self.file_dialog.GetDirectory()
+        file_name = self.file_dialog.GetFilename()
+        self.par.current_save_path = get_path(self.par.os, direct, file_name)
+
         self.par.current_file = self.par.current_save_path
         name, f_format = os.path.splitext(self.par.current_save_path)
         if f_format == '.dxf':
@@ -510,6 +514,7 @@ class Window(wx.Frame):
                             self.par.drawing_w,
                             self.par.drawing_h,
                             )
+        print 'Save file', self.par.current_file
 
     def OnOpen(self, e):
         head, tail = os.path.split(self.par.current_save_path)
@@ -518,7 +523,9 @@ class Window(wx.Frame):
                                     style = wx.FD_OPEN)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
-        self.par.current_save_path = os.path.join(self.file_dialog.GetDirectory(), self.file_dialog.GetFilename())
+        direct = self.file_dialog.GetDirectory()
+        file_name = self.file_dialog.GetFilename()
+        self.par.current_save_path = get_path(self.par.os, direct, file_name)
         self.par.current_file = self.par.current_save_path
         name, f_format = os.path.splitext(self.par.current_save_path)
         f_format = f_format.lower()
@@ -587,7 +594,7 @@ class Print_dialog(wx.Frame):
         self.par = par
         wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title,
                           style = wx.FRAME_FLOAT_ON_PARENT|wx.DEFAULT_FRAME_STYLE)
-
+        self.SetBackgroundColour((214, 210, 208))
         self.Bind(wx.EVT_CLOSE, par.interface.OnPrint)
         
         self.scale = [
@@ -670,10 +677,14 @@ class Print_dialog(wx.Frame):
                                     "%s files (*.%s)|*.%s"%(file_format, file_format.lower(), file_format.lower()),
                                     style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
-            return
-        file_base = self.file_dialog.GetFilename()
-        print_file_base = os.path.splitext(file_base)[0] #Взять без разрешения
-        self.par.current_print_file = os.path.join(self.file_dialog.GetDirectory(), print_file_base)
+            return        
+        
+        direct = self.file_dialog.GetDirectory()
+        file_name = self.file_dialog.GetFilename()
+        self.par.current_print_file = get_path(self.par.os, direct, file_name)
+        self.par.current_print_file = os.path.splitext(self.par.current_print_file)[0]#Взять без разрешения
+        #print_file_base = os.path.splitext(file_name)[0] #Взять без разрешения
+        #self.par.current_print_file = os.path.join(direct, print_file_base)
         self.dir.SetValue(self.par.current_print_file)
         
 
@@ -696,6 +707,7 @@ class Dimstyle_dialog(wx.Frame):
         self.actors = {}
         wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title,
                           style = wx.FRAME_FLOAT_ON_PARENT|(wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER))
+        self.SetBackgroundColour((214, 210, 208))
         self.Bind(wx.EVT_CLOSE, par.interface.OnDimStyle)                  
 
         self.SetSize((550, 220))
@@ -786,6 +798,13 @@ def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices =
     sizer_1.Add(widget, flag = wx.ALIGN_RIGHT)
     #sizer_2.Add(widget, flag = wx.ALIGN_RIGHT | wx.ALL, border = 4)
     return text_ctrl, widget
+
+def get_path(system, direct, file_name):
+    if system == 'windows' and direct[-1] == ':':
+        direct += '\\'
+    
+    path = os.path.join(direct, file_name)
+    return path
     
             
         

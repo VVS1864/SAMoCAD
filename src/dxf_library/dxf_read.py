@@ -378,6 +378,7 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
+                width = self.DXF_widther(width)
                
                 stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1])
                 stipple_factor = self.get_val(stipple_factor, 1.0)
@@ -396,7 +397,7 @@ class Load_from_DXF:
                     'obj':obj,
                     'color':color,
                     'ltype':ltype,
-                    'width':float(width),
+                    'width':int(width),
                     'x1':x1,
                     'y1':y1,
                     'x2':x2,
@@ -412,6 +413,7 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
+                width = self.DXF_widther(width)
                     
                 #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
                 #if not stipple_factor:
@@ -437,7 +439,7 @@ class Load_from_DXF:
                 'obj':obj,
                 'color':color,
                 #'ltype':ltype,
-                'width':float(width),
+                'width':int(width),
                 'x1':x1,
                 'y1':y1,
                 'R':R,
@@ -454,7 +456,7 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                    
+                width = self.DXF_widther(width)     
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
                 if not xy:
@@ -467,7 +469,7 @@ class Load_from_DXF:
                 'obj':obj,
                 'color':color,
                 #'ltype':ltype,
-                'width':float(width),
+                'width':int(width),
                 'x1':x1,
                 'y1':y1,
                 'R':R,

@@ -31,6 +31,13 @@ import array
 class Graphics:
     def __init__(self):
         self.init = False
+
+        if 'linux' in sys.platform:
+            self.os = 'linux'
+        else:
+            self.os = 'windows'
+            
+            
         self.scale_size = 1.5
         
         self.vbo = None
@@ -208,6 +215,9 @@ class Graphics:
         self.trace_y1 = 0
         self.trace_x2 = 0
         self.trace_y2 = 0
+
+        #Технические переменные
+        self.first = True
         
 
         self.interface = gui.Window(None, self.current_file + ' - '+ self.prog_version, self)
@@ -218,12 +228,13 @@ class Graphics:
         self.cmd = self.interface.cmd
         self.cmd.SetFocus()
         #self.interface.Show(True)
+        if self.os != 'linux':
+            self.gl_wrap.OnDraw(None)
         wx.EVT_ERASE_BACKGROUND(self.c, self.gl_wrap.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.gl_wrap.OnDraw)
         wx.EVT_SIZE(self.c, self.gl_wrap.OnSize)
 
-        #Технические переменные
-        self.first = True 
+         
         
         
     def initial(self):
@@ -233,7 +244,7 @@ class Graphics:
         self.c.Bind(wx.EVT_MIDDLE_UP, self.move_off)
         self.interface.Bind(wx.EVT_CLOSE, self.gl_wrap.destroy)
         
-        if 'linux' in sys.platform:
+        if self.os == 'linux':
             self.c.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
         else:
             self.interface.cmd.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
