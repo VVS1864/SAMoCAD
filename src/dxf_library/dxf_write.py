@@ -549,7 +549,7 @@ AcDbTrace
                 self.handle = format(int(self.handle,16) + 1, '02x').upper()
 
         def widther(w):
-            #w = str(i['width'])
+            w = str(w)
             if w in ('1', '1.0'):
                 w = '20'
             elif w in ('2', '2.0'):

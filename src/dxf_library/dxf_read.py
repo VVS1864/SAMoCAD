@@ -13,18 +13,7 @@ import src.sectors_alg as sectors_alg
 class Load_from_DXF:
     def __init__(self, par, _file):
         self.par = par
-        #self.DXF_RGB_colores = color_acad_rgb.DXF_RGB_colores
-        '''
-        self.DXF_RGB_colores = {
-            7:(255, 255, 255),
-            5:(0, 0, 255),
-            96:(0, 255, 0),
-            3:(0, 255, 0),
-            10:(255, 0, 0),
-            1:(255, 0, 0),
-            2:(255, 255, 0),
-            }
-        '''
+        
         self.DXF_my_ltypes = {
             'CENTER':(4,1,1,1),
             'DASHED':(1,1),
@@ -58,18 +47,12 @@ class Load_from_DXF:
         for obj in self.excavated_dxf['entities']:
             for x in ('x1', 'x2', 'x3'):
                 if x in obj:
-                    
                     obj[x] -= x_mov-1
-                    #else:
-                        #print obj['obj']
 
             for y in ('y1', 'y2', 'y3'):
                 if y in obj:
-                    
                     obj[y] -= y_mov-1
-                    #else:
-                        #print obj['obj']
-    
+                    
         for obj in self.excavated_dxf['entities']:
             for x in obj['xx']:
                 if x > w:
@@ -79,23 +62,22 @@ class Load_from_DXF:
                     h = y
         new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
         new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
-        #print new_h, new_w
+        
         if new_h > self.par.drawing_h:
             self.par.drawing_h = new_h
         if new_w > self.par.drawing_w:
             self.par.drawing_w = new_w
-        #print int(self.par.drawing_w)
-        #print int(self.par.drawing_h)
+        
         self.par.create_sectors()
         print 'read', len(self.excavated_dxf['entities']), 'dxf entities'
         for obj in self.excavated_dxf['entities']:
             
             obj['color'] = self.DXF_colorer(obj['color'])
+            if 'width' in obj:
+                obj['width'] = self.DXF_widther(obj['width'])
             obj['layer'] = '1' #Временно
             if obj['obj'] == 'LINE':
-                obj['width'] = self.DXF_widther(obj['width'])
                 obj['stipple'] = self.DXF_ltyper(obj['ltype'])
-                #obj['layer'] = '1' #Временно
                 line.c_line(
                     self.par, obj['x1'], obj['y1'], obj['x2'], obj['y2'],
                     width = obj['width'],
@@ -106,10 +88,8 @@ class Load_from_DXF:
                     in_mass = True,
                     )
             elif obj['obj'] == 'ARC':
-                obj['width'] = self.DXF_widther(obj['width'])
                 obj['x2'], obj['y2'] = 0, 0
                 obj['x3'], obj['y3'] = 0, 0
-                #obj['stipple'] = self.DXF_ltyper(obj['ltype'])
                 arc.c_arc(
                     self.par,
                     obj['x1'],
@@ -144,7 +124,6 @@ class Load_from_DXF:
                 )
 
             elif obj['obj'] == 'TEXT':
-                #obj['text_s_s'] = 1.3
                 obj['text_w'] = obj['text_s_s']*1.4
                 obj['anchor'] = 'sw'
                 obj['text_font'] = 'txt'
@@ -168,7 +147,6 @@ class Load_from_DXF:
             elif obj['obj'] == 'DIMENSION':
                 obj['dim_text_w'] = obj['dim_text_s_s']*1.4
                 obj['dim_text_font'] = 'txt'
-                #obj['type_arrow'] = 'Arch'
                 cNew =  dimension.c_dim(
                     self.par,
                     obj['x1'],
@@ -378,7 +356,6 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                width = self.DXF_widther(width)
                
                 stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1])
                 stipple_factor = self.get_val(stipple_factor, 1.0)
@@ -397,7 +374,7 @@ class Load_from_DXF:
                     'obj':obj,
                     'color':color,
                     'ltype':ltype,
-                    'width':int(width),
+                    'width':width,
                     'x1':x1,
                     'y1':y1,
                     'x2':x2,
@@ -412,15 +389,7 @@ class Load_from_DXF:
                 ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
-                width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                width = self.DXF_widther(width)
-                    
-                #stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d]*)', i[1])
-                #if not stipple_factor:
-                    #stipple_factor = 1.0
-                #else:
-                    #stipple_factor = stipple_factor[0]
-                    
+                width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])                    
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1])
                 if not xy:
@@ -438,8 +407,7 @@ class Load_from_DXF:
                 dxf_ENTITIES_names.append({
                 'obj':obj,
                 'color':color,
-                #'ltype':ltype,
-                'width':int(width),
+                'width':width,
                 'x1':x1,
                 'y1':y1,
                 'R':R,
@@ -447,7 +415,6 @@ class Load_from_DXF:
                 'extent':extent,
                 'xx':(x1-R, x1+R),
                 'yy':(y1-R, y1+R),
-                #'factor_stipple':float(stipple_factor)*8.0,
                 })
 
             elif obj == 'CIRCLE':
@@ -456,7 +423,6 @@ class Load_from_DXF:
       
                 width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
-                width = self.DXF_widther(width)     
 
                 xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
                 if not xy:
@@ -469,7 +435,7 @@ class Load_from_DXF:
                 'obj':obj,
                 'color':color,
                 #'ltype':ltype,
-                'width':int(width),
+                'width':width,
                 'x1':x1,
                 'y1':y1,
                 'R':R,
@@ -646,6 +612,7 @@ class Load_from_DXF:
         #print self.excavated_dxf['entities']
 
     def DXF_widther(self, DXF_width):
+        DXF_width = int(DXF_width)
         if 0 < DXF_width <= 20:
             w = 1
         elif 20 < DXF_width <= 30:
