@@ -1,4 +1,0 @@
-#define 00_width 13
-#define 00_height 3
-static unsigned char 00_bits[] = {
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

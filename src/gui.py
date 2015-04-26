@@ -79,10 +79,14 @@ class Window(wx.Frame):
         self.dim_style_p = menu_format.Append(-1, "Dimension style")
         self.line_p = menu_format.Append(-1, "Line options")
         self.text_style_p = menu_format.Append(-1, "Text style")
+
+        menu_help = wx.Menu()
+        self.about_p = menu_help.Append(-1, "&About")
         
         bar = wx.MenuBar()
         bar.Append(menu_file,"File")
         bar.Append(menu_format,"Format")
+        bar.Append(menu_help,"&Help")
         self.SetMenuBar(bar)
         
         self.Bind(wx.EVT_MENU, self.OnOpen, self.open_p)
@@ -93,6 +97,8 @@ class Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
         self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_p)
         self.Bind(wx.EVT_MENU, self.OnTextStyle, self.text_style_p)
+
+        self.Bind(wx.EVT_MENU, self.OnAbout, self.about_p)
         
         self.sizer_parent = wx.BoxSizer(wx.VERTICAL)
 
@@ -556,6 +562,35 @@ class Window(wx.Frame):
     def OnTextStyle(self, e):
         self.text_style_dialog, self.text_style_dialog_on = self.open_show_hide(self.text_style_dialog, Text_style_dialog, self.text_style_dialog_on)
 
+    def OnAbout(self, e):
+        description = """Programm Samocad is open software
+and designed for create simple drawings, as partial alternative to AutoCAD
+"""
+        lic_file = os.path.join(appPath, 'LICENSE_GPLv3.txt')
+        with open(lic_file, 'r') as f:
+            licence = f.read()
+        f.closed
+
+
+        info = wx.AboutDialogInfo()
+
+        info.SetIcon(wx.Icon(os.path.join(appPath, 'res', 'icon3.gif'), wx.BITMAP_TYPE_GIF))
+        info.SetName('Samocad')
+        info.SetVersion('0.0.9.0')
+        info.SetDescription(description)
+        info.SetCopyright('(C) 2015 Vlad Simonov')
+        info.SetWebSite('http://vvs1864.github.io')
+        info.SetLicence(licence)
+        info.AddDeveloper('Vlad Simonov')
+        #info.AddDocWriter('')
+        #info.AddArtist('')
+        #info.AddTranslator('')
+
+        wx.AboutBox(info)
+
+    
+        
+
 # Изменяет цвет кнопок снизу
     def blue_reder(self, button, flag):
         if flag:
@@ -597,10 +632,6 @@ class myGLCanvas(GLCanvas):
         GLCanvas.__init__(self, parent,-1)
         self.init = False
         self.context = wx.glcanvas.GLContext(self)
-        #курсор
-        #self.cursor = wx.StockCursor(wx.CURSOR_CROSS)
-        #self.cursor = wx.Cursor(os.path.join(appPath, 'res', 'cursor.png'), wx.BITMAP_TYPE_PNG, 64, 64)#wx.StockCursor(wx.CURSOR_POINT_LEFT)
-        #self.SetCursor(self.cursor)
 
 class Print_dialog(wx.Frame):
 
@@ -839,6 +870,8 @@ class Text_style_dialog(My_dialog):
         
         print (self.par.text_w,
                self.par.text_s_s)
+
+
 
 
 def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices = None):        
