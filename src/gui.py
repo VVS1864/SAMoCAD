@@ -42,6 +42,12 @@ class Window(wx.Frame):
         self.dimstyle_dialog = None
         self.dimstyle_dialog_on = False
 
+        self.line_dialog = None
+        self.line_dialog_on = False
+
+        self.text_style_dialog = None
+        self.text_style_dialog_on = False
+
         self.hot_keys_dict = {
             'Z' : copy_object.Object,
             'X' : mirror_object.Object,
@@ -71,6 +77,8 @@ class Window(wx.Frame):
 
         menu_format = wx.Menu()
         self.dim_style_p = menu_format.Append(-1, "Dimension style")
+        self.line_p = menu_format.Append(-1, "Line options")
+        self.text_style_p = menu_format.Append(-1, "Text style")
         
         bar = wx.MenuBar()
         bar.Append(menu_file,"File")
@@ -83,6 +91,8 @@ class Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, self.exit_p)
         
         self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
+        self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_p)
+        self.Bind(wx.EVT_MENU, self.OnTextStyle, self.text_style_p)
         
         self.sizer_parent = wx.BoxSizer(wx.VERTICAL)
 
@@ -540,6 +550,12 @@ class Window(wx.Frame):
     def OnDimStyle(self, e):
         self.dimstyle_dialog, self.dimstyle_dialog_on = self.open_show_hide(self.dimstyle_dialog, Dimstyle_dialog, self.dimstyle_dialog_on)
 
+    def OnLineOpt(self, e):
+        self.line_dialog, self.line_dialog_on = self.open_show_hide(self.line_dialog, Line_dialog, self.line_dialog_on)
+
+    def OnTextStyle(self, e):
+        self.text_style_dialog, self.text_style_dialog_on = self.open_show_hide(self.text_style_dialog, Text_style_dialog, self.text_style_dialog_on)
+
 # Изменяет цвет кнопок снизу
     def blue_reder(self, button, flag):
         if flag:
@@ -698,19 +714,28 @@ class Print_dialog(wx.Frame):
                 file_name = file_name + '.%s' %file_format.lower()
             print_to_file.print_to(self.par, self.par.print_rect, self.par.ALLOBJECT, scale, file_format, file_name) 
 
-
-class Dimstyle_dialog(wx.Frame):
-    title = "Dimension style"
-
-    def __init__(self, par):
+class My_dialog(wx.Frame):
+    def __init__(self, par, OnFunc, title, size):
         self.par = par
-        self.actors = {}
-        wx.Frame.__init__(self, wx.GetApp().TopWindow, title = self.title,
+        wx.Frame.__init__(self, wx.GetApp().TopWindow, title = title,
                           style = wx.FRAME_FLOAT_ON_PARENT|(wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER))
         self.SetBackgroundColour((214, 210, 208))
-        self.Bind(wx.EVT_CLOSE, par.interface.OnDimStyle)                  
+        self.Bind(wx.EVT_CLOSE, OnFunc)
 
-        self.SetSize((550, 220))
+        self.SetSize(size)
+
+    def add_apply(self, sizer):
+        self.button_apply = wx.Button(self, wx.NewId(), 'Apply')
+        sizer.Add(self.button_apply)
+        self.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
+        
+
+class Dimstyle_dialog(My_dialog):
+    
+    def __init__(self, par):
+        title = "Dimension style"
+        size = (550, 220)
+        My_dialog.__init__(self, par, par.interface.OnDimStyle, title, size)
         
         self.staticbox = wx.StaticBox (self, wx.NewId(), label="Dimension parametrs")
         self.sizer_right = wx.StaticBoxSizer(self.staticbox, wx.HORIZONTAL)
@@ -738,11 +763,7 @@ class Dimstyle_dialog(wx.Frame):
         
         
         
-        
-
-        self.button_apply = wx.Button(self, wx.NewId(), 'Apply')
-        self.sizer_right_1.Add(self.button_apply)
-        self.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
+        self.add_apply(self.sizer_right_1)
 
         self.sizer_right.Add(self.sizer_right_1)
         #self.sizer_right.Add(self.sizer_right_2, flag = wx.EXPAND)
@@ -770,6 +791,54 @@ class Dimstyle_dialog(wx.Frame):
                self.par.vv_s,
                self.par.vr_s,
                self.par.type_arrow)
+
+class Line_dialog(My_dialog):
+
+    def __init__(self, par):
+        title = "Line options"
+        size = (250, 80)
+        My_dialog.__init__(self, par, par.interface.OnLineOpt, title, size)       
+        
+        self.sizer_right_1 = wx.GridSizer(cols = 2)                
+
+        
+        self.text_factor_stipple, self.factor_stipple = stroker(self, 'Size of lile', self.par.factor_stipple, self.sizer_right_1, None)     
+
+        self.add_apply(self.sizer_right_1)
+
+        self.SetSizer(self.sizer_right_1)
+
+    def apply_style(self, e):
+        s = float(self.factor_stipple.GetValue())
+        self.par.factor_stipple = s        
+        
+        print (self.par.factor_stipple)
+
+class Text_style_dialog(My_dialog):
+
+    def __init__(self, par):
+        title = "Text style"
+        size = (250, 100)
+        My_dialog.__init__(self, par, par.interface.OnTextStyle, title, size)       
+        
+        self.sizer_right_1 = wx.GridSizer(cols = 2)                
+
+        
+        self.text_text_s_s, self.text_s_s = stroker(self, 'Letters distance factor', self.par.text_s_s, self.sizer_right_1, None)
+        self.text_text_w, self.text_w = stroker(self, 'Width of letters factor', self.par.text_w, self.sizer_right_1, None)
+
+        self.add_apply(self.sizer_right_1)
+
+        self.SetSizer(self.sizer_right_1)
+
+    def apply_style(self, e):
+        s = float(self.text_s_s.GetValue())
+        self.par.text_s_s = s
+        s = float(self.text_w.GetValue())
+        self.par.text_w = s
+        
+        print (self.par.text_w,
+               self.par.text_s_s)
 
 
 def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices = None):        
