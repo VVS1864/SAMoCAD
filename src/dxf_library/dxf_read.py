@@ -214,8 +214,10 @@ class Load_from_DXF:
             'OBJECTS',
             ):
             #DXF SECTIONS
-            self.dxf_sections[section_name] = re.findall('0\r?\nSECTION\r?\n[ ]*2\r?\n%s([\w\W]*?0\r?\nENDSEC)'%section_name, dxf_string, re.DOTALL)[0]
-            if not self.dxf_sections[section_name]:
+            try:
+                self.dxf_sections[section_name] = re.findall('0\r?\nSECTION\r?\n[ ]*2\r?\n%s([\w\W]*?0\r?\nENDSEC)'%section_name, dxf_string, re.DOTALL)[0]
+            except:
+            #if not self.dxf_sections[section_name]:
                 if section_name in ('ENTITIES', 'TABLES'):
                     return None, 'Not section %s'%section_name
                 else:

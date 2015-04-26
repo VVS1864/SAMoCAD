@@ -14,14 +14,7 @@ import src.calc as calc
 def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
     #Печать выделенной области чертежа в растр. или вектор. файл
     objects = grab_object.select(par, rect, master_enclose = False)
-    '''
-    width_dict = {
-        1:1,
-        2:2,
-        3:4,
-        4:6,
-        }
-    '''
+    
     width_dict = {
         1:0.25,
         2:0.5,
@@ -133,7 +126,7 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
         del draw
         im.save(f_name, f_format)
         
-    print 'Print successfull! File', f_format, f_name 
+    print 'Print successful! File', f_format, f_name 
     
 
 class Select_area:
