@@ -20,6 +20,7 @@ class Offset(Base):
         self.offsetEvent()
         
     def offsetEvent(self, event=None):
+        self.par.old_func = (self.par.action, Offset)
         if self.par.collection and len(self.par.collection)==1:
             self.par.rline = self.par.collection[0]
             
@@ -144,6 +145,8 @@ class Offset(Base):
         self.par.c.Bind(wx.EVT_LEFT_DOWN, self.offsetEvent4)
         self.par.info.SetValue('Offset - direction:')
         self.par.info2.SetValue('Escape - stop')
+        self.par.snap_flag = False
+        self.par.current_flag = False
         
         
     def offsetEvent4(self, event):

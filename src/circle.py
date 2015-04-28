@@ -226,13 +226,15 @@ class Object_circle(Base_object):
 
     ### Offset method ###
     def offset(self, pd, x3, y3):
-        cd = self.get_conf()
-        r = sqrt((cd['xc']-x3)**2 + (cd['yc']-y3)**2)
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        r = sqrt((cd['x1']-x3)**2 + (cd['y1']-y3)**2)
         if cd['R']<r:
             cd['R'] += pd
         else:
             cd['R'] -= pd
-        c_circle(self.par, cd['xc'],cd['yc'], R = cd['R'])
+        cd['in_mass'] = False
+        cd['temp'] = False
+        cNew = self.create_object(cd)
 
     ### Mirror methods ###
     def mirror(self, x1, y1, msin, mcos):
