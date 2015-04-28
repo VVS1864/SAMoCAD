@@ -25,7 +25,11 @@ def get_snap(x, y, snap_s, find, par):
                 c = sqrt((x-x0)**2 + (y-y0)**2)
                 xn, yn = calc.min_distanse(xy[0],xy[1],xy[2],xy[3], x,y)
                 if xn:
-                    N_dist = sqrt((x-xn)**2 + (y-yn)**2)
+                    p = sqrt((xn-xy[0])**2 + (yn-xy[2])**2) + sqrt((xn-xy[1])**2 + (yn-xy[3])**2) - sqrt((xy[0]-xy[1])**2 + (xy[2]-xy[3])**2)
+                    if abs( p ) > par.min_e:
+                        N_dist = sqrt((x-xn)**2 + (y-yn)**2)
+                    else:
+                        N_dist = None
                 else:
                     N_dist = None
                 cath = False

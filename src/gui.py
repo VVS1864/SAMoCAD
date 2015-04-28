@@ -15,6 +15,7 @@ import src.edit_prop as edit_prop
 import src.trim_dim_line as trim_dim_line
 import src.scale_object as scale_object
 import src.fillet as fillet
+import src.offset as offset
 
 
 import src.print_to_file as print_to_file
@@ -241,6 +242,7 @@ class Window(wx.Frame):
         self.image_offset = wx.Image(os.path.join(appPath, 'res', 'offset2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_offset = wx.BitmapButton(self, wx.NewId(), self.image_offset)
         self.sizer_buttons_right.Add(self.button_offset)
+        self.button_offset.Bind(wx.EVT_BUTTON, self.offset)
 
         self.image_copy_p = wx.Image(os.path.join(appPath, 'res', 'copy_p2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_copy_p = wx.BitmapButton(self, wx.NewId(), self.image_copy_p)
@@ -467,6 +469,10 @@ class Window(wx.Frame):
 
     def fillet(self, e):
         self.par.action(fillet.Fillet)
+        self.par.focus_cmd()
+
+    def offset(self, e):
+        self.par.action(offset.Offset)
         self.par.focus_cmd()
 
 # ОБРАБОТЧИКИ КНОПОК СНИЗУ

@@ -321,9 +321,12 @@ class Object_line(Base_object):
             
     ### Offset method ###
     def offset(self, pd, x3, y3):
-        c = self.get_coord()
-        x1i, y1i, x2i, y2i = calc.offset_line(c[0],c[1],c[2],c[3],pd, x3, y3)
-        c_line(self.par, x1i, y1i, x2i, y2i)
+        cd = self.par.ALLOBJECT[self.obj].copy()
+        [cd['x1'], cd['y1'], cd['x2'], cd['y2']] = calc.offset_line(cd['x1'], cd['y1'], cd['x2'], cd['y2'],pd, x3, y3)
+        #c_line(self.par, x1i, y1i, x2i, y2i)
+        cd['in_mass'] = False
+        cd['temp'] = False
+        cNew = self.create_object(cd)
         
     ### Mirror methods ###   
     def mirror(self, x1, y1, sin, cos):

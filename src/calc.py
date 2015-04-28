@@ -97,10 +97,10 @@ def min_distanse(x1,y1, x2,y2, x3, y3):
         x = x1 + u*a
         y = y1 + u*b
 
-        p = sqrt((x-x1)**2 + (y-y1)**2) + sqrt((x-x2)**2 + (y-y2)**2) - sqrt((x1-x2)**2 + (y1-y2)**2)
-        if abs( p ) > min_e:
-            x = None
-            y = None
+        #p = sqrt((x-x1)**2 + (y-y1)**2) + sqrt((x-x2)**2 + (y-y2)**2) - sqrt((x1-x2)**2 + (y1-y2)**2)
+        #if abs( p ) > min_e:
+            #x = None
+            #y = None
     else:
         x = None
         y = None
@@ -360,11 +360,17 @@ def filet_point(xt1,yt1,xt2,yt2, xt3,yt3,xt4,yt4, R):
     else:
         xc = None
         yc = None
-        xe1,ye1 = intersection_stright(x1, y1, x2, y2, x3, y3, x4, y4)
+        xe1,ye1 = x0, y0#intersection_stright(x1, y1, x2, y2, x3, y3, x4, y4)
         xe2,ye2 = xe1,ye1
+        aa = xd1
+        bb = yd1
+        xd1 = xd2
+        yd1 = yd2
+        xd2 = aa
+        yd2 = bb
             
             
-    cord = [xe1,ye1,xd1,yd1,xe2,ye2,xd2,yd2]
+    cord = [xe1,ye1,xd1,yd1,  xe2,ye2,xd2,yd2]
 
 
     return xc, yc, xe1, ye1, xe2, ye2, cord

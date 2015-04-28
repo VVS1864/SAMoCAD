@@ -106,8 +106,7 @@ class Fillet(Base):
                 self.par.old_fillet_R = R
             else:
                 R = self.par.old_fillet_R
-        #fill1, width1, sloy1, stipple1, c1, factor_stip1 = get_line_conf(self.par.collection[0], self.par)
-        #fill2, width2, sloy2, stipple2, c2, factor_stip2 = get_line_conf(self.par.collection[1], self.par)
+
         c1 = self.par.ALLOBJECT[self.par.collection[0]]['coords'][0]
         c2 = self.par.ALLOBJECT[self.par.collection[1]]['coords'][0]
         cd1 = self.par.ALLOBJECT[self.par.collection[0]].copy()
@@ -152,8 +151,8 @@ class Fillet(Base):
                 temp = False,
                 )
                 
-        self.par.ALLOBJECT[self.par.collection[0]]['class'].create_object(cd1)
-        self.par.ALLOBJECT[self.par.collection[1]]['class'].create_object(cd2)
+        self.par.ALLOBJECT[self.par.collection[0]]['class'].create_object(cd2)
+        self.par.ALLOBJECT[self.par.collection[1]]['class'].create_object(cd1)
         self.par.delete_objects(self.par.collection, False)   
         self.par.change_pointdata()
         
