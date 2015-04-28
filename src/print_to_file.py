@@ -29,12 +29,13 @@ def print_to(par, rect, ALLOBJECT, scale, f_format, f_name):
         ]
 
     
-
     if f_format == 'PDF':
         
         w = (abs(rect2[0] - rect2[2])/scale)
         h = (abs(rect2[1] - rect2[3])/scale)
         im = canvas.Canvas(f_name, pagesize = (w*mm, h*mm))
+        im.setLineJoin(1)
+        im.setLineCap(1)
         for i in objects:
             if ALLOBJECT[i]['color'] == [255, 255, 255]:
                 color = (0, 0, 0)
