@@ -174,8 +174,9 @@ def c_dim(
         for i in lines:
             pointdata.extend(i)
             
-        par.colordata.extend(color*(len(pointdata)/2))
-        par.pointdata.extend(pointdata)
+        colordata = color*(len(pointdata)/2)
+
+        par.gl_wrap.update_pointdata(pointdata, colordata)
         
         object_dim = Object_dim(par, par.total_N)
         #Записать в ALLOBJECT параметры размера
@@ -189,6 +190,7 @@ def c_dim(
                                 'sectors': [],
                                 'coords': snap_lines,
                                 'lines': lines,
+                                'width': 1,
                                 'pointdata': pointdata,
                                 'arrow_lines' : list_arrow,
                                 'line3' : line3,

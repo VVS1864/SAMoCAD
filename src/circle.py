@@ -103,10 +103,11 @@ def c_circle(
     pointdata.extend(pointdata_c)
     if not temp:
         par.total_N += 1
+
+        colordata = color*2*len(lines)
         
-        par.pointdata.extend(pointdata)
-        par.colordata.extend(color*2*len(lines))
-            
+        par.gl_wrap.update_pointdata(pointdata, colordata, width)
+        
         object_circle = Object_circle(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():

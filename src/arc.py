@@ -162,9 +162,10 @@ def c_arc(
     
     if not temp:
         par.total_N += 1
-        
-        par.pointdata.extend(pointdata)
-        par.colordata.extend(color*2*len(lines))
+
+        colordata = color*2*len(lines)
+
+        par.gl_wrap.update_pointdata(pointdata, colordata, width)
             
         object_arc = Object_arc(par, par.total_N)
         dict_prop = {}

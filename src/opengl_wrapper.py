@@ -15,14 +15,11 @@ class GL_wrapper:
         ver = glGetString(GL_VERSION)
         ver = float(ver[:3])
         print 'OpenGL version', ver
-        #ver = 1
         if ver > 2:
             self.par.GL_version = '3'
         else:
             self.par.GL_version = '1'
             use_ARB()
-        
-        self.par.draw = self.draw_VBO
             
         if self.par.GL_version in ('3', '1'):
             vsh = """
@@ -45,8 +42,6 @@ class GL_wrapper:
             
             # Создаем пустой объект шейдерной программы
             self.program = glCreateProgram()
-            
-            
             
             # Приcоединяем вершинный шейдер к программе
             glAttachShader(self.program, vertex)
@@ -81,9 +76,6 @@ class GL_wrapper:
         print 'start init VBO...'
         self.par.change_pointdata()
         print 'end init VBO'
-        
-        
-
 
     def OnDraw(self, event):
         self.par.c.SetCurrent(self.par.c.context)
@@ -97,7 +89,7 @@ class GL_wrapper:
         glEnableClientState(GL_VERTEX_ARRAY)            # Включаем использование массива вершин
         glEnableClientState(GL_COLOR_ARRAY)             # Включаем использование массива цветов
 
-        self.par.draw()
+        self.draw_VBO()
         if not self.par.first:
             self.draw_dinamic_vbo()
         
@@ -195,28 +187,39 @@ class GL_wrapper:
         glPopMatrix()
         
     def draw_VBO(self):
-        glBindBuffer( GL_ARRAY_BUFFER, self.par.color_vbo)
-        # Указываем, где взять массив цветов:
-        # Параметры аналогичны, но указывается массив цветов
-        glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
         
-        glBindBuffer( GL_ARRAY_BUFFER, self.par.vbo )       # Активирует VBO
-        # Указываем, где взять массив верши:
-        # Первый параметр - сколько используется координат на одну вершину
-        # Второй параметр - определяем тип данных для каждой координаты вершины
-        # Третий парметр - определяет смещение между вершинами в массиве
-        # Если вершины идут одна за другой, то смещение 0
-        # Четвертый параметр - указатель на первую координату первой вершины в массиве
-        glVertexPointer(2, GL_FLOAT, 0, None) # None - потому что VBO активирован
-        
-        # Рисуем данные массивов за один проход:
-        # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-        # Второй параметр - начальный индекс в указанных массивах
-        # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-        glDrawArrays(GL_LINES, 0, len(self.par.pointdata)//2)
+        for data_list in self.par.point_color_data_vbo_dict.keys():
+        #print data_list
+        #self.par.point_color_data_vbo_dict
+            
+            glLineWidth(data_list)
+            glBindBuffer( GL_ARRAY_BUFFER, self.par.point_color_data_vbo_dict[data_list][2])
+            # Указываем, где взять массив цветов:
+            # Параметры аналогичны, но указывается массив цветов
+            glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
+            
+            glBindBuffer( GL_ARRAY_BUFFER, self.par.point_color_data_vbo_dict[data_list][3])
+            
+            # Активирует VBO
+            # Указываем, где взять массив верши:
+            # Первый параметр - сколько используется координат на одну вершину
+            # Второй параметр - определяем тип данных для каждой координаты вершины
+            # Третий парметр - определяет смещение между вершинами в массиве
+            # Если вершины идут одна за другой, то смещение 0
+            # Четвертый параметр - указатель на первую координату первой вершины в массиве
+            glVertexPointer(2, GL_FLOAT, 0, None) # None - потому что VBO активирован
+            
+            # Рисуем данные массивов за один проход:
+            # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
+            # Второй параметр - начальный индекс в указанных массивах
+            # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
+            glDrawArrays(GL_LINES, 0, len(self.par.point_color_data_vbo_dict[data_list][0])//2)
+            
+            glBindBuffer( GL_ARRAY_BUFFER, 0)
+
         
         if self.par.collection_data:
-            
+            glLineWidth(5)
             glBindBuffer( GL_ARRAY_BUFFER, self.par.color_vbo_col)
             glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
         
@@ -224,8 +227,7 @@ class GL_wrapper:
             glVertexPointer(2, GL_FLOAT, 0, None) 
         
             glDrawArrays(GL_LINES, 0, len(self.par.collection_data)//2)
-        glBindBuffer( GL_ARRAY_BUFFER, 0)              
-    
+        glBindBuffer( GL_ARRAY_BUFFER, 0)
     def c_collection_VBO(self):
         c_pointdata = numpy.array(self.par.collection_data, dtype = numpy.float32)
         c_colordata = numpy.array(self.par.collection_color, dtype = numpy.ubyte)
@@ -247,20 +249,47 @@ class GL_wrapper:
         
 
     def change_pointdata(self):        
-        if not self.par.vbo:
-            self.par.vbo = glGenBuffers(1)
-            self.par.color_vbo = glGenBuffers(1)
+        if not self.par.point_color_data_vbo_dict[1][2]:
+            for data_list in self.par.point_color_data_vbo_dict.keys():
+                vbo = glGenBuffers(1)
+                color_vbo = glGenBuffers(1)
+                self.par.point_color_data_vbo_dict[data_list][3] = vbo
+                self.par.point_color_data_vbo_dict[data_list][2] = color_vbo
+                
+            '''
+            self.vbo_2 = glGenBuffers(1)
+            self.color_vbo_2 = glGenBuffers(1)
+            
+            self.vbo_3 = glGenBuffers(1)
+            self.color_vbo_3 = glGenBuffers(1)
+            
+            self.vbo_4 = glGenBuffers(1)
+            self.color_vbo_4 = glGenBuffers(1)
+            '''
+        
+            #self.par.vbo = glGenBuffers(1)
+            #self.par.color_vbo = glGenBuffers(1)
             
         else:
-            if self.par.vbo: # Если VBO есть - удалить
-                glDeleteBuffers(1, [self.par.vbo, self.par.color_vbo])
-                
-    
-        self.par.vbo, self.par.color_vbo = self.c_VBO(self.par.vbo, self.par.color_vbo, self.par.pointdata, self.par.colordata)
+            pd = self.par.point_color_data_vbo_dict
+            
+            glDeleteBuffers(1, [pd[1][2], pd[1][3], pd[2][2], pd[2][3], pd[3][2], pd[3][3], pd[4][2], pd[4][3]])
+            #if self.par.vbo: # Если VBO есть - удалить
+                #glDeleteBuffers(1, [self.par.vbo, self.par.color_vbo])
+        
+        
+        for data_list in self.par.point_color_data_vbo_dict.keys():
+            
+            self.c_VBO(self.par.point_color_data_vbo_dict[data_list][3], self.par.point_color_data_vbo_dict[data_list][2], self.par.point_color_data_vbo_dict[data_list][0], self.par.point_color_data_vbo_dict[data_list][1])
 
+    def update_pointdata(self, pointdata, colordata, width = 1):
+        #self.par.pointdata.extend(pointdata)
+        #self.par.colordata.extend(colordata)
+        self.par.point_color_data_vbo_dict[width][0].extend(pointdata)
+        self.par.point_color_data_vbo_dict[width][1].extend(colordata)
         
     def c_VBO(self, vbo, color_vbo, pointdata, colordata):
-        
+        #print vbo, color_vbo, pointdata, colordata
         vbo = self.simple_c_VBO(vbo, pointdata)
         color_vbo = self.simple_c_VBO(color_vbo, colordata)
 

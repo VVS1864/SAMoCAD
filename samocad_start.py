@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #from __future__ import division
+import gc
 
 import src.clip as clip
 import src.line as line
@@ -197,8 +198,11 @@ class Graphics:
             self.drawing_w, self.drawing_h, 0.0, self.drawing_h
                                   ]
         self.drawing_rect_color = [255, 255, 255]*(len(self.drawing_rect_data)//2)
-        self.pointdata = array.array('f', [])
-        self.colordata = array.array('B', [])
+
+        self.clear_pointdata()
+
+        #self.pointdata = array.array('f', [])
+        #self.colordata = array.array('B', [])
         
 
         self.collection_data = []
@@ -312,7 +316,12 @@ class Graphics:
         print 'set drawing width', int(self.drawing_w)
         print 'set drawing hight', int(self.drawing_h)
         print 'Create sectors', t.time() - t1, 'sec'
-        
+
+    def mem(self):
+        #gc.collect()
+        print gc.get_count()
+        print gc.garbage
+        print gc.DEBUG_LEAK
 
     def focus_cmd(self, e = None):
         self.cmd.SetFocus()         
@@ -346,6 +355,35 @@ class Graphics:
         self.dynamic_data = []
         self.dynamic_color = []
         self.dynamic_vbo_data = []
+
+    def clear_pointdata(self):
+        '''
+        self.vbo_1 = glGenBuffers(1)
+        self.color_vbo_1 = glGenBuffers(1)
+        
+        self.vbo_2 = glGenBuffers(1)
+        self.color_vbo_2 = glGenBuffers(1)
+        
+        self.vbo_3 = glGenBuffers(1)
+        self.color_vbo_3 = glGenBuffers(1)
+        
+        self.vbo_4 = glGenBuffers(1)
+        self.color_vbo_4 = glGenBuffers(1)
+        '''
+        try:
+            pd = self.point_color_data_vbo_dict
+        except AttributeError:
+            pass
+        else:
+            glDeleteBuffers(1, [pd[1][2], pd[1][3], pd[2][2], pd[2][3], pd[3][2], pd[3][3], pd[4][2], pd[4][3]])
+
+        self.point_color_data_vbo_dict = {
+        #Width: [pointdata,            colordata,            color_vbo,        vbo]
+            1 : [array.array('f', []), array.array('B', []), None,             None],
+            2 : [array.array('f', []), array.array('B', []), None,             None],
+            3 : [array.array('f', []), array.array('B', []), None,             None],
+            4 : [array.array('f', []), array.array('B', []), None,             None],
+            }
         
 
     def amount_of_select(self):
@@ -441,16 +479,20 @@ class Graphics:
                     self.sectors[s].remove('trace')
                 del self.ALLOBJECT['trace']
                  
-            self.pointdata = array.array('f', [])
-            self.colordata = array.array('B', [])
+            #self.pointdata = array.array('f', [])
+            #self.colordata = array.array('B', [])
+            self.clear_pointdata()
             
             if 'trace' in self.ALLOBJECT:
                 del self.ALLOBJECT['trase']
-            for obj in self.ALLOBJECT.values():                
+            for obj in self.ALLOBJECT.values():
                 pointdata = obj['pointdata']
                 len_pointdata = len(pointdata)/2
-                self.pointdata.fromlist(pointdata)
-                self.colordata.fromlist(len_pointdata*obj['color'])
+
+                self.point_color_data_vbo_dict[obj['width']][0].extend(pointdata)
+                self.point_color_data_vbo_dict[obj['width']][1].extend(len_pointdata*obj['color'])
+                #self.pointdata.fromlist(pointdata)
+                #self.colordata.fromlist(len_pointdata*obj['color'])
 
                 
 

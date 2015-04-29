@@ -95,9 +95,11 @@ def c_text(
         
         for i in tt.nabor[1:]:
             pointdata.extend(i)
-            
-        par.pointdata.extend(pointdata)
-        par.colordata.extend(color*(len(pointdata)/2))
+
+        colordata = color*(len(pointdata)/2)
+        
+        par.gl_wrap.update_pointdata(pointdata, colordata)
+        
         object_text = Object_text(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():
@@ -110,6 +112,7 @@ def c_text(
                                         'sectors':[],
                                         'coords': (sl,),
                                         'lines': lines,
+                                        'width': 1,
                                         'pointdata': pointdata,
                                         'x' : x,
                                         'y' : y,

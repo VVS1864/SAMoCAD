@@ -210,6 +210,7 @@ class Window(wx.Frame):
         self.image_dimR = wx.Image(os.path.join(appPath, 'res', 'radius.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_dimR = wx.BitmapButton(self, wx.NewId(), self.image_dimR)
         self.sizer_buttons_left.Add(self.button_dimR)
+        self.button_dimR.Bind(wx.EVT_BUTTON, lambda x: self.par.mem())
 
         self.image_text = wx.Image(os.path.join(appPath, 'res', 'text2.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
         self.button_text = wx.BitmapButton(self, wx.NewId(), self.image_text)

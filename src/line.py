@@ -95,17 +95,17 @@ def c_line(
         if not stipple:
             lines = ((x1,y1,x2,y2),)
             pointdata = [x1,y1,x2,y2]
-            par.pointdata.extend(pointdata)
-            par.colordata.extend(color * 2)
+            colordata = color * 2
+            
                         
         else:
             lines, pointdata = stipple_line(x1,y1,x2,y2, dash)
             if not lines:
                 return
             else:
-                par.pointdata.extend(pointdata)
-                par.colordata.extend(color*2*len(lines))
-       
+                colordata = color*2*len(lines)
+        
+        par.gl_wrap.update_pointdata(pointdata, colordata, width)
         object_line = Object_line(par, par.total_N)
         dict_prop = {}
         for k,v in locals().iteritems():
