@@ -97,11 +97,13 @@ def c_text(
             pointdata.extend(i)
             #par.pointdata.extend(i)
             #par.colordata.extend(color * 2)
+            '''
             if one:
                 par.IDs.append(0)
             else:
                 par.IDs.append(par.total_N)
                 one = 1
+            '''
         par.pointdata.extend(pointdata)
         par.colordata.extend(color*(len(pointdata)/2))
         object_text = Object_text(par, par.total_N)

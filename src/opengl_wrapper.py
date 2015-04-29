@@ -12,22 +12,6 @@ class GL_wrapper:
         self.par = par
 
     def InitGL(self):
-        '''
-        # Стандартная инициализация матриц
-        print 'starn init GL...'
-        glClearColor(0, 0, 0, 0)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        size = glGetIntegerv(GL_VIEWPORT)
-        glViewport(0, 0, size[2], size[3])
-        
-        #Заново задать проекционную матрицу
-        glOrtho(0,size[2],0,size[3],-100,100)
-        
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glTranslatef(0.0, 0.0, 100.0)
-        '''
         ver = glGetString(GL_VERSION)
         ver = float(ver[:3])
         print 'OpenGL version', ver
@@ -42,17 +26,10 @@ class GL_wrapper:
             
         if self.par.GL_version in ('3', '1'):
             vsh = """
-            //uniform mat4 projection;
-            //uniform mat4 mvp;
             varying vec4 vertex_color;
-            //varying vec4 gl_Vertex;
                         void main(){
-                            
-                            //gl_Position = projection * mvp * gl_Vertex;
-                            //gl_Position = mvp * gl_Vertex;
                             gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
                             vertex_color = gl_Color;
-                            gl_PointSize    = 8.0;
                         }"""
             
             vertex = create_shader(GL_VERTEX_SHADER, vsh)
@@ -60,7 +37,6 @@ class GL_wrapper:
             fsh = """
             varying vec4 vertex_color;
                         void main() {
-                            
                             gl_FragColor = vertex_color;
             }"""
             
@@ -88,23 +64,7 @@ class GL_wrapper:
             glClearColor(0, 0, 0, 0)
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
-            '''
-            self.par.projMatrix = numpy.matrix(
-                [[1.0, 0.0, 0.0, 0.0], 
-                [0.0, 1.0, 0.0, 0.0], 
-                [0.0, 0.0, 1.0, 0.0], 
-                [0.0, 0.0, 0.0, 1.0]], numpy.float32)
             
-            self.par.mvMatrix = numpy.matrix(
-                [[1.0, 0.0, 0.0, 0.0], 
-                [0.0, 1.0, 0.0, 0.0], 
-                [0.0, 0.0, 1.0, 0.0], 
-                [0.0, 0.0, 0.0, 1.0]], numpy.float32)
-            self.par.projMatrix.dot(self.par.mvMatrix)
-            glUseProgram(self.program)
-            glUniformMatrix4fv(self.par.Matrix_proj_ID, 1, GL_FALSE, self.par.projMatrix.flatten())
-            glUniformMatrix4fv(self.par.Matrix_mvp_ID, 1, GL_FALSE, self.par.mvMatrix.flatten())
-            '''
             size = glGetIntegerv(GL_VIEWPORT)
             #self.ortho(0.0, float(size[2]), 0.0, float(size[3]),-100.0,100.0)
             glViewport(0, 0, size[2], size[3])
@@ -115,25 +75,7 @@ class GL_wrapper:
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
             glTranslatef(0.0, 0.0, 100.0)
-            '''
-            self.par.mvMatrix = numpy.array([1.0, 0.0, 0.0, 0.0, 
-                                    0.0, 1.0, 0.0, 0.0, 
-                                    0.0, 0.0, 1.0, 0.0, 
-                                    0.0, 0.0, 0.0, 1.0], numpy.float32)
-            '''
-
-            #self.translate(0.0, 0.0, 100.0)
-            
-            
-            '''
-            translateMatrix = numpy.array([1.0, 0.0, 0.0, 0.0, 
-                                    0.0, 1.0, 0.0, 0.0, 
-                                    0.0, 0.0, 1.0, 100.0, 
-                                    0.0, 0.0, 0.0, 1.0], numpy.float32)
-                                    
-            self.par.mvMatrix = self.par.mvMatrix * translateMatrix
-            glUniformMatrix4fv(self.par.MatrixID, 1, GL_FALSE, self.par.mvMatrix)
-        '''  
+             
         print 'end init GL'
         
         print 'start init VBO...'
@@ -282,74 +224,7 @@ class GL_wrapper:
             glVertexPointer(2, GL_FLOAT, 0, None) 
         
             glDrawArrays(GL_LINES, 0, len(self.par.collection_data)//2)
-        glBindBuffer( GL_ARRAY_BUFFER, 0)
-        '''
-        else:
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.par.color_vbo)
-            # Указываем, где взять массив цветов:
-            # Параметры аналогичны, но указывается массив цветов
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.par.vbo )       # Активирует VBO
-            # Указываем, где взять массив верши:
-            # Первый параметр - сколько используется координат на одну вершину
-            # Второй параметр - определяем тип данных для каждой координаты вершины
-            # Третий парметр - определяет смещение между вершинами в массиве
-            # Если вершины идут одна за другой, то смещение 0
-            # Четвертый параметр - указатель на первую координату первой вершины в массиве
-            glVertexPointer(2, GL_FLOAT, 0, None) # None - потому что VBO активирован
-            
-            # Рисуем данные массивов за один проход:
-            # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-            # Второй параметр - начальный индекс в указанных массивах
-            # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-            glDrawArrays(GL_LINES, 0, len(self.par.pointdata)//2)
-            
-            if self.par.collection_data:
-                glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.par.color_vbo_col)
-                glColorPointer(3, GL_UNSIGNED_BYTE, 0, None)
-            
-                glBindBufferARB( GL_ARRAY_BUFFER_ARB, self.par.vbo_col )       
-                glVertexPointer(2, GL_FLOAT, 0, None) 
-            
-                glDrawArrays(GL_LINES, 0, len(self.par.collection_data)//2)
-            glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0)
-        '''
-    '''
-    def draw_array(self):
-        #glBindBuffer( GL_ARRAY_BUFFER, self.par.color_vbo)
-        # Указываем, где взять массив цветов:
-        # Параметры аналогичны, но указывается массив цветов
-        glColorPointer(3, GL_UNSIGNED_BYTE, 0, self.par.colordata)
-        
-        #glBindBuffer( GL_ARRAY_BUFFER, self.par.vbo )       # Активирует VBO
-        # Указываем, где взять массив верши:
-        # Первый параметр - сколько используется координат на одну вершину
-        # Второй параметр - определяем тип данных для каждой координаты вершины
-        # Третий парметр - определяет смещение между вершинами в массиве
-        # Если вершины идут одна за другой, то смещение 0
-        # Четвертый параметр - указатель на первую координату первой вершины в массиве
-        glVertexPointer(2, GL_FLOAT, 0, self.par.pointdata) # None - потому что VBO активирован
-        
-        # Рисуем данные массивов за один проход:
-        # Первый параметр - какой тип примитивов использовать (треугольники, точки, линии и др.)
-        # Второй параметр - начальный индекс в указанных массивах
-        # Третий параметр - количество рисуемых объектов (в нашем случае это 2 вершины - 4 координаты)
-        glDrawArrays(GL_LINES, 0, len(self.par.pointdata)//2)
-        
-        
-        if self.par.collection_data:
-            #glBindBuffer( GL_ARRAY_BUFFER, 0)
-            #glBindBuffer( GL_ARRAY_BUFFER, self.par.color_vbo_col)
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, self.par.collection_color)
-        
-            #glBindBuffer( GL_ARRAY_BUFFER, self.par.vbo_col )       
-            glVertexPointer(2, GL_FLOAT, 0, self.par.collection_data) 
-        
-            glDrawArrays(GL_LINES, 0, len(self.par.collection_data)//2)
-    '''
-
-              
+        glBindBuffer( GL_ARRAY_BUFFER, 0)              
     
     def c_collection_VBO(self):
         c_pointdata = numpy.array(self.par.collection_data, dtype = numpy.float32)
@@ -358,11 +233,6 @@ class GL_wrapper:
         if not self.par.vbo_col:
             self.par.vbo_col = glGenBuffers(1)
             self.par.color_vbo_col = glGenBuffers(1)
-        '''
-        if self.par.vbo_col: # Если уже есть - удалить
-            glDeleteBuffers(1, [self.par.vbo_col])
-            glDeleteBuffers(1, [self.par.color_vbo_col])
-        '''
 
         ### Стандартная процедура создания VBO ###
         glBindBuffer (GL_ARRAY_BUFFER, self.par.vbo_col)
@@ -374,126 +244,23 @@ class GL_wrapper:
         # 2 Параметр - указатель на массив colordata
         glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
         glBindBuffer (GL_ARRAY_BUFFER, 0)
-        '''
-        else:
-            #if self.par.vbo_col: # Если уже есть - удалить
-                #glDeleteBuffers(1, [self.par.vbo_col])
-                #glDeleteBuffers(1, [self.par.color_vbo_col])
-
-            if not self.par.vbo_col:
-                self.par.vbo_col = glGenBuffersARB(1)
-                self.par.color_vbo_col = glGenBuffersARB(1)
-
-            ### Стандартная процедура создания VBO ###
-            #self.par.vbo_col = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.par.vbo_col)
-            # 2 Параметр - указатель на массив pointdata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_pointdata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-            
-            self.par.color_vbo_col = glGenBuffersARB(1)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, self.par.color_vbo_col)
-            # 2 Параметр - указатель на массив colordata
-            glBufferDataARB (GL_ARRAY_BUFFER_ARB, c_colordata, GL_STATIC_DRAW_ARB)
-            glBindBufferARB (GL_ARRAY_BUFFER_ARB, 0)
-        '''
+        
 
     def change_pointdata(self):        
-        self.par.inds_vals = dict((y,x) for x,y in enumerate(self.par.IDs))
         if not self.par.vbo:
-            '''
-            a = range(6000000)
-            b = a*6
-            self.vbo_size = len((GLfloat*len(a))(*a))#len(c_pointdata)#numpy.array(a, dtype = numpy.float32)
-            self.color_vbo_size = len((GLfloat*len(b))(*b))#len(c_colordata)#numpy.array(b, dtype = numpy.ubyte)
-            '''
             self.par.vbo = glGenBuffers(1)
             self.par.color_vbo = glGenBuffers(1)
-            '''
-            else:
-                self.par.vbo = glGenBuffersARB(1)
-                self.par.color_vbo = glGenBuffersARB(1)
-            '''
+            
         else:
             if self.par.vbo: # Если VBO есть - удалить
                 glDeleteBuffers(1, [self.par.vbo, self.par.color_vbo])
-                #glDeleteBuffers(1, [self.par.color_vbo])
+                
     
         self.par.vbo, self.par.color_vbo = self.c_VBO(self.par.vbo, self.par.color_vbo, self.par.pointdata, self.par.colordata)
 
-        #else:
-            #self.update_VBO()
-    '''
-    def update_VBO(self):
-        glBindBuffer (GL_ARRAY_BUFFER, self.par.vbo)
-        
-        vbo_pointer = ctypes.cast(
-            glMapBuffer(
-                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
-                ctypes.POINTER(ctypes.c_float)
-            )
-        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
-                    (self.vbo_size,))
-        
-        data = numpy.array(self.par.pointdata, dtype = numpy.float32)
-        #c_data = data.view(dtype=numpy.float32)
-        #numpy.ctypeslib.as_ctypes(numpy.array(self.par.pointdata, dtype = numpy.float32))
-        #numpy.array(pointdata, dtype = numpy.float32)
-        #print len(data)
-        #for ind, i in enumerate(vbo_array[0:len(data)]):
-            #vbo_array[ind] = data[ind]
-        vbo_array[0:len(data)] = data
-
-        glUnmapBuffer(GL_ARRAY_BUFFER)
-        glBindBuffer (GL_ARRAY_BUFFER, 0)
-        glBindBuffer (GL_ARRAY_BUFFER, self.par.color_vbo)
-
-        vbo_pointer = ctypes.cast(
-            glMapBuffer(
-                GL_ARRAY_BUFFER, GL_WRITE_ONLY),
-                ctypes.POINTER(ctypes.c_ubyte)
-            )
-        vbo_array = numpy.ctypeslib.as_array(vbo_pointer,
-                    (self.color_vbo_size,))
-        
-        data = numpy.array(self.par.colordata, dtype = numpy.ubyte)
-        #numpy.ctypeslib.as_ctypes(numpy.array(self.par.colordata, dtype = numpy.ubyte))
-        #numpy.array(pointdata, dtype = numpy.float32)
-        #c_data = data.view(dtype=numpy.float32)
-        #for ind, i in enumerate(vbo_array[0:len(data)]):
-            #vbo_array[ind] = data[ind]
-        vbo_array[0:len(data)] = data
-
-        glUnmapBuffer(GL_ARRAY_BUFFER)
-    '''
         
     def c_VBO(self, vbo, color_vbo, pointdata, colordata):
-        '''
-        #c_pointdata = (GLfloat*len(pointdata))(*pointdata)#
-        #c_pointdata = numpy.array(pointdata, dtype = numpy.float32)
-        c_pointdata = pointdata.tostring()
-        c_colordata = colordata.tostring()
-        #c_colordata = (GLubyte*len(colordata))(*colordata)#
-        #c_colordata = numpy.array(colordata, dtype = numpy.ubyte)
-        #size_point = c_pointdata.nbytes
-        #size_color = c_colordata.nbytes
-        #print size_point, size_color, size_point+size_color
-            
-        ### Стандартная процедура создания VBO ###            
-        glBindBuffer (GL_ARRAY_BUFFER, vbo)
         
-        # 2 Параметр - указатель на массив pointdata
-        glBufferData (GL_ARRAY_BUFFER, c_pointdata, GL_STATIC_DRAW)
-        #glBufferSubData(GL_ARRAY_BUFFER, 0, size_point, c_pointdata)
-        glBindBuffer (GL_ARRAY_BUFFER, 0)
-        
-        glBindBuffer (GL_ARRAY_BUFFER, color_vbo)
-
-        # 2 Параметр - указатель на массив colordata
-        glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
-        #glBufferSubData(GL_ARRAY_BUFFER, 0, size_color, c_colordata)
-        glBindBuffer (GL_ARRAY_BUFFER, 0)
-        '''
         vbo = self.simple_c_VBO(vbo, pointdata)
         color_vbo = self.simple_c_VBO(color_vbo, colordata)
 
@@ -509,7 +276,6 @@ class GL_wrapper:
         return vbo
 
     def dinamic_vbo_on(self):
-        #self.par.dynamic_matrix = matrix
         self.par.dynamic_vbo_data = array.array('f', [])
         self.par.dynamic_vbo_data.fromlist(self.par.dynamic_data)
         self.par.dynamic_data = []
@@ -584,7 +350,6 @@ def use_ARB():
     glCreateShader = shARB.glCreateShaderObjectARB
     glShaderSource = shARB.glShaderSourceARB
     glCompileShader = shARB.glCompileShaderARB
-    #, GL_FRAGMENT_SHADER, glCreateProgram, glAttachShader, glLinkProgram, glUseProgram, glCreateShader, glShaderSource, glCompileShader
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
 def create_shader(shader_type, source):

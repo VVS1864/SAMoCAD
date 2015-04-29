@@ -207,7 +207,7 @@ class Graphics:
         
         self.activIDs = set() #Массив активных ID (которые в активных секторах)
         self.activSectors = [] #Активные сектора
-        self.IDs = []
+        #self.IDs = []
         
         
         
@@ -291,7 +291,7 @@ class Graphics:
         self.ALLOBJECT, self.sectors = sectors_alg.quadric_mass(self.ALLOBJECT, self.ALLOBJECT.keys(), self.sectors, self.q_scale)
     
         #Список индексов ID
-        self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
+        #self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
         
         print 'Create lines', t.time() - t1
         
@@ -455,7 +455,7 @@ class Graphics:
             #self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]     
             self.pointdata = array.array('f', [])
             self.colordata = array.array('B', [])
-            self.IDs = []
+            #self.IDs = []
             '''
             colordata.fromlist([x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes])
             pointdata.fromlist([x for i, x in enumerate(self.pointdata) if i not in all_indexes])
@@ -468,8 +468,8 @@ class Graphics:
                 self.pointdata.fromlist(pointdata)
                 self.colordata.fromlist(len_pointdata*obj['color'])
 
-                self.IDs.append(obj['class'].obj)
-                self.IDs.extend( (len_pointdata/2 - 1)*(0,) )
+                #self.IDs.append(obj['class'].obj)
+                #self.IDs.extend( (len_pointdata/2 - 1)*(0,) )
                 
             #self.pointdata = pointdata
             #self.colordata = colordata
@@ -535,7 +535,7 @@ class Graphics:
             
         return objects
     
-
+    '''
     def get_indexes(self, objects):
         begin_list = []
         end_list = []
@@ -551,6 +551,7 @@ class Graphics:
             end_list.append(end_index)
             
         return begin_list, end_list
+    '''
 
     def get_current_objects(self, rect, enclose = False):
         #Принимает прямоугольную область в мировых координатах, возвращает все примитивы, попадающие в нее

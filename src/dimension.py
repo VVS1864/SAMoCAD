@@ -243,7 +243,7 @@ def c_dim(
     kwargs = {k:v for k,v in locals().iteritems()}
     pointdata = []
     colordata = []
-    IDs = []
+    #IDs = []
     snap_lines, lines, list_arrow, ort, text_place, text_change, line3 = get_dim_lines(**kwargs)
     if not (0 <= snap_lines[3][0] <= par.drawing_w and
             0 <= snap_lines[3][1] <= par.drawing_h and
@@ -257,15 +257,17 @@ def c_dim(
         for i in lines:
             pointdata.extend(i)
             #colordata.extend(color * 2)
+            '''
             if one:
                 IDs.append(0)
             else:
                 IDs.append(par.total_N)
                 one = 1
+            '''
         par.colordata.extend(color*(len(pointdata)/2))
         par.pointdata.extend(pointdata)
         #par.colordata.extend(colordata)
-        par.IDs.extend(IDs)
+        #par.IDs.extend(IDs)
         object_dim = Object_dim(par, par.total_N)
         #Записать в ALLOBJECT параметры размера
         dict_prop = {}

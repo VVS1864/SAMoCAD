@@ -97,15 +97,15 @@ def c_line(
             pointdata = [x1,y1,x2,y2]
             par.pointdata.extend(pointdata)
             par.colordata.extend(color * 2)
-            par.IDs.append(par.total_N)
+            #par.IDs.append(par.total_N)
                         
         else:
             lines, pointdata = stipple_line(x1,y1,x2,y2, dash)
             if not lines:
                 return
             else:
-                par.IDs.append(par.total_N)
-                par.IDs.extend([0,]*(len(lines)-1))
+                #par.IDs.append(par.total_N)
+                #par.IDs.extend([0,]*(len(lines)-1))
                 par.pointdata.extend(pointdata)
                 par.colordata.extend(color*2*len(lines))
        
