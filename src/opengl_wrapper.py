@@ -191,8 +191,8 @@ class GL_wrapper:
         for data_list in self.par.point_color_data_vbo_dict.keys():
         #print data_list
         #self.par.point_color_data_vbo_dict
-            
-            glLineWidth(data_list)
+            if data_list > 1:
+                glLineWidth(data_list*2)
             glBindBuffer( GL_ARRAY_BUFFER, self.par.point_color_data_vbo_dict[data_list][2])
             # Указываем, где взять массив цветов:
             # Параметры аналогичны, но указывается массив цветов
