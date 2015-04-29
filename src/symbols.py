@@ -1,5 +1,4 @@
 # -*- coding: utf-8; -*-
-#import rotate_object
 import fonts
 import src.calc as calc
 from math import sin, cos
@@ -72,15 +71,6 @@ class Text_arch(Text):#Ахитектурный шрифт
             mcos = cos(angle)
             self.nabor = calc.rotate_lines(x, y, self.nabor, msin, mcos)
             self.box = calc.rotate_lines(x, y, self.box, msin, mcos)
-        '''
-        else:
-            if angle:
-                msin = sin(angle)
-                mcos = cos(angle)
-                self.nabor = calc.rotate_lines(x, y, self.nabor, msin, mcos)
-                self.box = calc.rotate_lines(x, y, self.box, msin, mcos)
-        '''
-
 
 class Text_TXT(Text):
     def __init__(self, x, y, text, size, s_s, w_text, anchor, angle, temp):

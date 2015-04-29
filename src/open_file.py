@@ -350,24 +350,11 @@ class Open_from_SVG:
                     print ('error, bad arc!', R, d1)
                     continue
 
-                 #if config['sf'] == 1:
                 sf = 1
-                #else:
-                    #sf = -1
+                
                 
                 if config['lf'] == 0:
-                    lf = -1
-                    '''
-                    x2 = config['x2']
-                    y2 = config['y2']
-                    config['x2'] = config['x3']
-                    config['y2'] = config['y3']
-                    config['x3'] = x2
-                    config['y3'] = y2
-                    '''
-                    
-                    
-                    
+                    lf = -1                   
                     
                 else:
                     lf = 1
@@ -390,30 +377,7 @@ class Open_from_SVG:
                             name, value = self.proper(prop_n_v)
                             config[name] = value
 
-                self.config_list.append(config)
-                
-                
-                '''
-                config['object'] = 'circle'
-                config['x1'] = float(attrib['cx'])
-                config['y1'] = self.par.drawing_h - float(attrib['cy'])
-                config['R'] = float(attrib['r'])
-                config['layer'] = attrib['class'][2:]
-
-                from_style = self.styles_dict[config['layer']]
-                config.update(from_style)
-
-                if 'style' in attrib:
-                    style_attrib = re_class.findall(attrib['style'])
-                    if style_attrib:
-                        for prop_n_v in style_attrib:
-                            name, value = self.proper(prop_n_v)
-                            config[name] = value
-
-                self.config_list.append(config)
-                '''
-
-                    
+                self.config_list.append(config)                   
                 
                 
         for i in self.config_list:
@@ -864,8 +828,6 @@ class Open_from_SVG:
             except ValueError:
                 pass
         
-          
-        #e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, x3 = %(x3)s, y3 = %(y3)s, text = u'%(text)s', fill = '%(fill)s', ort = '%(ort)s', size = %(size)s, text_change = '%(text_change)s', text_place = %(text_place)s, sloy = 1, s = %(s)s, vr_s = %(vr_s)s, vv_s = %(vv_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s)s, w_text = %(w_text)s, font = 'Simumar TXT')"
         return config
 
     def dimR(self, line, config):

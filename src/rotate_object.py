@@ -134,20 +134,8 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
                    
                 par.dynamic_matrix = translate1Matrix.dot(rotateMatrix)
                 par.dynamic_matrix = par.dynamic_matrix.dot(translate2Matrix).flatten().tolist()
-                #par.dynamic_matrix = rotateMatrix.dot(translateMatrix).flatten().tolist()
-                '''
-                par.dynamic_matrix = [
-                    x*x*(1-c)+c,     y*x*(1-c)+z*s,  z*x*(1-c)+y*s, 0.0,
-                    y*x*(1-c)-z*s,   y*y*(1-c)+c,    y*z*(1-c)+x*s, 0.0,
-                    x*z*(1-c)+y*s,   y*z*(1-c)-x*s,  z*z*(1-c)+c,   0.0,
-                    0.0,             0.0,            0.0,           1.0,
-                    ]
-                '''
+                
                 if par.first:
-                    '''
-                    for content in objects:
-                        par.ALLOBJECT[content]['class'].rotate_temp(x0, y0, msin, mcos, angle)
-                    '''
                     par.dynamic_data = par.collection_data
                     par.dynamic_color = []
                     par.gl_wrap.dinamic_vbo_on()

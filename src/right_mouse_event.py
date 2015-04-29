@@ -11,9 +11,6 @@ def right_mouse_event(par):
             if par.ALLOBJECT[i]['class'].text_changeble:
                 edit_text.Edit_text(par, i)
                 break
-
-
-
         
     par.focus_cmd()
     

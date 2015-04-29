@@ -73,20 +73,6 @@ class Object(Base):
     #Отражаем объекты
 def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
     if (x1,y1) != (x2,y2):
-        '''
-        a = x2 - x1
-        b = y2 - y1
-        if a != 0 or b != 0:
-            mcos = a / sqrt(a*a + b*b)
-            msin = b / sqrt(a*a + b*b)
-            #fi = math.acos(mcos)
-            #ref_cos = cos(fi)
-            #ref_sin = sin(fi)
-            
-        else:
-            return
-        '''
-        #angle = calc_angle_360(x1, y1, x2, y2)
         angle = calc_angle(x1, y1, x1+100, y1, x2, y2)
         if angle:
             msin = -sin(angle)
@@ -112,7 +98,6 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
                 par.collection = new_objects
                 
             par.change_pointdata()
-            #par.collection = new_objects
             print 'mirror ', len(par.collection), ' objects', time.time() - t1, 'sec'
             par.kill()
         else:
@@ -143,11 +128,7 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
                 [y*x*(1-c)-z*s,   y*y*(1-c)+c,    y*z*(1-c)+x*s, 0.0],
                 [x*z*(1-c)+y*s,   y*z*(1-c)-x*s,  z*z*(1-c)+c,   0.0],
                 [0.0,             0.0,            0.0,           1.0]], numpy.float32)
-            #mirrorMatrix = numpy.matrix(
-               #[[1.0,  0.0,  0.0, 0.0],
-                #[0.0,   -1.0,  0.0, 0.0],
-                #[0.0,   0.0,  1.0, 0.0],
-                #[0.0,   0.0,  0.0, 1.0]], numpy.float32)
+            
             
             c = mcos
             s = msin
@@ -166,25 +147,13 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
                 [0.0, 0.0, 1.0, 0.0],
                 [x1, y1, 0.0, 1.0]], numpy.float32)
                
-            #.dot(mirrorMatrix).dot(rotate2Matrix).dot(translate2Matrix).flatten().tolist()
+            
             par.dynamic_matrix = translate1Matrix.dot(rotate1Matrix)
             par.dynamic_matrix = par.dynamic_matrix.dot(mirrorMatrix)
             par.dynamic_matrix = par.dynamic_matrix.dot(rotate2Matrix)
             par.dynamic_matrix = par.dynamic_matrix.dot(translate2Matrix).flatten().tolist()
-            #par.dynamic_matrix = rotateMatrix.dot(translateMatrix).flatten().tolist()
-            '''
-            par.dynamic_matrix = [
-                x*x*(1-c)+c,     y*x*(1-c)+z*s,  z*x*(1-c)+y*s, 0.0,
-                y*x*(1-c)-z*s,   y*y*(1-c)+c,    y*z*(1-c)+x*s, 0.0,
-                x*z*(1-c)+y*s,   y*z*(1-c)-x*s,  z*z*(1-c)+c,   0.0,
-                0.0,             0.0,            0.0,           1.0,
-                ]
-            '''
+            
             if par.first:
-                '''
-                for content in objects:
-                    par.ALLOBJECT[content]['class'].mirror_temp(x1, y1, msin, mcos)
-                '''
                 par.dynamic_data = par.collection_data
                 par.dynamic_color = []
                 par.gl_wrap.dinamic_vbo_on()

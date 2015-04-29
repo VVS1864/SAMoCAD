@@ -8,12 +8,7 @@ class Base_save(object):
     def __init__(self, par, file_format, ALLOBJECT, layers, drawing_w, drawing_h):
         self.par = par
         self.AL = ALLOBJECT 
-        self.config_list = []
-        #color_tab = color_acad_rgb.DXF_RGB_colores
-        #self.RGB_DXF_colores = {v: k for k, v in color_tab.items()}
-        #print self.RGB_DXF_colores
-            
-        
+        self.config_list = []           
         
         for obj in self.AL:
             if obj == 'trace':
@@ -27,20 +22,6 @@ class Base_save(object):
                 i['color'] = self.dxf_colorer(tuple(i['color']))
 
     def dxf_colorer(self, color):
-            
-        '''
-        color_tab = {
-                    (255, 255, 255):7,#"white":7,
-                    #"light blue":4,
-                    (0, 0, 255):5,#"blue":5,
-                    (0, 255, 0):96,#"green":96,
-                    #"gray":8,
-                    (0, 0, 0):7,#"black":7,
-                    #"yellow":2,
-                    #"orange":30,
-                    (255, 0, 0):10,#"red":10
-                    }
-        '''
         return self.par.RGB_DXF_colores[color]
                 
 class Save_to_SVG(Base_save):
@@ -48,24 +29,11 @@ class Save_to_SVG(Base_save):
         self.par = par
         self.w = ceil(drawing_w)
         self.h = ceil(drawing_h)
-        '''
-        if self.w < 1024:
-            self.nx = self.w
-            self.ny =  self.h
-            self.h *= 1024/self.w
-            self.w = 1024
-        else:
-            mx = 10240/self.w
-            self.nx = ceil(self.w/mx)
-            self.ny =  ceil(self.h/mx)
-        '''
+        
         self.drawing_data = {
                             'h':self.h,
                             'w':self.w,
-                            
-                            #'nx':self.nx,
-                            #'ny':self.ny,
-                            
+                                                        
                             'drawing_name':os.path.basename(file_name),
                             }
         

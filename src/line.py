@@ -24,7 +24,7 @@ temp_dict = {
     'in_mass' : False,
     'temp' : True,
     }
-#dp = {'fill':0, 'width', 'layer':0, 'stipple':0, 'factor_stipple':0}
+
 ### Действия создания линии ###
 class Line(Base):
     def __init__(self, par):

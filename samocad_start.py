@@ -207,7 +207,6 @@ class Graphics:
         
         self.activIDs = set() #Массив активных ID (которые в активных секторах)
         self.activSectors = [] #Активные сектора
-        #self.IDs = []
         
         
         
@@ -262,8 +261,6 @@ class Graphics:
                 color = self.color,
                 stipple = None,
                 factor_stipple = 1,
-                #stipple = (1,1),
-                #factor_stipple = 10,
                 in_mass = True,
                         )
         
@@ -289,9 +286,6 @@ class Graphics:
         
             
         self.ALLOBJECT, self.sectors = sectors_alg.quadric_mass(self.ALLOBJECT, self.ALLOBJECT.keys(), self.sectors, self.q_scale)
-    
-        #Список индексов ID
-        #self.inds_vals = dict((y,x) for x,y in enumerate(self.IDs))
         
         print 'Create lines', t.time() - t1
         
@@ -330,7 +324,6 @@ class Graphics:
         self.c.Unbind(wx.EVT_MOTION)
         self.interface.cmd.Unbind(wx.EVT_KEY_DOWN)
         
-        #self.c.Bind(wx.EVT_RIGHT_DOWN, self.right_mouse_event)
         self.c.Bind(wx.EVT_RIGHT_DOWN, lambda x: right_mouse_event.right_mouse_event(self))
         self.c.Bind(wx.EVT_LEFT_DOWN, self.left_mouse_event)
         self.c.Bind(wx.EVT_MOTION, self.motion)
@@ -338,9 +331,6 @@ class Graphics:
 
 
     def standart_state(self):
-        #print 'st'
-        #self.clone_data = []
-        #self.clone_color = []
         self.red_line_data = []
         self.red_line_color = []
         self.snap_data = []
@@ -396,7 +386,6 @@ class Graphics:
         self.zoom(xy, w)        
         
     def zoom(self, xy, w):
-        #wx.GetMousePosition()
         x, y = self.get_world_coords(xy[0], xy[1])
         xy1 = gluUnProject(1, 0, 0)
         xy2 = gluUnProject(0, 0, 0)
@@ -423,7 +412,7 @@ class Graphics:
         xy2 = gluUnProject(self.mouse_x, self.mouse_y, 0)
         
         glTranslate((xy1[0] - xy2[0]), (xy2[1] - xy1[1]), 0)
-        #self.gl_wrap.translate((xy1[0] - xy2[0]), (xy2[1] - xy1[1]), 0)
+        
         
         self.mouse_x = x
         self.mouse_y = y
@@ -451,15 +440,10 @@ class Graphics:
                 for s in self.ALLOBJECT['trace']['sectors']:
                     self.sectors[s].remove('trace')
                 del self.ALLOBJECT['trace']
-            #self.colordata = [x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes]
-            #self.pointdata = [x for i, x in enumerate(self.pointdata) if i not in all_indexes]     
+                 
             self.pointdata = array.array('f', [])
             self.colordata = array.array('B', [])
-            #self.IDs = []
-            '''
-            colordata.fromlist([x for i, x in enumerate(self.colordata) if i*2//3 not in all_indexes])
-            pointdata.fromlist([x for i, x in enumerate(self.pointdata) if i not in all_indexes])
-            '''
+            
             if 'trace' in self.ALLOBJECT:
                 del self.ALLOBJECT['trase']
             for obj in self.ALLOBJECT.values():                
@@ -468,12 +452,7 @@ class Graphics:
                 self.pointdata.fromlist(pointdata)
                 self.colordata.fromlist(len_pointdata*obj['color'])
 
-                #self.IDs.append(obj['class'].obj)
-                #self.IDs.extend( (len_pointdata/2 - 1)*(0,) )
                 
-            #self.pointdata = pointdata
-            #self.colordata = colordata
-            #self.IDs = [x for i, x in enumerate(self.IDs) if i*4 not in all_indexes]
 
         
     def mass_collector(self, objects, select):
@@ -534,24 +513,6 @@ class Graphics:
             
             
         return objects
-    
-    '''
-    def get_indexes(self, objects):
-        begin_list = []
-        end_list = []
-        
-        for e in objects:
-            i = self.inds_vals[e]
-            begin_index = i*4
-            
-            lines = self.ALLOBJECT[e]['lines']
-            end_index = begin_index + len(lines)*4
-            
-            begin_list.append(begin_index)
-            end_list.append(end_index)
-            
-        return begin_list, end_list
-    '''
 
     def get_current_objects(self, rect, enclose = False):
         #Принимает прямоугольную область в мировых координатах, возвращает все примитивы, попадающие в нее
@@ -633,7 +594,6 @@ class Graphics:
         
     def key(self, e):
         key =  e.GetKeyCode()
-        #state = wx.GetKeyState()
         if key == wx.WXK_ESCAPE:
             self.kill()
         elif not self.resFlag:
@@ -668,7 +628,6 @@ class Graphics:
         self.trace_on = False
         if 'trace' in self.ALLOBJECT:
             self.delete_objects(['trace',], False)
-            #self.ALLOBJECT, self.sectors = sectors_alg.delete(self.ALLOBJECT, self.sectors, ['trace',])
             
         self.curent_class = None
         self.resFlag = False
