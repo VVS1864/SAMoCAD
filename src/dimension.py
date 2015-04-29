@@ -115,89 +115,8 @@ class Dimension(Base):
                 self.par.ey3 = self.par.ey2 + data * derect
             else:
                 self.par.ex3 = self.par.ex2 + data * derect
-            '''
-            x = max(self.par.ex, self.par.ex2)
-            xm = min(self.par.ex, self.par.ex2)
-            y = max(self.par.ey, self.par.ey2)
-            ym = min(self.par.ey, self.par.ey2)
-            xe_max = max(self.par.ex3, x)
-            xe_min = min(self.par.ex3, x)
-            ye_max = max(self.par.ey3, y)
-            ye_min = min(self.par.ey3, y)
-            if xe_max - xe_min > ye_max - ye_min:
-                kwargs['ort'] = "horizontal"
-            else:
-                kwargs['ort'] = "vertical"
-            if ym <= self.par.ey3 <= y:
-                kwargs['ort'] = "horizontal"
-            if xm <= self.par.ex3 <= x:
-                kwargs['ort'] = "vertical"
-            if kwargs['ort'] == "vertical":
-                if self.par.ey3 < self.par.ey2:
-                    data = -data  
-                self.par.ey3 = self.par.ey2 + data
-            else:
-                if self.par.ex3 < self.par.ex2:
-                    data = -data  
-                self.par.ex3 = self.par.ex2 + data
-            '''
-                
-            '''
-            if self.par.ex3 > self.par.ex2 and self.par.ex3 > self.par.ex:
-                self.par.ex3 = self.par.ex2 + data
-            else:
-                self.par.ex3 = self.par.ex2 - data
-                
-            if self.par.ey3 > self.par.ey2 and self.par.ey3 > self.par.ey:
-                self.par.ey3 = self.par.ey2 + data
-            else:
-                self.par.ey3 = self.par.ey2 - data
-            '''
-            '''
-            self.par.ex3, self.par.ey3 = calc.cmd_coorder(
-                self.par.ex2,
-                self.par.ey2,
-                self.par.ex3,
-                self.par.ey3,
-                data,
-                self.par.ortoFlag,
-                )
-            '''
-        '''
-        if event:
-            c_dim(
-                self.par,
-                self.par.ex,
-                self.par.ey,
-                self.par.ex2,
-                self.par.ey2,
-                self.par.ex3,
-                self.par.ey3)
-        '''
-
-        
-        #self.par.ex3 = self.par.priv_coord[0]
-        #self.par.ey3 = self.par.priv_coord[1]
-        '''
-        self.par.comOrKill()
-        if self.par.com:
-            self.par.com = self.par.coordinator2(self.par.com)
-            if self.par.ex3>self.par.ex2 and self.par.ex3>self.par.ex:
-                self.par.ex3=self.par.ex2+self.par.com
-            else:
-                self.par.ex3=self.par.ex2-self.par.com
-            if self.par.ey3>self.par.ey2 and self.par.ey3>self.par.ey:
-                self.par.ey3=self.par.ey2+self.par.com
-            else:
-                self.par.ey3=self.par.ey2-self.par.com
-        '''
         
         if event:
-            '''
-            self.par.history_undo.append(('c_', self.par.Ndim))
-            self.par.changeFlag = True
-            self.par.enumerator_p()
-            '''
             c_dim(**kwargs)
             self.risDim()
         else:
@@ -239,11 +158,9 @@ def c_dim(
             0 <= x3 <= par.drawing_w and
             0 <= y3 <= par.drawing_h):
         return False
-    #kwargs = locals().iteritems()
     kwargs = {k:v for k,v in locals().iteritems()}
     pointdata = []
     colordata = []
-    #IDs = []
     snap_lines, lines, list_arrow, ort, text_place, text_change, line3 = get_dim_lines(**kwargs)
     if not (0 <= snap_lines[3][0] <= par.drawing_w and
             0 <= snap_lines[3][1] <= par.drawing_h and
@@ -256,18 +173,10 @@ def c_dim(
         one = 0
         for i in lines:
             pointdata.extend(i)
-            #colordata.extend(color * 2)
-            '''
-            if one:
-                IDs.append(0)
-            else:
-                IDs.append(par.total_N)
-                one = 1
-            '''
+            
         par.colordata.extend(color*(len(pointdata)/2))
         par.pointdata.extend(pointdata)
-        #par.colordata.extend(colordata)
-        #par.IDs.extend(IDs)
+        
         object_dim = Object_dim(par, par.total_N)
         #Записать в ALLOBJECT параметры размера
         dict_prop = {}
@@ -296,7 +205,6 @@ def c_dim(
         return True
 
     else:
-        #snap_lines, lines, ort = get_dim_lines(**kwargs)
         for i in lines:
             par.dynamic_data.extend(i)
             par.dynamic_color.extend(color * 2)
@@ -556,100 +464,6 @@ class Object_dim(Base_object):
         cd['ist_y2'] = cd['y2']
         cd['ist_y3'] = cd['y3']
         
-        
-
-        '''
-        lines_coord = {}        
-        for ind, i in enumerate(cd['coords']):
-            lines_coord.update({
-                'line_'+str(ind)+'_x1': i[0],
-                'line_'+str(ind)+'_y1': drawing_h - i[1],
-                'line_'+str(ind)+'_x2': i[2],
-                'line_'+str(ind)+'_y2': drawing_h - i[3]
-                })
-            
-        for ind, i in enumerate(cd['arrow_lines']):
-            lines_coord.update({
-                'arrow_'+str(ind)+'_x1': coord[0],
-                'arrow_'+str(ind)+'_y1': drawing_h - coord[1],
-                'arrow_'+str(ind)+'_x2': coord[2],
-                'arrow_'+str(ind)+'_y2': drawing_h - coord[3]
-                })
-
-        x1 = cd['snap_lines'][3][0]
-        y1 = cd['snap_lines'][3][1]
-        x2 = cd['snap_lines'][3][2]
-        y2 = cd['snap_lines'][3][3]
-        # Длинна текста
-        lines_coord['Ltext'] = sqrt((x1-x2)**2+(y1-y2)**2)
-        if file_format == 'dxf':
-            # Если DXF - берется центральная точка текста
-            #!!!
-            if config['ort'] == "horizontal":
-                y = (y1+y2)/2.0
-                yy = y
-                x = cd['x3']#coord_list[2][0]
-                xx = x1 - config['size']/2.0
-            else:
-                x = (x1+x2)/2.0
-                xx = x
-                y = cd['y3']#coord_list[2][1]
-                yy = y1 - config['size']/2.0
-            #!!!
-        else:
-            # Иначе - нижняя  левая
-            x = x1
-            xx = x2
-            y = y1
-            yy = y2
-            
-        lines_coord.update({
-            'text_x': x,
-            'text_y': yf*y,
-            'text_xx': xx,
-            'text_yy': yf*yy
-            })
-        cd.update(lines_coord)
-
-        if cd['ort'] == "horizontal":
-            cd.update({
-                'arrow_point1_x': cd['x3'],
-                'arrow_point1_y': cd['y1'],
-                'arrow_point2_x': cd['x3'],
-                'arrow_point2_y': cd['y2']
-                })
-            cd.update({
-                'angle': 90.0,
-                'angle_arrow1': 90.0,
-                'angle_arrow2': 270.0
-                })
-            
-            if cd['type_arrow'] == 'Arrow':
-                cd.update({
-                    'arrow_5_x': cd['x3'],
-                    'arrow_5_y': lines_coord['arrow_1_y1'],
-                    'arrow_6_x': cd['x3'],
-                    'arrow_6_y': lines_coord['arrow_3_y1']
-                    })
-        else:
-            cd.update({
-                'arrow_point1_x': cd['x1'],
-                'arrow_point1_y': cd['y3'],
-                'arrow_point2_x': cd['x2'],
-                'arrow_point2_y': cd['y3'],
-                'angle': 0.0,
-                'angle_arrow1': 180.0,
-                'angle_arrow2': 0.0
-                })
-            
-            if cd['type_arrow'] == 'Arrow':
-                cd.update({
-                    'arrow_5_y': cd['y3'],   
-                    'arrow_5_x': lines_coord['arrow_1_x1'],
-                    'arrow_6_y': cd['y3'],
-                    'arrow_6_x': lines_coord['arrow_3_x1']
-                    })
-        '''
         cd = save_file.get_object_lines(cd, drawing_h, file_format)
         if cd['ort'] == "vertical":
             cd['line_2_y2'] += cd['vv_s']*derect
@@ -680,7 +494,6 @@ class Object_dim(Base_object):
         cd['line_3_y1'] = cd['line3'][1]
         cd['line_3_x2'] = cd['line3'][2]
         cd['line_3_y2'] = cd['line3'][3]
-        #cd['angle'] = -cd['angle']
         
         
         if file_format == '.svg':
@@ -742,64 +555,6 @@ class Object_dim(Base_object):
             cd['svg_strings'] = e
             
         return cd
-            
-        '''
-        cd = self.get_conf()
-        if dxf:
-            cd['fill'] = dxf_colorer(cd['fill'])
-            yf = -1
-        else:
-            yf = 1
-        lines_coord = get_conf.coord_dim_lines(self.par, self.obj, cd, dxf, yf)
-        cd.update(lines_coord)
-        if cd['text'] in ('None', None):
-            if cd['ort'] == "horizontal":
-                cd['dim_distanse'] = int(format(abs(cd['y1'] - cd['y2']), '.0f'))                            
-            else:
-                cd['dim_distanse'] = int(format(abs(cd['x1'] - cd['x2']), '.0f'))
-        else:
-            cd['dim_distanse'] = cd['text']
-
-        if cd['ort'] == "horizontal":
-            cd.update({'arrow_point1_x': cd['x3'],
-                    'arrow_point1_y': yf*cd['y1'],
-                    'arrow_point2_x': cd['x3'],
-                    'arrow_point2_y': yf*cd['y2']})
-            cd.update({'angle': 90.0,
-                    'angle_arrow1': 90.0,
-                    'angle_arrow2': 270.0})
-            
-            if cd['type_arrow'] == 'Arrow':
-                cd.update({'arrow_5_x': cd['x3'],
-                    'arrow_5_y': lines_coord['arrow_1_y1'],
-                    'arrow_6_x': cd['x3'],
-                    'arrow_6_y': lines_coord['arrow_3_y1']})
-        else:
-            cd.update({'arrow_point1_x': cd['x1'],
-                    'arrow_point1_y': yf*cd['y3'],
-                    'arrow_point2_x': cd['x2'],
-                    'arrow_point2_y': yf*cd['y3'],
-                    'angle': 0.0,
-                    'angle_arrow1': 180.0,
-                    'angle_arrow2': 0.0})
-            if cd['type_arrow'] == 'Arrow':
-                cd.update({'arrow_5_y': yf*cd['y3'],   
-                    'arrow_5_x': lines_coord['arrow_1_x1'],
-                    'arrow_6_y': yf*cd['y3'],
-                    'arrow_6_x': lines_coord['arrow_3_x1']})
-        if cd['text_change'] != 'online3':
-            cd.update({'line_3_x1': cd['arrow_point1_x'],
-                    'line_3_x2': cd['arrow_point2_x'],
-                    'line_3_y1': cd['arrow_point1_y'],
-                    'line_3_y2': cd['arrow_point2_y']})
-                
-        cd['text_place'] = text_place
-        if lines_coord:
-            cd.update(lines_coord)
-        e = "self.dim(x1 = %(x1)s, y1 = %(y1)s, x2 = %(x2)s, y2 = %(y2)s, x3 = %(x3)s, y3 = %(y3)s, text = u'%(text)s', fill = '%(fill)s', ort = '%(ort)s', size = %(size)s, text_change = '%(text_change)s', text_place = %(text_place)s, sloy = %(sloy)s, s = %(s)s, vr_s = %(vr_s)s, vv_s = %(vv_s)s, arrow_s = %(arrow_s)s, type_arrow = '%(type_arrow)s', s_s = %(s_s_dim)s, w_text = %(w_text_dim)s, font = '%(font_dim)s')"
-        e = (e % cd)
-        return e, cd
-        '''
         
     def edit_object(self, x1, y1, x2, y2, cd):
         cd['x3'] = cd['coords'][2][0]
@@ -832,18 +587,7 @@ class Object_dim(Base_object):
         
         else:
             return False
-            #text_change = cd['text_change']
-            #text_lines, priv_line, text_place =
-            #text_lines, priv_line, text_place = get_conf.dim_text_place(content)
-            #if cd['ort'] == 'vertical':#text_place[2] == 'hor':
-            #    text_place[1] = y1 + (y2-y1)
-            #else:
-             #   text_place[0] = x1 + (x2-x1)
-        #cd['in_mass'] = False
-        #if event:
-            #cd['temp'] = False
-        #else:
-        #cd['temp'] = True
+            
         cNew = self.create_object(cd)
         return cNew
     

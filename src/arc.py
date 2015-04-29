@@ -162,8 +162,7 @@ def c_arc(
     
     if not temp:
         par.total_N += 1
-        #par.IDs.append(par.total_N)
-        #par.IDs.extend([0,]*(len(lines)-1))
+        
         par.pointdata.extend(pointdata)
         par.colordata.extend(color*2*len(lines))
             
@@ -172,7 +171,7 @@ def c_arc(
         for k,v in locals().iteritems():
             if k in list_prop:
                 dict_prop[k] = v
-        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}        
+       
         par.ALLOBJECT[par.total_N] = {
                                     'object':'arc',
                                     'class':object_arc,
@@ -248,9 +247,6 @@ class Object_arc(Base_object):
         
 
         if file_format == 'svg':
-            #if cd['extent'] - cd['start'] < 0:
-                #cd['sf'] = 0
-            #else:
             cd['sf'] = 0
                 
             if abs(cd['extent'] - cd['start']) < 180:
@@ -258,12 +254,6 @@ class Object_arc(Base_object):
             else:
                 cd['lf'] = 1
             
-            '''
-            try:
-                dash_str = ', '.join([str(x*cd['factor_stipple']) for x in cd['stipple']])
-            except:
-                dash_str = None
-            '''
             color_rgb_str = 'rgb(' + ', '.join([str(x) for x in cd['color']]) + ')'
 
                                                
@@ -341,7 +331,6 @@ class Object_arc(Base_object):
         cd['in_mass'] = False
         cd['temp'] = False
         cNew = self.create_object(cd)
-        #c_arc(self.par, cd['xc'],cd['yc'], R = cd['R'], start = cd['start'], extent = cd['extent'])
 
     ### Mirror methods ###
     def mirror(self, x1, y1, msin, mcos):

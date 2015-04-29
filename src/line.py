@@ -97,15 +97,12 @@ def c_line(
             pointdata = [x1,y1,x2,y2]
             par.pointdata.extend(pointdata)
             par.colordata.extend(color * 2)
-            #par.IDs.append(par.total_N)
                         
         else:
             lines, pointdata = stipple_line(x1,y1,x2,y2, dash)
             if not lines:
                 return
             else:
-                #par.IDs.append(par.total_N)
-                #par.IDs.extend([0,]*(len(lines)-1))
                 par.pointdata.extend(pointdata)
                 par.colordata.extend(color*2*len(lines))
        
@@ -114,7 +111,7 @@ def c_line(
         for k,v in locals().iteritems():
             if k in list_prop:
                 dict_prop[k] = v
-        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}        
+       
         par.ALLOBJECT[par.total_N] = {
                                     'object':'line',
                                     'class':object_line,
@@ -276,12 +273,6 @@ class Object_line(Base_object):
     
     ### Edit method ###
     def edit_object(self, x1, y1, x2, y2, cd):
-        '''
-        a = sqrt((cd['coords'][0][0] - x1)**2 + (cd['coords'][0][1] - y1)**2)
-        b = sqrt((cd['coords'][0][2] - x1)**2 + (cd['coords'][0][3] - y1)**2)
-        cd['x2'], cd['y2'] = cd['coords'][0][2], cd['coords'][0][3]
-        cd['x1'], cd['y1'] = cd['coords'][0][0], cd['coords'][0][1]
-        '''
         a = sqrt((cd['x1'] - x1)**2 + (cd['y1'] - y1)**2)
         b = sqrt((cd['x2'] - x1)**2 + (cd['y2'] - y1)**2)
         c = sqrt(((cd['x1']+cd['x2'])/2.0 - x1)**2 + ((cd['y1']+cd['y2'])/2.0 - y1)**2)

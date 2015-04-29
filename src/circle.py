@@ -104,8 +104,6 @@ def c_circle(
     if not temp:
         par.total_N += 1
         
-        #par.IDs.append(par.total_N)
-        #par.IDs.extend([0,]*(len(lines)-1))
         par.pointdata.extend(pointdata)
         par.colordata.extend(color*2*len(lines))
             
@@ -114,7 +112,7 @@ def c_circle(
         for k,v in locals().iteritems():
             if k in list_prop:
                 dict_prop[k] = v
-        #dict_prop = {k:v for k,v in locals().iteritems() if k in list_prop}        
+                
         par.ALLOBJECT[par.total_N] = {
                                     'object':'circle',
                                     'class':object_circle,
