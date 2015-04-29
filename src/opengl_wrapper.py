@@ -6,6 +6,7 @@ import array
 
 from OpenGL.GL import *
 
+
 class GL_wrapper:
     def __init__(self, par):
         self.par = par
@@ -39,8 +40,8 @@ class GL_wrapper:
         
         self.par.draw = self.draw_VBO
             
-        if self.par.GL_version == '3':
-            vertex = create_shader(GL_VERTEX_SHADER, """
+        if self.par.GL_version in ('3', '1'):
+            vsh = """
             //uniform mat4 projection;
             //uniform mat4 mvp;
             varying vec4 vertex_color;
@@ -51,14 +52,21 @@ class GL_wrapper:
                             //gl_Position = mvp * gl_Vertex;
                             gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
                             vertex_color = gl_Color;
-                        }""")
+                            gl_PointSize    = 8.0;
+                        }"""
+            
+            vertex = create_shader(GL_VERTEX_SHADER, vsh)
             # Создаем фрагментный шейдер:
-            # Определяет цвет каждого фрагмента как "смешанный" цвет его вершин
-            fragment = create_shader(GL_FRAGMENT_SHADER, """
+            fsh = """
             varying vec4 vertex_color;
                         void main() {
+                            
                             gl_FragColor = vertex_color;
-            }""")
+            }"""
+            
+            fragment = create_shader(GL_FRAGMENT_SHADER, fsh)
+
+            
             # Создаем пустой объект шейдерной программы
             self.program = glCreateProgram()
             
@@ -131,6 +139,8 @@ class GL_wrapper:
         print 'start init VBO...'
         self.par.change_pointdata()
         print 'end init VBO'
+        
+        
 
 
     def OnDraw(self, event):
@@ -548,7 +558,14 @@ class GL_wrapper:
 
 def use_ARB():
     import OpenGL.GL.ARB.vertex_buffer_object as ARB
+    
+    import OpenGL.GL.ARB.shader_objects as shARB
+    import OpenGL.GL.ARB.shader_objects as shARB
+    import OpenGL.GL.ARB.vertex_shader as vshARB
+    import OpenGL.GL.ARB.fragment_shader as fshARB
+    
     global glBindBuffer, glGenBuffers, glBufferData, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER, glDeleteBuffers
+    global GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glCreateProgram, glAttachShader, glLinkProgram, glUseProgram, glCreateShader, glShaderSource, glCompileShader
 
     glBindBuffer = ARB.glBindBufferARB
     glGenBuffers = ARB.glGenBuffersARB
@@ -557,6 +574,17 @@ def use_ARB():
     GL_DYNAMIC_DRAW = ARB.GL_DYNAMIC_DRAW_ARB
     GL_ARRAY_BUFFER = ARB.GL_ARRAY_BUFFER_ARB
     glDeleteBuffers = ARB.glDeleteBuffersARB
+
+    GL_VERTEX_SHADER = vshARB.GL_VERTEX_SHADER_ARB
+    GL_FRAGMENT_SHADER = fshARB.GL_FRAGMENT_SHADER_ARB
+    glCreateProgram = shARB.glCreateProgramObjectARB
+    glAttachShader = shARB.glAttachObjectARB
+    glLinkProgram = shARB.glLinkProgramARB
+    glUseProgram = shARB.glUseProgramObjectARB
+    glCreateShader = shARB.glCreateShaderObjectARB
+    glShaderSource = shARB.glShaderSourceARB
+    glCompileShader = shARB.glCompileShaderARB
+    #, GL_FRAGMENT_SHADER, glCreateProgram, glAttachShader, glLinkProgram, glUseProgram, glCreateShader, glShaderSource, glCompileShader
 
 # Процедура подготовки шейдера (тип шейдера, текст шейдера)
 def create_shader(shader_type, source):
