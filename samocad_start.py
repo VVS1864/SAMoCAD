@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #from __future__ import division
-import gc
-
 import src.clip as clip
 import src.line as line
 import src.gui  as gui
@@ -318,13 +316,10 @@ class Graphics:
         print 'Create sectors', t.time() - t1, 'sec'
 
     def mem(self):
-        #gc.collect()
-        print gc.get_count()
-        print gc.garbage
-        print gc.DEBUG_LEAK
-
+        print len(self.point_color_data_vbo_dict[1][0])+len(self.point_color_data_vbo_dict[2][0])+len(self.point_color_data_vbo_dict[3][0])+len(self.point_color_data_vbo_dict[4][0])
+        
     def focus_cmd(self, e = None):
-        self.cmd.SetFocus()         
+        self.cmd.SetFocus()
         
 
     def standart_binds(self):
@@ -370,13 +365,21 @@ class Graphics:
         self.vbo_4 = glGenBuffers(1)
         self.color_vbo_4 = glGenBuffers(1)
         '''
+        
+        '''
         try:
             pd = self.point_color_data_vbo_dict
         except AttributeError:
-            pass
+            pd = None
         else:
             glDeleteBuffers(1, [pd[1][2], pd[1][3], pd[2][2], pd[2][3], pd[3][2], pd[3][3], pd[4][2], pd[4][3]])
 
+        try:
+            del pd
+            del self.point_color_data_vbo_dict
+        except AttributeError:
+            pass
+        '''
         self.point_color_data_vbo_dict = {
         #Width: [pointdata,            colordata,            color_vbo,        vbo]
             1 : [array.array('f', []), array.array('B', []), None,             None],

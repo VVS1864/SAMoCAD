@@ -83,6 +83,8 @@ def c_line(
             and 0 <= y1 <= par.drawing_h
             and 0 <= x2 <= par.drawing_w
             and 0 <= y2 <= par.drawing_h):
+        
+        #print x1,  x2,   par.drawing_w, y1, y2, par.drawing_h,
         return False
     if stipple:
         dash = [x*factor_stipple for x in stipple]

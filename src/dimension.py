@@ -342,7 +342,7 @@ def get_dim_lines(
             #text_change = 1
         else:
             list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
-
+    i = 1
     if text_change == 2:        
         text_place[1] = y3+s
         list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
@@ -361,7 +361,7 @@ def get_dim_lines(
         
         list_text_lines = symbols.font(text_place[0], text_place[1], textt, dim_text_size, dim_text_s_s, dim_text_w, 'sc', dim_text_font, 0, temp)
         text_line = list_text_lines.nabor[0]
-        i = 1
+        
         #Если текст не вмещается между выносными линиями - нарисовать сбоку
         if list_text_lines.Ltext > dx - arrow_s:
             old_text_place = text_place

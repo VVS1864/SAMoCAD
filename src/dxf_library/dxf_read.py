@@ -43,26 +43,35 @@ class Load_from_DXF:
             for y in obj['yy']:
                 if y<0 and y < y_mov:
                     y_mov = y
+        if x_mov or y_mov:
+            for obj in self.excavated_dxf['entities']:
+                for x in ('x1', 'x2', 'x3', 'text_place'):
+                    if x in obj:
+                        if x == 'text_place' and obj[x][0] != None:
+                            obj[x][0] -= x_mov-1
+                        else:
+                            obj[x] -= x_mov-1
 
+                for y in ('y1', 'y2', 'y3', 'text_place'):
+                    if y in obj:
+                        if y == 'text_place' and obj[y][0] != None:
+                            obj[y][1] -= y_mov-1
+                        else:
+                            obj[y] -= y_mov-1
+                    
         for obj in self.excavated_dxf['entities']:
             for x in ('x1', 'x2', 'x3'):
                 if x in obj:
-                    obj[x] -= x_mov-1
-
+                    if obj[x] > w:
+                        w = obj[x]
             for y in ('y1', 'y2', 'y3'):
                 if y in obj:
-                    obj[y] -= y_mov-1
-                    
-        for obj in self.excavated_dxf['entities']:
-            for x in obj['xx']:
-                if x > w:
-                    w = x
-            for y in obj['yy']:
-                if y > h:
-                    h = y
-        new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
-        new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)#+self.par.q_scale*1000
-        
+                    if obj[y] > h:
+                        h = obj[y]
+        print w, h
+        new_h = math.ceil((h)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale#*1000
+        new_w = math.ceil((w)/self.par.q_scale)*(self.par.q_scale)+self.par.q_scale#*1000
+        print new_w, new_h
         if new_h > self.par.drawing_h:
             self.par.drawing_h = new_h
         if new_w > self.par.drawing_w:
@@ -215,7 +224,7 @@ class Load_from_DXF:
             ):
             #DXF SECTIONS
             try:
-                self.dxf_sections[section_name] = re.findall('0\r?\nSECTION\r?\n[ ]*2\r?\n%s([\w\W]*?0\r?\nENDSEC)'%section_name, dxf_string, re.DOTALL)[0]
+                self.dxf_sections[section_name] = re.findall(r'0\r?\nSECTION\r?\n[ ]*2\r?\n%s([\w\W]*?0\r?\nENDSEC)'%section_name, dxf_string, re.DOTALL)[0]
             except:
             #if not self.dxf_sections[section_name]:
                 if section_name in ('ENTITIES', 'TABLES'):
@@ -245,40 +254,50 @@ class Load_from_DXF:
         return self.excavated_dxf, 'Opening an AutoCAD 2000 DXF file'
 
     def dxf_ltypes(self):
-        dxf_TABLE_LTYPE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nLTYPE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_LTYPES = re.findall('LTYPE\r?\n[ ]*5([\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LTYPE)
+        dxf_TABLE_LTYPE = re.findall(r'0\r?\nTABLE\r?\n[ ]*2\r?\nLTYPE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_LTYPES = re.findall(r'LTYPE\r?\n[ ]*5([\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LTYPE)
         dxf_LTYPES_names = []
         for LTYPE in dxf_LTYPES:
-            LTYPE_name = re.findall('AcDbLinetypeTableRecord\r?\n[ ]*2\r?\n[ ]*(\w*)\r?\n', LTYPE)[0]
+            LTYPE_name = re.findall(r'AcDbLinetypeTableRecord\r?\n[ ]*2\r?\n[ ]*(\w*)\r?\n', LTYPE)
+            try:
+                LTYPE_name = LTYPE_name[0]
+            except IndexError:
+                #print LTYPE
+                continue
             if LTYPE_name in ('CENTER', 'DASHED', 'PHANTOM'):
                 dxf_LTYPES_names.append(LTYPE_name)
         self.excavated_dxf['ltypes'] = dxf_LTYPES_names
 
     def dxf_block_records(self):
-        dxf_TABLE_BLOCK_RECORD = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nBLOCK_RECORD([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_BLOCK_RECORDS = re.findall('(BLOCK_RECORD\r?\n[ ]*5[\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_BLOCK_RECORD)
+        dxf_TABLE_BLOCK_RECORD = re.findall(r'0\r?\nTABLE\r?\n[ ]*2\r?\nBLOCK_RECORD([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_BLOCK_RECORDS = re.findall(r'(BLOCK_RECORD\r?\n[ ]*5[\w\W]*?)\n\r?(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_BLOCK_RECORD)
         dxf_BLOCK_RECORD_handle_name = {}
         for BLOCK_RECORD in dxf_BLOCK_RECORDS:
-            
-            BLOCK_RECORD_name = re.findall('AcDbBlockTableRecord\r?\n[ ]*2\r?\n[ ]*([\w_*-]*)\r?\n', BLOCK_RECORD)[0]
-            BLOCK_RECORD_handle = re.findall('BLOCK_RECORD\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n', BLOCK_RECORD)[0]
+            BLOCK_RECORD_name = re.findall(r'AcDbBlockTableRecord\r?\n[ ]*2\r?\n[ ]*([\w_*-]*)\r?\n', BLOCK_RECORD)
+            try:
+                BLOCK_RECORD_name = BLOCK_RECORD_name[0]
+            except IndexError:
+                #print BLOCK_RECORD
+                continue
+            BLOCK_RECORD_handle = re.findall(r'BLOCK_RECORD\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n', BLOCK_RECORD)[0]
             dxf_BLOCK_RECORD_handle_name[BLOCK_RECORD_handle] = BLOCK_RECORD_name
         self.excavated_dxf['block_records'] = dxf_BLOCK_RECORD_handle_name
 
     def dxf_styles(self):
-        dxf_TABLE_STYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_STYLES = re.findall('STYLE\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n[ ]*([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_STYLE)
+        dxf_TABLE_STYLE = re.findall(r'0\r?\nTABLE\r?\n[ ]*2\r?\nSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_STYLES = re.findall(r'STYLE\r?\n[ ]*5\r?\n[ ]*(\w*)\r?\n[ ]*([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_STYLE)
         dxf_STYLE_names = {}
         for STYLE_groups in dxf_STYLES:
             STYLE_handle = STYLE_groups[0]
             STYLE = STYLE_groups[1]
-            STYLE_name = re.findall('AcDbTextStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)', STYLE)[0]
-            STYLE_width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', STYLE)
+            STYLE = unicode(STYLE, "cp1251")
+            STYLE_name = re.findall(r'AcDbTextStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)', STYLE, re.U)[0]
+            STYLE_width = re.findall(r'\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', STYLE, re.U)
             STYLE_width = self.get_val(STYLE_width, 1.0)
-            STYLE_size = re.findall('\r?\n[ ]*42\r?\n[ ]*([\d.]*)\r?\n', STYLE)
+            STYLE_size = re.findall(r'\r?\n[ ]*42\r?\n[ ]*([\d.]*)\r?\n', STYLE, re.U)
             STYLE_size = self.get_val(STYLE_size, 350.0)
-            #LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
-            #LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
+            #LAYER_ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
+            #LAYER_width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
             dxf_STYLE_names[STYLE_name] = {
                 'handle':STYLE_handle,
                 'text_s_s':STYLE_width,
@@ -287,14 +306,25 @@ class Load_from_DXF:
         self.excavated_dxf['styles'] = dxf_STYLE_names
 
     def dxf_layers(self):
-        dxf_TABLE_LAYER = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nLAYER([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_LAYERS = re.findall('LAYER\r?\n[ ]*5([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LAYER)
-        dxf_LAYER_names = {}
+        dxf_TABLE_LAYER = re.findall(r'0\r?\nTABLE\r?\n[ ]*2\r?\nLAYER([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_LAYERS = re.findall(r'LAYER\r?\n[ ]*5([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_LAYER)
+        dxf_LAYER_names = {'0':{
+                'color':7,
+                'ltype':'Continuous',
+                'width':20,
+                }}
         for LAYER in dxf_LAYERS:
-            LAYER_name = re.findall('AcDbLayerTableRecord\r?\n[ ]*2\r?\n[ ]*([\w ]*)\r?\n', LAYER)[0]
-            LAYER_color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', LAYER)[0]
-            LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', LAYER)[0]
-            LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', LAYER)[0]
+            LAYER = unicode(LAYER, "cp1251")
+            LAYER_name = re.findall(r'AcDbLayerTableRecord\r?\n[ ]*2\r?\n[ ]*([-\w .]*)\r?\n', LAYER, re.U)
+            try:
+                LAYER_name = LAYER_name[0]
+            except:
+                print LAYER
+                print '_______________'
+                continue
+            LAYER_color = re.findall(r'\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', LAYER, re.U)[0]
+            LAYER_ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', LAYER, re.U)[0]
+            LAYER_width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', LAYER, re.U)[0]
             dxf_LAYER_names[LAYER_name] = {
                 'color':LAYER_color,
                 'ltype':LAYER_ltype,
@@ -303,23 +333,29 @@ class Load_from_DXF:
         self.excavated_dxf['layers'] = dxf_LAYER_names
 
     def dxf_dimstyles(self):
-        dxf_TABLE_DIMSTYLE = re.findall('0\r?\nTABLE\r?\n[ ]*2\r?\nDIMSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
-        dxf_DIMSTYLES = re.findall('DIMSTYLE\r?\n[ ]*105([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_DIMSTYLE)
+        dxf_TABLE_DIMSTYLE = re.findall(r'0\r?\nTABLE\r?\n[ ]*2\r?\nDIMSTYLE([\w\W]*?\r?\nENDTAB)', self.dxf_sections['TABLES'], re.DOTALL)[0]
+        dxf_DIMSTYLES = re.findall(r'DIMSTYLE\r?\n[ ]*105([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', dxf_TABLE_DIMSTYLE)
         dxf_DIMSTYLE_names = {}
         
         for DIMSTYLE in dxf_DIMSTYLES:
-            DIMSTYLE_name = re.findall('AcDbDimStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w -]*)', DIMSTYLE)[0]
-            DIMSTYLE_arrow_s = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE = unicode(DIMSTYLE, "cp1251")
+            DIMSTYLE_name = re.findall(r'AcDbDimStyleTableRecord\r?\n[ ]*2\r?\n[ ]*([\w -]*)', DIMSTYLE, re.U)
+            try:
+                DIMSTYLE_name = DIMSTYLE_name[0]
+            except IndexError:
+                print DIMSTYLE
+                continue
+            DIMSTYLE_arrow_s = re.findall(r'\r?\n[ ]*41\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE, re.U)
             DIMSTYLE_arrow_s = self.get_val(DIMSTYLE_arrow_s, 200.0)
-            DIMSTYLE_vv_s = re.findall('\r?\n[ ]*44\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_vv_s = re.findall(r'\r?\n[ ]*44\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE, re.U)
             DIMSTYLE_vv_s = self.get_val(DIMSTYLE_vv_s, 150.0)
-            DIMSTYLE_s = re.findall('\r?\n[ ]*147\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_s = re.findall(r'\r?\n[ ]*147\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE, re.U)
             DIMSTYLE_s = self.get_val(DIMSTYLE_s, 50.0)
-            DIMSTYLE_dim_text_size = re.findall('\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE)
+            DIMSTYLE_dim_text_size = re.findall(r'\r?\n[ ]*140\r?\n[ ]*([\d.]*)\r?\n', DIMSTYLE, re.U)
             DIMSTYLE_dim_text_size = self.get_val(DIMSTYLE_dim_text_size, 350.0)
-            DIMSTYLE_dim_text_style_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*340\r?\n[ ]*([\w]*)', DIMSTYLE)[0]
+            DIMSTYLE_dim_text_style_handle = re.findall(r'100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*340\r?\n[ ]*([\w]*)', DIMSTYLE, re.U)[0]
 
-            DIMSTYLE_dim_arrowhead_handle = re.findall('100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*342\r?\n[ ]*([\w]*)', DIMSTYLE)
+            DIMSTYLE_dim_arrowhead_handle = re.findall(r'100\r?\n[ ]*AcDbDimStyleTableRecord\r?\n[ ]*[\w\W]*342\r?\n[ ]*([\w]*)', DIMSTYLE, re.U)
             DIMSTYLE_dim_arrowhead_handle = self.get_val(DIMSTYLE_dim_arrowhead_handle, None)
             DIMSTYLE_dim_arrowhead_type = None
             if DIMSTYLE_dim_arrowhead_handle:
@@ -331,8 +367,8 @@ class Load_from_DXF:
                 if self.excavated_dxf['styles'][style]['handle'] == DIMSTYLE_dim_text_style_handle:
                     DIMSTYLE_dim_text_style = style
                     
-            #LAYER_ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
-            #LAYER_width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
+            #LAYER_ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)', LAYER)[0]
+            #LAYER_width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)', LAYER)[0]
             dxf_DIMSTYLE_names[DIMSTYLE_name] = {
                 'dim_text_s_s':self.excavated_dxf['styles'][DIMSTYLE_dim_text_style]['text_s_s'],
                 'dim_text_size':DIMSTYLE_dim_text_size,
@@ -345,26 +381,45 @@ class Load_from_DXF:
         self.excavated_dxf['dimstyles'] = dxf_DIMSTYLE_names
 
     def dxf_entities(self):
-        dxf_ENTITIES = re.findall('0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
+        dxf_ENTITIES = re.findall(r'0\r?\n([A-Z]+)\r?\n[ ]*5\r?\n([\w\W]*?)\r?\n(?=[ ]*0\r?\n[A-Z]+)', self.dxf_sections['ENTITIES'])
         dxf_ENTITIES_names = []
-        for i in dxf_ENTITIES:            
+        for i in dxf_ENTITIES:
+            i = list(i)
+            i[1] = unicode(i[1], "cp1251")
             obj = i[0]
-            layer = re.findall('\r?\n[ ]*8\r?\n[ ]*([\w]*)\r?\n', i[1])[0]                
-            color = re.findall('\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', i[1])
-            color = self.get_val(color, self.excavated_dxf['layers'][layer]['color'])
+            layer = re.findall(r'\r?\n[ ]*8\r?\n[ ]*([-\w .]*)\r?\n', i[1], re.U)
+            try:
+                layer = layer[0]
+            except IndexError:
+                #layer = '0'
+                print i[1]
+                #for e in self.excavated_dxf['layers']:
+                    #print e
+                continue              
+            color = re.findall(r'\r?\n[ ]*62\r?\n[ ]*([-\d]*)\r?\n', i[1], re.U)
+            try:
+                color = self.get_val(color, self.excavated_dxf['layers'][layer]['color'])
+            except:
+                print i[1]
             if obj == 'LINE': 
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
-                ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
+                ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1], re.U)
+                try:
+                    ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
+                except:
+                    print i[1]
+                    for e in self.excavated_dxf['layers']:
+                        print e
+                    print layer
       
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1], re.U)
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
                
-                stipple_factor = re.findall('\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1])
+                stipple_factor = re.findall(r'\r?\n[ ]*48\r?\n[ ]*([\d.]*)\r?\n', i[1], re.U)
                 stipple_factor = self.get_val(stipple_factor, 1.0)
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)\r?\n[ ]*31\r?\n[ ]*(?:[\d.-]*)', i[1])
+                xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)\r?\n[ ]*31\r?\n[ ]*(?:[\d.-]*)', i[1], re.U)
                 if not xy:
-                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)', i[1])
+                    xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*11\r?\n[ ]*([\d.-]*)\r?\n[ ]*21\r?\n[ ]*([\d.-]*)', i[1], re.U)
                     
                     
                 x1 = float(xy[0][0])
@@ -387,16 +442,20 @@ class Load_from_DXF:
                     })
 
             elif obj == 'ARC':
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
+                ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1], re.U)
                 ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
       
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1], re.U)
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])                    
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1])
+                xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)[\w\W]*?\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1], re.U)
                 if not xy:
-                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1])
-                x1 = float(xy[0][0])
+                    xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)[\w\W]*?\r?\n[ ]*100\r?\n[ ]*AcDbArc\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n[ ]*51\r?\n[ ]*([\d.-]*)', i[1], re.U)
+                try:
+                    x1 = float(xy[0][0])
+                except:
+                    print i[1]
+                    return
                 y1 = float(xy[0][1])
                 R = float(xy[0][2])
                 start = float(xy[0][3])
@@ -420,15 +479,15 @@ class Load_from_DXF:
                 })
 
             elif obj == 'CIRCLE':
-                ltype = re.findall('\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1])
+                ltype = re.findall(r'\r?\n[ ]*6\r?\n[ ]*([\w]*)\r?\n', i[1], re.U)
                 ltype = self.get_val(ltype, self.excavated_dxf['layers'][layer]['ltype'])
       
-                width = re.findall('\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1])
+                width = re.findall(r'\r?\n[ ]*370\r?\n[ ]*([-\d]*)\r?\n', i[1], re.U)
                 width = self.get_val(width, self.excavated_dxf['layers'][layer]['width'])
 
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
+                xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*(?:[\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1], re.U)
                 if not xy:
-                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1])
+                    xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*40\r?\n[ ]*([\d.-]*)', i[1], re.U)
                 x1 = float(xy[0][0])
                 y1 = float(xy[0][1])
                 R = float(xy[0][2])
@@ -447,24 +506,24 @@ class Load_from_DXF:
                 })
 
             elif obj == 'TEXT':
-                style = re.findall('100\r?\n[ ]*AcDbText\r?\n[ ]*7\r?\n[ ]*7\r?\n[ ]*([\w ]*)\r?\n', i[1])
+                style = re.findall(r'100\r?\n[ ]*AcDbText\r?\n[ ]*7\r?\n[ ]*7\r?\n[ ]*([\w ]*)\r?\n', i[1], re.U)
                 style = self.get_val(style, 'Standard')
                 
-                width = re.findall('\r?\n[ ]*41\r?\n[ ]*([\d.-]*)\r?\n', i[1])
+                width = re.findall(r'\r?\n[ ]*41\r?\n[ ]*([\d.-]*)\r?\n', i[1], re.U)
                 width = self.get_val(width, self.excavated_dxf['styles'][style]['text_s_s'])
 
-                size = re.findall('\r?\n[ ]*40\r?\n[ ]*([-\d.]*)\r?\n', i[1])
+                size = re.findall(r'\r?\n[ ]*40\r?\n[ ]*([-\d.]*)\r?\n', i[1], re.U)
                 size = self.get_val(size, self.excavated_dxf['styles'][style]['text_size'])
 
-                angle = re.findall('\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n', i[1])
+                angle = re.findall(r'\r?\n[ ]*50\r?\n[ ]*([\d.-]*)\r?\n', i[1], re.U)
                 angle = self.get_val(angle, 0.0)
 
-                text = re.findall(r'(?:AcDbText\r?\n[ ]*[\w\W]*?)\r?\n[ ]*1\r?\n[ ]*([\w. -]*?)\r?\n', unicode(i[1], "cp1251"), re.U)
+                text = re.findall(r'(?:AcDbText\r?\n[ ]*[\w\W]*?)\r?\n[ ]*1\r?\n[ ]*([\w. -]*?)\r?\n', i[1], re.U)#unicode(i[1], "cp1251"), re.U)
                 text = self.get_val(text, 'None')
                
-                xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*([\d.-]*)\r?\n', i[1])
+                xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)\r?\n[ ]*30\r?\n[ ]*([\d.-]*)\r?\n', i[1], re.U)
                 if not xy:
-                    xy = re.findall('\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)', i[1])
+                    xy = re.findall(r'\r?\n[ ]*10\r?\n[ ]*([\d.-]*)\r?\n[ ]*20\r?\n[ ]*([\d.-]*)', i[1], re.U)
                 x1 = float(xy[0][0])
                 y1 = float(xy[0][1])
 
@@ -482,10 +541,14 @@ class Load_from_DXF:
                     })
 
             elif obj == 'DIMENSION':
-                dimstyle = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*3\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1])[0]
+                dimstyle = re.findall(r'AcDbDimension\r?\n[\W\w]*\r?\n[ ]*3\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1], re.U)
+                try:
+                    dimstyle = dimstyle[0]
+                except:
+                    continue
                 dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
 
-                text = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*1\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', unicode(i[1], "cp1251"), re.U)
+                text = re.findall(r'AcDbDimension\r?\n[\W\w]*\r?\n[ ]*1\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1], re.U)#unicode(i[1], "cp1251"), re.U)
                 if text:
                     text = text[0]
                 text = self.get_val(text, None)
@@ -493,19 +556,28 @@ class Load_from_DXF:
                 
                 dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
 
-                text_change_2 = re.findall('AcDbDimension\r?\n[\W\w]*\r?\n[ ]*70\r?\n[ ]*([\d]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1])
+                text_change_2 = re.findall(r'AcDbDimension\r?\n[\W\w]*\r?\n[ ]*70\r?\n[ ]*([\d]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1], re.U)
                 text_change_2 = self.get_val(text_change_2, 32)
+
+                DIMSCALE = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*40\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
+                DIMSCALE = self.get_val(DIMSCALE, 1.0)
+                DIMSCALE = float(DIMSCALE)
                 
-                vv_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*44\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                vv_s = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*44\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
                 vv_s = self.get_val(vv_s, dimstyle_dict['vv_s'])
 
-                vr_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*46\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                vr_s = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*46\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
                 vr_s = self.get_val(vr_s, 0.0)
 
-                arrow_s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*41\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                arrow_s = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*41\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
+                #try:
+                    #arrow_s = arrow_s[0]
+                #except:
+                    #print i[1]
+                    #return
                 arrow_s = self.get_val(arrow_s, dimstyle_dict['arrow_s'])
                 
-                s = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*147\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                s = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*147\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
                 s = self.get_val(s, dimstyle_dict['s'])
 
                 
@@ -513,13 +585,13 @@ class Load_from_DXF:
                     default_type_arrow = dimstyle_dict['type_arrow']
                 else:
                     default_type_arrow = 'Arrow'
-                arrowhead_handle = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*343\r?\n[ ]*1005\r?\n[ ]*(\w*)\r?\n[ ]*', i[1])
+                arrowhead_handle = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*343\r?\n[ ]*1005\r?\n[ ]*(\w*)\r?\n[ ]*', i[1], re.U)
                 if arrowhead_handle:
                     arrowhead_handle = arrowhead_handle[0]
                     try:
                         type_arrow = self.excavated_dxf['block_records'][arrowhead_handle]
                     except:
-                        print 'Unknow arowhead'
+                        #print 'Unknow arowhead'
                         type_arrow = default_type_arrow
                     if type_arrow in ('_Oblique', '_OBLIQUE', '_ArchTick'):
                         type_arrow = 'Arch'
@@ -531,11 +603,11 @@ class Load_from_DXF:
                 if type_arrow == 'Arch':
                     arrow_s = float(arrow_s)/2.0
 
-                dim_text_size = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*140\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                dim_text_size = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*140\r?\n[ ]*1040\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1], re.U)
                 dim_text_size = self.get_val(dim_text_size, dimstyle_dict['dim_text_size'])
                 dim_text_size = abs(float(dim_text_size))
                 
-                angle = re.findall('AcDbAlignedDimension\r?\n[\W\w]*\r?\n[ ]*50\r?\n[ ]*([\d.-]*)[\W\w]*100\r?\n[ ]*AcDbRotatedDimension', i[1])
+                angle = re.findall(r'AcDbAlignedDimension\r?\n[\W\w]*\r?\n[ ]*50\r?\n[ ]*([\d.-]*)[\W\w]*100\r?\n[ ]*AcDbRotatedDimension', i[1], re.U)
                 angle = float(self.get_val(angle, 0.0))
 
                 if angle == 0.0:
@@ -543,7 +615,7 @@ class Load_from_DXF:
                 else:
                     ort = 'horizontal'
 
-                text_change = re.findall('1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*279\r?\n[ ]*1070\r?\n[ ]*([\d]*)\r?\n[ ]*', i[1])
+                text_change = re.findall(r'1001\r?\n[ ]*ACAD\r?\n[ ]*1000\r?\n[ ]*DSTYLE[\w\W]*\r?\n[ ]*1070\r?\n[ ]*279\r?\n[ ]*1070\r?\n[ ]*([\d]*)\r?\n[ ]*', i[1], re.U)
                 text_change = self.get_val(text_change, 0)
                 text_change = int(text_change)
                 text_change_2 = int(text_change_2)
@@ -561,14 +633,18 @@ class Load_from_DXF:
 
                 
                
-                xy12 = re.findall('13\r?\n[ ]*([\d.]*)\r?\n[ ]*23\r?\n[ ]*([\d.]*)\r?\n[ ]*33\r?\n[ ]*[\d.]*\r?\n[ ]*14\r?\n[ ]*([\d.]*)\r?\n[ ]*24\r?\n[ ]*([\d.]*)\r?\n[ ]*34\r?\n[ ]*[\d.]*\r?\n[ ]*', i[1])
+                xy12 = re.findall(r'13\r?\n[ ]*([-\d.]*)\r?\n[ ]*23\r?\n[ ]*([-\d.]*)\r?\n[ ]*33\r?\n[ ]*[-\d.]*\r?\n[ ]*14\r?\n[ ]*([-\d.]*)\r?\n[ ]*24\r?\n[ ]*([-\d.]*)\r?\n[ ]*34\r?\n[ ]*[-\d.]*\r?\n[ ]*', i[1], re.U)
                 if not xy12:
-                    xy12 = re.findall('13\r?\n[ ]*([\d.]*)\r?\n[ ]*23\r?\n[ ]*([\d.]*)\r?\n[ ]*14\r?\n[ ]*([\d.]*)\r?\n[ ]*24\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
+                    xy12 = re.findall(r'13\r?\n[ ]*([-\d.]*)\r?\n[ ]*23\r?\n[ ]*([-\d.]*)\r?\n[ ]*14\r?\n[ ]*([-\d.]*)\r?\n[ ]*24\r?\n[ ]*([-\d.]*)\r?\n[ ]*', i[1], re.U)
 
-                xy3text = re.findall('10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*30\r?\n[ ]*[\d.]*\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*31\r?\n[ ]*[\d.]*\r?\n[ ]*', i[1])
+                xy3text = re.findall(r'10\r?\n[ ]*([-\d.]*)\r?\n[ ]*20\r?\n[ ]*([-\d.]*)\r?\n[ ]*30\r?\n[ ]*[-\d.]*\r?\n[ ]*11\r?\n[ ]*([-\d.]*)\r?\n[ ]*21\r?\n[ ]*([-\d.]*)\r?\n[ ]*31\r?\n[ ]*[-\d.]*\r?\n[ ]*', i[1], re.U)
                 if not xy3text:
-                    xy3text = re.findall('10\r?\n[ ]*([\d.]*)\r?\n[ ]*20\r?\n[ ]*([\d.]*)\r?\n[ ]*11\r?\n[ ]*([\d.]*)\r?\n[ ]*21\r?\n[ ]*([\d.]*)\r?\n[ ]*', i[1])
-                    
+                    xy3text = re.findall(r'10\r?\n[ ]*([-\d.]*)\r?\n[ ]*20\r?\n[ ]*([-\d.]*)\r?\n[ ]*11\r?\n[ ]*([-\d.]*)\r?\n[ ]*21\r?\n[ ]*([-\d.]*)\r?\n[ ]*', i[1], re.U)
+                try:
+                    x1 = float(xy12[0][0])
+                except IndexError:
+                    print i[1]
+                    continue
                 x1 = float(xy12[0][0])
                 y1 = float(xy12[0][1])
                 x2 = float(xy12[0][2])
@@ -588,17 +664,17 @@ class Load_from_DXF:
                 dxf_ENTITIES_names.append({
                     'obj':obj,
                     'color':color,
-                    'dim_text_s_s':float(dim_text_s_s)/0.57,
+                    'dim_text_s_s':float(dim_text_s_s)/0.57,# * DIMSCALE,
                     'angle':math.radians(abs(angle)),
-                    'dim_text_size':dim_text_size,
+                    'dim_text_size':dim_text_size * DIMSCALE,
                     'text_place':[text_x, text_y],
                     'text_change':text_change,
                     'ort':ort,
                     'text':text,
-                    's':float(s),
-                    'vv_s':float(vv_s),
-                    'vr_s':float(vr_s),
-                    'arrow_s':float(arrow_s),
+                    's':float(s)* DIMSCALE,
+                    'vv_s':float(vv_s),#* DIMSCALE,
+                    'vr_s':float(vr_s),#* DIMSCALE,
+                    'arrow_s':float(arrow_s)* DIMSCALE,
                     'type_arrow':type_arrow,
                     'x1':x1,
                     'y1':y1,

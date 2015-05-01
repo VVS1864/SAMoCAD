@@ -83,7 +83,6 @@ class GL_wrapper:
             self.InitGL()
             self.par.c.init = True
         
-        
         glClear(GL_COLOR_BUFFER_BIT)                    # Очищаем экран и заливаем серым цветом
         
         glEnableClientState(GL_VERTEX_ARRAY)            # Включаем использование массива вершин
@@ -187,7 +186,6 @@ class GL_wrapper:
         glPopMatrix()
         
     def draw_VBO(self):
-        
         for data_list in self.par.point_color_data_vbo_dict.keys():
         #print data_list
         #self.par.point_color_data_vbo_dict
@@ -228,6 +226,7 @@ class GL_wrapper:
         
             glDrawArrays(GL_LINES, 0, len(self.par.collection_data)//2)
         glBindBuffer( GL_ARRAY_BUFFER, 0)
+    
     def c_collection_VBO(self):
         c_pointdata = numpy.array(self.par.collection_data, dtype = numpy.float32)
         c_colordata = numpy.array(self.par.collection_color, dtype = numpy.ubyte)
@@ -246,9 +245,10 @@ class GL_wrapper:
         # 2 Параметр - указатель на массив colordata
         glBufferData (GL_ARRAY_BUFFER, c_colordata, GL_STATIC_DRAW)
         glBindBuffer (GL_ARRAY_BUFFER, 0)
+    
         
 
-    def change_pointdata(self):        
+    def change_pointdata(self):
         if not self.par.point_color_data_vbo_dict[1][2]:
             for data_list in self.par.point_color_data_vbo_dict.keys():
                 vbo = glGenBuffers(1)
