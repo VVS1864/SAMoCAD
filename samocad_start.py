@@ -486,8 +486,8 @@ class Graphics:
             #self.colordata = array.array('B', [])
             self.clear_pointdata()
             
-            if 'trace' in self.ALLOBJECT:
-                del self.ALLOBJECT['trase']
+            #if 'trace' in self.ALLOBJECT:
+                #del self.ALLOBJECT['trase']
             for obj in self.ALLOBJECT.values():
                 pointdata = obj['pointdata']
                 len_pointdata = len(pointdata)/2
@@ -673,7 +673,7 @@ class Graphics:
         self.trace_on = False
         if 'trace' in self.ALLOBJECT:
             self.delete_objects(['trace',], False)
-            
+            self.change_pointdata()
         self.curent_class = None
         self.resFlag = False
         self.print_flag = False
@@ -691,7 +691,8 @@ class Graphics:
         self.collectionBack = self.collection
         self.collection = []
 
-        self.cmd.SetValue('')
+        #self.cmd.Clear()
+        self.cmd.ChangeValue('')
         self.info2.SetValue('')
         self.info.SetValue('Command:')
         self.c.Refresh()

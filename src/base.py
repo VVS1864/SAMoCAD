@@ -19,7 +19,6 @@ class Base(object):
 
     def func_2(self, target_func, info, dynamic):
         self.par.focus_cmd()
-        self.par.cmd.SetValue('')
         self.par.c.Unbind(wx.EVT_LEFT_DOWN)
         self.par.c.Bind(wx.EVT_LEFT_DOWN, target_func)
 
@@ -99,6 +98,9 @@ class Base(object):
             target_kwargs['temp'] = False
             self.par.dynamic_data = []
             self.par.dynamic_color = []
+            self.par.cmd.Clear()
+            self.par.cmd.ChangeValue('')
+            #print self.par.cmd.GetValue()
             #self.par.history_undo.append(('c_', self.par.Nline))
             #event.Skip()
             #self.par.changeFlag = True
