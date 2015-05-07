@@ -74,7 +74,7 @@ class Object(Base):
 def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
     if (x1,y1) != (x2,y2):
         angle = calc_angle(x1, y1, x1+100, y1, x2, y2)
-        if angle:
+        if angle != None:
             msin = -sin(angle)
             mcos = cos(angle)
         else:
