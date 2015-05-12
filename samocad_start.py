@@ -228,8 +228,8 @@ class Graphics:
         self.info2 = self.interface.info2
         self.cmd = self.interface.cmd
         self.cmd.SetFocus()
-        #self.interface.Show(True)
         if self.os != 'linux':
+            self.interface.Show(True)
             self.gl_wrap.OnDraw(None)
         wx.EVT_ERASE_BACKGROUND(self.c, self.gl_wrap.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.gl_wrap.OnDraw)
