@@ -175,7 +175,7 @@ def get_snap(x, y, snap_s, find, par):
             yi = yt
             tip_p = p
 
-    if not tip_p and N_dist and N_dist <= snap_s and par.snap_near == True and par.resFlag == True:
+    if not tip_p and N_dist and abs(N_dist) <= snap_s and par.snap_near == True and par.resFlag == True:
         xi = xn
         yi = yn
         tip_p = 'N'
