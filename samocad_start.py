@@ -35,6 +35,7 @@ class Graphics:
             self.os = 'linux'
         else:
             self.os = 'windows'
+        print 'OS', sys.platform, ', ', 'defined as', self.os
             
             
         self.scale_size = 1.5
@@ -81,7 +82,7 @@ class Graphics:
                 },
             }
         self.default_layer = copy.copy(self.layers['1'])
-        print self.layers
+        print 'layers', self.layers
         
         self.select_color = [0, 255, 0] #Цвет выделяемых объектов
         self.priv_color = [0, 255, 255] #Цвет привязки

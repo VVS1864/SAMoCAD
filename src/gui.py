@@ -81,11 +81,34 @@ class Window(wx.Frame):
         self.line_p = menu_format.Append(-1, "Line options")
         self.text_style_p = menu_format.Append(-1, "Text style")
 
+        menu_draw = wx.Menu()
+        self.line_p = menu_draw.Append(-1, "Line")
+        self.circle_p = menu_draw.Append(-1, "Circle")
+        self.arc_p = menu_draw.Append(-1, "Arc")
+        self.dim_p = menu_draw.Append(-1, "Dimension")
+        self.text_p = menu_draw.Append(-1, "Text")
+
+        menu_func = wx.Menu()
+        self.move_p = menu_func.Append(-1, "Move\tCtrl+A")
+        self.copy_p = menu_func.Append(-1, "Copy\tCtrl+Z")
+        self.mirror_p = menu_func.Append(-1, "Mirror\tCtrl+X")
+        self.rotate_p = menu_func.Append(-1, "Rotate\tCtrl+S")
+        #self.mirror_p = menu_func.Append(-1, "Mirror\tCtrl+X")
+        self.offset_p = menu_func.Append(-1, "Offset")
+        self.copy_prop_p = menu_func.Append(-1, "Copy properties\tCtrl+D")
+        self.fillet_p = menu_func.Append(-1, "Fillet")
+        self.trim_p = menu_func.Append(-1, "Trim\tCtrl+Q")
+        self.extend_p = menu_func.Append(-1, "Extend\tCtrl+W")
+        self.scale_p = menu_func.Append(-1, "Scale")
+        self.chain_dim_p = menu_func.Append(-1, "Chain dim line")
+
         menu_help = wx.Menu()
         self.about_p = menu_help.Append(-1, "&About")
         
         bar = wx.MenuBar()
         bar.Append(menu_file,"File")
+        bar.Append(menu_draw,"Draw")
+        bar.Append(menu_func,"Functions")
         bar.Append(menu_format,"Format")
         bar.Append(menu_help,"&Help")
         self.SetMenuBar(bar)
@@ -98,6 +121,24 @@ class Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
         self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_p)
         self.Bind(wx.EVT_MENU, self.OnTextStyle, self.text_style_p)
+
+        self.Bind(wx.EVT_MENU, self.line, self.line_p)
+        self.Bind(wx.EVT_MENU, self.circle, self.circle_p)
+        self.Bind(wx.EVT_MENU, self.arc, self.arc_p)
+        self.Bind(wx.EVT_MENU, self.dim, self.dim_p)
+        self.Bind(wx.EVT_MENU, self.text, self.text_p)
+
+        self.Bind(wx.EVT_MENU, self.copy, self.copy_p)
+        self.Bind(wx.EVT_MENU, self.move, self.move_p)
+        self.Bind(wx.EVT_MENU, self.mirror, self.mirror_p)
+        self.Bind(wx.EVT_MENU, self.rotate, self.rotate_p)
+        self.Bind(wx.EVT_MENU, self.offset, self.offset_p)
+        self.Bind(wx.EVT_MENU, self.fillet, self.fillet_p)
+        self.Bind(wx.EVT_MENU, self.trim, self.trim_p)
+        self.Bind(wx.EVT_MENU, self.extend, self.extend_p)
+        self.Bind(wx.EVT_MENU, self.copy_prop, self.copy_prop_p)
+        self.Bind(wx.EVT_MENU, self.scale, self.scale_p)
+        self.Bind(wx.EVT_MENU, self.trim_dim, self.chain_dim_p)
 
         self.Bind(wx.EVT_MENU, self.OnAbout, self.about_p)
         
@@ -441,6 +482,7 @@ class Window(wx.Frame):
         self.par.focus_cmd()
 
     def mirror(self, e):
+        print 111
         self.par.action(mirror_object.Object)
         self.par.focus_cmd()
 
