@@ -49,8 +49,8 @@ class Graphics:
         self.dynamic_vbo = None
 
         # Ширина и высота рабочей области
-        self.drawing_w = 1000000.0
-        self.drawing_h = 1000000.0
+        self.drawing_w = 10000.0
+        self.drawing_h = 10000.0
         self.q_scale = 10000
 
         self.ex = 0.0
@@ -111,18 +111,18 @@ class Graphics:
         self.total_N = 0 #тотальное количество нарисованных объектов (для ID)
 
         #Типы линий
-        self.stipples_list = [
+        self.stipples_list = (
             '_____________',
             '_ _ _ _ _ _ _',
             '____ _ ____ _',
             '____ _ _ ____',
-            ]
-        self.stipples_values = [
+            )
+        self.stipples_values = (
             None,
             (1,1),
             (4,1,1,1),
             (4,1,1,1,1,1),
-            ]
+            )
         
         self.stipples = dict((i, self.stipples_values[ind]) for ind, i in enumerate(self.stipples_list))       
         self.DXF_RGB_colores = color_acad_rgb.DXF_RGB_colores
@@ -135,6 +135,27 @@ class Graphics:
             "3",
             "4",
             ]
+
+        self.properties = {
+            'color':('Color', 'color'),
+            'layer':('Layer', self.layers.keys()),
+            'width':('Width', self.widthes),
+            'stipple':('Line type', self.stipples_list),
+            'factor_stipple':('Line size', 'Num'),
+            'text_size':('Text size', 'Num'),
+            's':('Offset from dim line', 'Num'),
+            'vr_s':('Extend ticks', 'Num'),
+            'vv_s':('Extend dim lines', 'Num'),
+            'arrow_s':('Arrowhead size', 'Num'),
+            'type_arrow':('Arrowheads', None),
+            'text_s_s':('Letters distance factor', 'Num'),
+            'text_w':('Width of letters factor', 'Num'),
+            'text_font':('Text font', None),
+            'dim_text_size':('Dim text size', 'Num'),
+            'dim_text_s_s':('Letters distance factor', 'Num'),
+            'dim_text_w':('Width of letters factor', 'Num'),
+            'dim_text_font':('Dim font', None),
+            }
         
         self.old_func = (self.action, line.Line)
         self.prog_version = 'Samocad - v0.0.9.0'
@@ -252,7 +273,7 @@ class Graphics:
             self.interface.cmd.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
             
         self.create_sectors()
-       
+        '''
         t1 = t.time()
         for i in xrange(1): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
@@ -291,7 +312,7 @@ class Graphics:
         self.ALLOBJECT, self.sectors = sectors_alg.quadric_mass(self.ALLOBJECT, self.ALLOBJECT.keys(), self.sectors, self.q_scale)
         
         print 'Create lines', t.time() - t1
-        
+        '''
         
         
         self.standart_binds()
@@ -389,7 +410,9 @@ class Graphics:
             4 : [array.array('f', []), array.array('B', []), None,             None],
             }
         
-
+    def update_prop(self):
+        self.interface.OnPropDialog()
+        
     def amount_of_select(self):
         amount = len(self.collection)
         if amount:            
@@ -696,6 +719,8 @@ class Graphics:
         self.cmd.ChangeValue('')
         self.info2.SetValue('')
         self.info.SetValue('Command:')
+
+        self.update_prop()
         self.c.Refresh()
     
     

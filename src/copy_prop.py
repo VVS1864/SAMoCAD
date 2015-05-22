@@ -77,7 +77,7 @@ class Copy_prop:
         self.par.focus_cmd()
         self.par.prop = {}
         for p in self.par.ALLOBJECT[col]:
-            if p in ('color', 'width', 'stipple', 'factor_stipple', 'text_size', 'layer', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 'text_s_s', 'text_w', 'text_font', 'dim_text_size', 'dim_text_s_s', 'dim_text_w', 'dim_text_font'):                       
+            if p in self.par.properties.keys():#('color', 'width', 'stipple', 'factor_stipple', 'text_size', 'layer', 's', 'vr_s', 'vv_s', 'arrow_s', 'type_arrow', 'text_s_s', 'text_w', 'text_font', 'dim_text_size', 'dim_text_s_s', 'dim_text_w', 'dim_text_font'):                       
                 self.par.prop[p] = copy(self.par.ALLOBJECT[col][p])
 
     def copy_prop4(self, event):

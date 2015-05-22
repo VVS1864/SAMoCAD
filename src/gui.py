@@ -20,6 +20,7 @@ import src.offset as offset
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
+import src.save_pb as save_pb
 import src.open_file as open_file
 import src.dxf_library.dxf_write as dxf_write
 import src.dxf_library.dxf_read as dxf_read
@@ -48,6 +49,9 @@ class Window(wx.Frame):
 
         self.text_style_dialog = None
         self.text_style_dialog_on = False
+
+        self.prop_dialog = None
+        self.prop_dialog_on = False
 
         self.hot_keys_dict = {
             'Z' : copy_object.Object,
@@ -80,6 +84,7 @@ class Window(wx.Frame):
         self.dim_style_p = menu_format.Append(-1, "Dimension style")
         self.line_p = menu_format.Append(-1, "Line options")
         self.text_style_p = menu_format.Append(-1, "Text style")
+        self.prop_dialog_p = menu_format.Append(-1, "Object properties")
 
         menu_draw = wx.Menu()
         self.line_p = menu_draw.Append(-1, "Line")
@@ -121,6 +126,7 @@ class Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
         self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_p)
         self.Bind(wx.EVT_MENU, self.OnTextStyle, self.text_style_p)
+        self.Bind(wx.EVT_MENU, self.OnPropDialog, self.prop_dialog_p)
 
         self.Bind(wx.EVT_MENU, self.line, self.line_p)
         self.Bind(wx.EVT_MENU, self.circle, self.circle_p)
@@ -482,7 +488,6 @@ class Window(wx.Frame):
         self.par.focus_cmd()
 
     def mirror(self, e):
-        print 111
         self.par.action(mirror_object.Object)
         self.par.focus_cmd()
 
@@ -548,12 +553,14 @@ class Window(wx.Frame):
     def OnSave(self, e):
         head, tail = os.path.split(self.par.current_save_path)
         self.file_dialog =  wx.FileDialog(self, "Save drawing", head, tail,
-                                    "DXF files (*.dxf)|*.dxf|SVG files (*.svg)|*.svg",
+                                    "DXF 2000 files (*.dxf)|*.dxf|SVG files (*.svg)|*.svg|PB files (*.pb)|*.pb",
                                     style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if self.file_dialog.ShowModal() == wx.ID_CANCEL:
             return
+        
         direct = self.file_dialog.GetDirectory()
         file_name = self.file_dialog.GetFilename()
+        
         self.par.current_save_path = get_path(self.par.os, direct, file_name)
 
         self.par.current_file = self.par.current_save_path
@@ -569,13 +576,22 @@ class Window(wx.Frame):
                             self.par.drawing_w,
                             self.par.drawing_h,
                             )
-        else:
+        elif f_format == '.svg':
             save_file.Save_to_SVG(
                             self.par,
                             self.par.current_file,
                             f_format,
                             self.par.ALLOBJECT,
                             self.par.layers,
+                            self.par.drawing_w,
+                            self.par.drawing_h,
+                            )
+        elif f_format == '.pb':
+            save_pb.Save_to_PB(
+                            self.par,
+                            self.par.current_file,
+                            f_format,
+                            self.par.ALLOBJECT,
                             self.par.drawing_w,
                             self.par.drawing_h,
                             )
@@ -611,6 +627,20 @@ class Window(wx.Frame):
     def OnTextStyle(self, e):
         self.text_style_dialog, self.text_style_dialog_on = self.open_show_hide(self.text_style_dialog, Text_style_dialog, self.text_style_dialog_on)
 
+    def OnPropDialog(self, e = None):
+        if e:
+            self.prop_dialog, self.prop_dialog_on = self.open_show_hide(self.prop_dialog, Prop_dialog, self.prop_dialog_on)
+        elif self.prop_dialog:
+            self.prop_dialog.update()
+        #if self.prop_dialog:
+            #self.prop_dialog.Destroy()
+            #self.prop_dialog = None
+            #pass
+        #if not e:
+            #self.prop_dialog_on = False
+            #self.prop_dialog_on = None
+        #self.prop_dialog, self.prop_dialog_on = self.open_show_hide(self.prop_dialog, Prop_dialog, self.prop_dialog_on)
+        
     def OnAbout(self, e):
         description = """Programm Samocad is open software
 and designed for create simple drawings, as partial alternative to AutoCAD
@@ -662,6 +692,7 @@ and designed for create simple drawings, as partial alternative to AutoCAD
             self.par.collection = new_objects
             self.par.kill()
             self.par.mass_collector(new_objects, 'select')
+            self.par.update_prop()
             #self.par.collectionBack = []
 
     def open_show_hide(self, dialog, function, key_on):
@@ -920,12 +951,113 @@ class Text_style_dialog(My_dialog):
         print (self.par.text_w,
                self.par.text_s_s)
 
+class Prop_dialog(My_dialog):
+
+    def __init__(self, par):
+        title = "Object properties"
+        size = (300, 300)
+        My_dialog.__init__(self, par, par.interface.OnPropDialog, title, size)
+        self.panel = wx.Panel(self, -1, size=(300,300))
+                              
+        self.sizer_right_1 = wx.GridSizer(cols = 2)
+        self.sizer_panel = wx.BoxSizer()
+        self.sizer_panel.Add(self.sizer_right_1)
+        self.SetSizer(self.sizer_panel)
+        
+        # { prop_name : (text, widget) }
+        self.properties = {}
+        
+        
+        
+        #self.text_text_s_s, self.text_s_s = stroker(self, 'Letters distance factor', self.par.text_s_s, self.sizer_right_1, None)
+        #self.text_text_w, self.text_w = stroker(self, 'Width of letters factor', self.par.text_w, self.sizer_right_1, None)
+
+        self.add_apply(self.sizer_panel)
+
+        self.panel.SetSizer(self.sizer_right_1)
+        self.sizer_panel.Add(self.panel)
+        self.update()
+
+    def update(self, e = None):
+        '''
+        if self.properties:
+            for prop in self.properties.values():
+                prop[1].Destroy()
+        '''
+        #self.panel.Destroy()
+        self.panel = wx.Panel(self, -1, size=(300,300))
+        #for c in self.panel.GetChildren():
+            #print c
+            #c.Destroy()
+        self.properties = {}
+        #self.sizer_right_1.Destroy()
+        #self.sizer_right_1 = wx.GridSizer(cols = 2)
+        #self.sizer_panel.Add(self.sizer_right_1)
+        
+        objs = self.par.collection
+        
+        
+        if len(objs) == 1:
+            for prop in self.par.ALLOBJECT[objs[0]]:
+                if prop in self.par.properties.keys() and prop != 'color':
+                    choices = None
+                    w_type = 'text'
+                    if self.par.properties[prop][1] != None: #
+                        if self.par.properties[prop][1] == 'Num':
+                            choices = None
+                            w_type = 'entry'
+                        else:
+                            choices = self.par.properties[prop][1]
+                            w_type = 'combobox'
+                    
+                    if prop == 'stipple':
+                        for key in self.par.stipples.keys():
+                            if self.par.stipples[key] == self.par.ALLOBJECT[objs[0]][prop]:
+                                var = key
+                    else:
+                        var = self.par.ALLOBJECT[objs[0]][prop]
+                    list_prop = list(stroker(self.panel, self.par.properties[prop][0], var, self.sizer_right_1, None, w_type, choices))
+                    self.properties[prop] = list_prop
+        '''
+        else:
+            if self.properties:
+                for prop in self.properties.values():
+                    prop[1].Destroy()
+        '''
+            
+
+    def apply_style(self, e):
+        if self.properties:
+            dict_prop = {}
+            
+            for prop in self.properties.keys():
+                new_value = self.properties[prop][1].GetValue()
+                if prop == 'stipple':
+                    dict_prop[prop] = self.par.stipples[new_value]
+                elif prop == 'width':
+                    dict_prop[prop] = int(new_value)
+                else:
+                    dict_prop[prop] = new_value
+                
+                
+            self.par.interface.edit_prop(dict_prop)
+        '''
+        s = float(self.text_s_s.GetValue())
+        self.par.text_s_s = s
+        s = float(self.text_w.GetValue())
+        self.par.text_w = s
+        
+        print (self.par.text_w,
+               self.par.text_s_s)
+        '''
+
 
 
 
 def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices = None):        
     text_ctrl = wx.TextCtrl(frame, -1, text, size = (150, -1), style = wx.TE_READONLY | wx.BORDER_NONE)
     text_ctrl.SetBackgroundColour((214, 210, 208))
+    var = str(var)
     if widget_type == 'entry':
         widget = wx.lib.masked.NumCtrl(
             frame,
@@ -944,6 +1076,11 @@ def stroker(frame, text, var, sizer_1, sizer_2, widget_type = 'entry', choices =
             )
         #widget.SetSelection(var)
         widget.SetValue(var)
+
+    elif widget_type == 'text':
+        widget = wx.TextCtrl(frame, -1, var, size = (100, -1), style = wx.TE_READONLY | wx.BORDER_NONE)
+        widget.SetBackgroundColour((214, 210, 208))
+        #widget.SetValue(var)
         
     sizer_1.Add(text_ctrl)
     sizer_1.Add(widget, flag = wx.ALIGN_RIGHT)

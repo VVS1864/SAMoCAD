@@ -21,14 +21,17 @@ def left_mouse_event(self):
             objects = grab_object.select(self, [self.rectx, self.recty, self.rectx2, self.recty2])
             self.mass_collector(objects, select)
             self.amount_of_select()
+            self.update_prop()
             self.rect = False
             self.rect_data = []
             self.rect_color = []
             self.c.Refresh()
             
+            
         elif self.current_select:
             self.mass_collector([self.current,], select = select)
             self.amount_of_select()
+            self.update_prop()
             self.c.Refresh()
             
         elif not self.current_change:
