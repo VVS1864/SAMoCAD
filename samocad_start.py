@@ -49,8 +49,8 @@ class Graphics:
         self.dynamic_vbo = None
 
         # Ширина и высота рабочей области
-        self.drawing_w = 10000.0
-        self.drawing_h = 10000.0
+        self.drawing_w = 1000000.0
+        self.drawing_h = 1000000.0
         self.q_scale = 10000
 
         self.ex = 0.0
@@ -273,7 +273,7 @@ class Graphics:
             self.interface.cmd.Bind(wx.EVT_MOUSEWHEEL, self.zoom_event)
             
         self.create_sectors()
-        '''
+       
         t1 = t.time()
         for i in xrange(1): #Количество вершин
             x1,y1 = uniform(0.0, 1000.0), uniform(0.0, 1000.0)
@@ -312,7 +312,7 @@ class Graphics:
         self.ALLOBJECT, self.sectors = sectors_alg.quadric_mass(self.ALLOBJECT, self.ALLOBJECT.keys(), self.sectors, self.q_scale)
         
         print 'Create lines', t.time() - t1
-        '''
+        
         
         
         self.standart_binds()
