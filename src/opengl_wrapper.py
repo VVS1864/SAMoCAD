@@ -136,6 +136,7 @@ class GL_wrapper:
         glDisableClientState(GL_COLOR_ARRAY)            # Отключаем использование массива цветов
         # Выводим все нарисованное в памяти на экран
         self.par.c.SwapBuffers()
+        glFlush()
 
     def ortho(self, l, r, b, t, n_v, f_v):
         tx = -(r+l)/(r-l)
