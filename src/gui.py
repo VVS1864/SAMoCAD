@@ -82,7 +82,7 @@ class Window(wx.Frame):
 
         menu_format = wx.Menu()
         self.dim_style_p = menu_format.Append(-1, "Dimension style")
-        self.line_p = menu_format.Append(-1, "Line options")
+        self.line_opt_p = menu_format.Append(-1, "Line options")
         self.text_style_p = menu_format.Append(-1, "Text style")
         self.prop_dialog_p = menu_format.Append(-1, "Object properties")
 
@@ -124,7 +124,7 @@ class Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, self.exit_p)
         
         self.Bind(wx.EVT_MENU, self.OnDimStyle, self.dim_style_p)
-        self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_p)
+        self.Bind(wx.EVT_MENU, self.OnLineOpt, self.line_opt_p)
         self.Bind(wx.EVT_MENU, self.OnTextStyle, self.text_style_p)
         self.Bind(wx.EVT_MENU, self.OnPropDialog, self.prop_dialog_p)
 
@@ -628,18 +628,11 @@ class Window(wx.Frame):
         self.text_style_dialog, self.text_style_dialog_on = self.open_show_hide(self.text_style_dialog, Text_style_dialog, self.text_style_dialog_on)
 
     def OnPropDialog(self, e = None):
+        
         if e:
             self.prop_dialog, self.prop_dialog_on = self.open_show_hide(self.prop_dialog, Prop_dialog, self.prop_dialog_on)
-        elif self.prop_dialog:
+        elif self.prop_dialog and self.prop_dialog_on:
             self.prop_dialog.update()
-        #if self.prop_dialog:
-            #self.prop_dialog.Destroy()
-            #self.prop_dialog = None
-            #pass
-        #if not e:
-            #self.prop_dialog_on = False
-            #self.prop_dialog_on = None
-        #self.prop_dialog, self.prop_dialog_on = self.open_show_hide(self.prop_dialog, Prop_dialog, self.prop_dialog_on)
         
     def OnAbout(self, e):
         description = """Programm Samocad is open software
@@ -692,7 +685,7 @@ and designed for create simple drawings, as partial alternative to AutoCAD
             self.par.collection = new_objects
             self.par.kill()
             self.par.mass_collector(new_objects, 'select')
-            self.par.update_prop()
+            #self.par.update_prop()
             #self.par.collectionBack = []
 
     def open_show_hide(self, dialog, function, key_on):
@@ -745,7 +738,6 @@ class Print_dialog(wx.Frame):
             'JPEG',
             'BMP',
             ]
-        #print self.text_scales
         self.SetSize((530, 100))
         self.sizer_top = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer_bot = wx.BoxSizer(wx.HORIZONTAL)
@@ -835,10 +827,12 @@ class My_dialog(wx.Frame):
 
         self.SetSize(size)
 
-    def add_apply(self, sizer):
-        self.button_apply = wx.Button(self, wx.NewId(), 'Apply')
-        sizer.Add(self.button_apply)
-        self.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
+    def add_apply(self, sizer, widget = None):
+        if widget == None:
+            widget = self
+        widget.button_apply = wx.Button(widget, wx.NewId(), 'Apply')
+        sizer.Add(widget.button_apply)
+        widget.button_apply.Bind(wx.EVT_BUTTON, self.apply_style)
         
 
 class Dimstyle_dialog(My_dialog):
@@ -913,7 +907,7 @@ class Line_dialog(My_dialog):
         self.sizer_right_1 = wx.GridSizer(cols = 2)                
 
         
-        self.text_factor_stipple, self.factor_stipple = stroker(self, 'Size of lile', self.par.factor_stipple, self.sizer_right_1, None)     
+        self.text_factor_stipple, self.factor_stipple = stroker(self, 'Size of line', self.par.factor_stipple, self.sizer_right_1, None)     
 
         self.add_apply(self.sizer_right_1)
 
@@ -955,44 +949,25 @@ class Prop_dialog(My_dialog):
 
     def __init__(self, par):
         title = "Object properties"
-        size = (300, 300)
+        size = (350, 300)
         My_dialog.__init__(self, par, par.interface.OnPropDialog, title, size)
-        self.panel = wx.Panel(self, -1, size=(300,300))
+
+        self.update()
+        
+
+    def update(self, e = None):
+        self.panel = wx.Panel(self, -1, size=(350,300))
                               
         self.sizer_right_1 = wx.GridSizer(cols = 2)
         self.sizer_panel = wx.BoxSizer()
         self.sizer_panel.Add(self.sizer_right_1)
         self.SetSizer(self.sizer_panel)
-        
-        # { prop_name : (text, widget) }
-        self.properties = {}
-        
-        
-        
-        #self.text_text_s_s, self.text_s_s = stroker(self, 'Letters distance factor', self.par.text_s_s, self.sizer_right_1, None)
-        #self.text_text_w, self.text_w = stroker(self, 'Width of letters factor', self.par.text_w, self.sizer_right_1, None)
-
-        self.add_apply(self.sizer_panel)
 
         self.panel.SetSizer(self.sizer_right_1)
         self.sizer_panel.Add(self.panel)
-        self.update()
-
-    def update(self, e = None):
-        '''
-        if self.properties:
-            for prop in self.properties.values():
-                prop[1].Destroy()
-        '''
-        #self.panel.Destroy()
-        self.panel = wx.Panel(self, -1, size=(300,300))
-        #for c in self.panel.GetChildren():
-            #print c
-            #c.Destroy()
+        
+        # { prop_name : (text, widget) }
         self.properties = {}
-        #self.sizer_right_1.Destroy()
-        #self.sizer_right_1 = wx.GridSizer(cols = 2)
-        #self.sizer_panel.Add(self.sizer_right_1)
         
         objs = self.par.collection
         
@@ -1018,18 +993,12 @@ class Prop_dialog(My_dialog):
                         var = self.par.ALLOBJECT[objs[0]][prop]
                     list_prop = list(stroker(self.panel, self.par.properties[prop][0], var, self.sizer_right_1, None, w_type, choices))
                     self.properties[prop] = list_prop
-        '''
-        else:
-            if self.properties:
-                for prop in self.properties.values():
-                    prop[1].Destroy()
-        '''
-            
+            self.add_apply(self.sizer_right_1, widget = self.panel)          
 
     def apply_style(self, e):
         if self.properties:
             dict_prop = {}
-            
+            print 111
             for prop in self.properties.keys():
                 new_value = self.properties[prop][1].GetValue()
                 if prop == 'stipple':

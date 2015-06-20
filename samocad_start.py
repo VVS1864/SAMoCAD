@@ -689,7 +689,7 @@ class Graphics:
             else:
                 self.old_func[0](self.old_func[1])
             
-        e.Skip()
+        #e.Skip()
 
     def kill(self, event=None):#Возвращает все в исходное состояние
         print 'kill'
@@ -719,8 +719,8 @@ class Graphics:
         self.cmd.ChangeValue('')
         self.info2.SetValue('')
         self.info.SetValue('Command:')
-
         self.update_prop()
+
         self.c.Refresh()
     
     
