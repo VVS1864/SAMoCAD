@@ -68,6 +68,7 @@ class Object(Base):
             else:
                 self.par.old_text = kwargs['text']
             super(Object, self).func_4_r(event, c_text, kwargs)
+            super(Object, self).add_history(objects = [self.par.total_N,], mode = 'create')
             self.par.kill()
             return
             

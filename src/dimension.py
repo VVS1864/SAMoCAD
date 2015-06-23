@@ -123,7 +123,8 @@ class Dimension(Base):
             kwargs['temp'] = True
             
             c_dim(**kwargs)
-            
+        if event:
+            super(Dimension, self).add_history(objects = [self.par.total_N,], mode = 'create')
 
 def c_dim(
     par,

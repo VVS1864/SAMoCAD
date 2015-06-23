@@ -43,8 +43,9 @@ class Object(Base):
             'temp' : False,
             }
         
-        super(Object, self).func_3(event, copyer, kwargs)
-        
+        new_objects = super(Object, self).func_3(event, copyer, kwargs)
+        if event:
+            super(Object, self).add_history(objects = new_objects, mode = 'create')
         
     #Копирует объекты
 def copyer(x1, y1, x2, y2, objects, par, temp):
@@ -55,10 +56,12 @@ def copyer(x1, y1, x2, y2, objects, par, temp):
         for content in objects:
             par.ALLOBJECT[content]['class'].copy(d)
         end = par.total_N
-        par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, range(start+1, end+1), par.sectors, par.q_scale)
+        new_objects = range(start+1, end+1)
+        par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
         par.change_pointdata()
         par.c.Refresh()
         print 'copy ', len(par.collection), ' objects', time.time() - t1, 'sec'
+        return new_objects
     else:
         par.dynamic_matrix = [
             1.0, 0.0, 0.0, 0.0,
@@ -72,8 +75,8 @@ def copyer(x1, y1, x2, y2, objects, par, temp):
                 
             par.gl_wrap.dinamic_vbo_on()
             par.first = False
-
         
+        return None
             
             
         

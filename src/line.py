@@ -66,7 +66,7 @@ class Line(Base):
         if event:
             self.par.ex = self.par.ex2
             self.par.ey = self.par.ey2
-        
+            super(Line, self).add_history(objects = [self.par.total_N,], mode = 'create')
 
 ### Отрисовка линии ###
 def c_line(
@@ -262,7 +262,7 @@ class Object_line(Base_object):
                    
     ### Trim method ###
     def trim_extend(self, x, y, x1, y1, x2, y2, trim_extend):
-        cd = self.par.ALLOBJECT[self.obj]
+        cd = self.par.ALLOBJECT[self.obj].copy()
         cd['temp'] = False
         cd['in_mass'] = True
         if trim_extend == 'Trim':

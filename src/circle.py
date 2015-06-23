@@ -63,6 +63,7 @@ class Circle(Base):
         super(Circle, self).func_3(event, c_circle, kwargs)
 
         if event:
+            super(Circle, self).add_history(objects = [self.par.total_N,], mode = 'create')
             self.risCircle()
         
 #Отрисовка

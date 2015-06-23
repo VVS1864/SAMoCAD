@@ -65,6 +65,7 @@ class Object(Base):
             'par' : self.par,
             'temp' : False,
             }
+        t1 = time.time()
         if event and event.GetEventType() == wx.wxEVT_KEY_DOWN:
             if event.GetKeyCode() == wx.WXK_RETURN:
                 kwargs['del_old'] = super(Object, self).input_Y_N(default = 'Y')
@@ -75,7 +76,16 @@ class Object(Base):
                 event.Skip()
                 return
         
-        super(Object, self).func_4_r(event, rotate, kwargs)
+        new_objects = super(Object, self).func_4_r(event, rotate, kwargs)
+        if event:
+            super(Object, self).add_history(objects = new_objects[0], mode = 'replace', objects_2 = new_objects[1])
+            if kwargs['del_old'] == 'Y':
+                self.par.delete_objects(new_objects[0], False)
+                    
+            self.par.change_pointdata()
+            self.par.collection = new_objects[1]   
+            print 'rotate ', len(new_objects[1]), ' objects', time.time() - t1, 'sec'
+            self.par.kill()
                 
     #Отражаем объекты
 def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
@@ -91,7 +101,7 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
             if not temp:
                 new_object = []
                 del_list = []
-                t1 = time.time()
+                
                 start = par.total_N
                 for content in objects:
                     cNew = par.ALLOBJECT[content]['class'].rotate(x0, y0, msin, mcos, angle)
@@ -100,6 +110,11 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
                 end = par.total_N
                 new_objects = range(start+1, end+1)
                 par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
+                replace_objects = [[], new_objects]
+                if del_old == 'Y':
+                    replace_objects[0] = del_list
+                return replace_objects
+                '''
                 if del_old == 'Y':
                     print 'Y'
                     par.delete_objects(del_list, False)
@@ -108,6 +123,7 @@ def rotate(x0, y0, x1, y1, x2, y2, angle, objects, par, del_old, temp):
                 par.collection = new_objects    
                 print 'rotate ', len(par.collection), ' objects', time.time() - t1, 'sec'
                 par.kill()
+                '''
             else:
                 c = mcos
                 s = -msin

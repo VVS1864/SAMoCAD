@@ -40,7 +40,15 @@ class Object(Base):
                 scale_factor = data
             else:
                 scale_factor = self.par.old_scale
-            scale(self.par, self.par.ex, self.par.ey, scale_factor, self.par.collection)
+            t1 = time.time()
+            new_objects = scale(self.par, self.par.ex, self.par.ey, scale_factor, self.par.collection)
+            super(Object, self).add_history(objects = new_objects[0], mode = 'replace', objects_2 = new_objects[1])
+            self.par.delete_objects(new_objects[0], False)
+        
+            self.par.change_pointdata()
+            
+            print 'scale ', len(new_objects[1]), ' objects', time.time() - t1, 'sec'
+            self.par.kill()
             
         elif key == wx.WXK_ESCAPE:
             self.par.kill()
@@ -52,7 +60,7 @@ class Object(Base):
 
 def scale(par, x, y, scale_factor, objects):
     del_list = []
-    t1 = time.time()
+    
     start = par.total_N
     for content in par.collection:
         cNew = par.ALLOBJECT[content]['class'].scale(x, y, scale_factor)
@@ -60,17 +68,15 @@ def scale(par, x, y, scale_factor, objects):
             del_list.append(content)
             
     end = par.total_N
+    new_objects = range(start+1, end+1)
     if del_list:
         par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(
             par.ALLOBJECT,
-            range(start+1, end+1),
+            new_objects,
             par.sectors,
             par.q_scale,
             )
-    
-        par.delete_objects(del_list, False)
+        replace_objects = [del_list, new_objects]
+        return replace_objects
         
-        par.change_pointdata()
         
-        print 'scale ', len(par.collection), ' objects', time.time() - t1, 'sec'
-        par.kill()

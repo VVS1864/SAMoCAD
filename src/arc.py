@@ -87,6 +87,7 @@ class Arc(Base):
         super(Arc, self).func_3(event, c_arc, kwargs)
 
         if event:
+            super(Arc, self).add_history(objects = [self.par.total_N,], mode = 'create')
             self.risArc()
             
 

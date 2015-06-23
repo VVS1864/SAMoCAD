@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 import wx
 import calc
+import src.undo as undo
 class Base(object):
     def __init__(self, par):
         self.par = par
@@ -110,7 +111,8 @@ class Base(object):
             target_kwargs['temp'] = True
         target_kwargs['x2'] = self.par.ex2
         target_kwargs['y2'] = self.par.ey2
-        target_c_func(**target_kwargs)
+        new_objects = target_c_func(**target_kwargs)
+        return new_objects
 
     def func_4_r(self, event, target_c_func, target_kwargs):
         self.par.focus_cmd()
@@ -134,7 +136,11 @@ class Base(object):
             target_kwargs['temp'] = True
         #target_kwargs['x2'] = self.par.ex2
         #target_kwargs['y2'] = self.par.ey2
-        target_c_func(**target_kwargs)
+        new_objects = target_c_func(**target_kwargs)
+        return new_objects
+    
+    def add_history(self, objects, mode, objects_2 = []):              
+        undo.add_undo(self.par, objects, mode = mode, objects_2 = objects_2)
 
 
 

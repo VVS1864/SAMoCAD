@@ -33,7 +33,7 @@ class Object(Base):
         
 
     def moveEvent3(self, event = None):
-        
+        t1 = time.time()
         kwargs = {
             'x1' : self.par.ex,
             'y1' : self.par.ey,
@@ -44,14 +44,20 @@ class Object(Base):
             'temp' : False,
             }
         
-        super(Object, self).func_3(event, mover, kwargs)
-        
-        
+        new_objects = super(Object, self).func_3(event, mover, kwargs)
+        if event:
+            super(Object, self).add_history(objects = new_objects[0], mode = 'replace', objects_2 = new_objects[1])
+            self.par.delete_objects(new_objects[0], False)
+            self.par.change_pointdata()
+            print 'move ', new_objects[1], ' objects', time.time() - t1, 'sec'
+            self.par.kill()
+            self.par.collectionBack = new_objects
+            
     #Копирует объекты
 def mover(x1, y1, x2, y2, objects, par, temp):
     d = (x2 - x1, y2 - y1)
     if not temp:
-        t1 = time.time()
+        
         start = par.total_N
         for content in objects:
             par.ALLOBJECT[content]['class'].copy(d)
@@ -59,11 +65,9 @@ def mover(x1, y1, x2, y2, objects, par, temp):
         new_objects = range(start+1, end+1)
         par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
 
-        par.delete_objects(objects, False)
-        par.change_pointdata()
-        print 'move ', len(par.collection), ' objects', time.time() - t1, 'sec'
-        par.kill()
-        par.collectionBack = new_objects
+        replace_objects = [objects, new_objects]
+        return replace_objects
+        
         
     else:
         par.dynamic_matrix = [

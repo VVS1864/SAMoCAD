@@ -62,6 +62,7 @@ class Object(Base):
             new_objects = range(start+1, end+1)
             if del_objects:
                 self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(self.par.ALLOBJECT, new_objects, self.par.sectors, self.par.q_scale)
+                super(Object, self).add_history(objects = del_objects, mode = 'replace', objects_2 = new_objects)
                 self.par.delete_objects(del_objects, False)
                 self.par.change_pointdata()
             

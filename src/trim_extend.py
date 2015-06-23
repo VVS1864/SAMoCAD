@@ -4,6 +4,7 @@ import src.select_clone as select_clone
 import src.grab_object as grab_object
 import src.sectors_alg as sectors_alg
 import wx
+from base import Base
 
 class Trim:
     def __init__(self, par):
@@ -15,7 +16,7 @@ class Extend:
         par.trim_extend = 'Extend'
         c = Object(par)
 
-class Object:
+class Object(Base):
     def __init__(self, par):
         self.par = par
         self.trimEvent1()
@@ -133,15 +134,15 @@ class Object:
                 if cNew:
                     del_objs.append(el)
         end = self.par.total_N
-
+        new_objects = range(start+1, end+1)
         if del_objs:
             self.par.ALLOBJECT, self.par.sectors = sectors_alg.quadric_mass(
                 self.par.ALLOBJECT,
-                range(start+1, end+1),
+                new_objects,
                 self.par.sectors,
                 self.par.q_scale
                 )
-        
+            super(Object, self).add_history(objects = del_objs, mode = 'replace', objects_2 = new_objects)
             self.par.delete_objects(del_objs, False)
             
             self.par.change_pointdata()

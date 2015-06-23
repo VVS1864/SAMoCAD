@@ -58,6 +58,7 @@ class Object(Base):
             'par' : self.par,
             'temp' : False,
             }
+        t1 = time.time()
         if event and event.GetEventType() == wx.wxEVT_KEY_DOWN:
             if event.GetKeyCode() == wx.WXK_RETURN:
                 kwargs['del_old'] = super(Object, self).input_Y_N(default = 'N')
@@ -68,7 +69,17 @@ class Object(Base):
                 event.Skip()
                 return
         
-        super(Object, self).func_4_r(event, mirror, kwargs)
+        new_objects = super(Object, self).func_4_r(event, mirror, kwargs)
+        if event:
+            super(Object, self).add_history(objects = new_objects[0], mode = 'replace', objects_2 = new_objects[1])
+            if kwargs['del_old'] == 'Y':
+                self.par.delete_objects(new_objects[0], False)
+                self.par.collection = new_objects[1]
+            self.par.change_pointdata()
+            
+            
+            print 'mirror ', len(self.par.collection), ' objects', time.time() - t1, 'sec'
+            self.par.kill()
                 
     #Отражаем объекты
 def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
@@ -84,7 +95,7 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
         if not temp:
             del_list = []
             new_object = []
-            t1 = time.time()
+            
             start = par.total_N
             for content in objects:
                 cNew = par.ALLOBJECT[content]['class'].mirror(x1, y1, msin, mcos)
@@ -93,13 +104,11 @@ def mirror(x1,y1,x2,y2, objects, par, del_old, temp):
             end = par.total_N
             new_objects = range(start+1, end+1)
             par.ALLOBJECT, par.sectors = sectors_alg.quadric_mass(par.ALLOBJECT, new_objects, par.sectors, par.q_scale)
+            replace_objects = [[], new_objects]
             if del_old == 'Y':
-                par.delete_objects(del_list, False)
-                par.collection = new_objects
-                
-            par.change_pointdata()
-            print 'mirror ', len(par.collection), ' objects', time.time() - t1, 'sec'
-            par.kill()
+                replace_objects[0] = del_list
+            return replace_objects
+            
         else:
             c = mcos
             s = -msin

@@ -31,6 +31,7 @@ class Edit_text(Base):
             cd['in_mass'] = False
             cd['temp'] = False
             self.par.ALLOBJECT[self.obj]['class'].create_object(cd)
+            super(Edit_text, self).add_history(objects = [self.obj,], mode = 'replace', objects_2 = [self.par.total_N,])
             self.par.delete_objects([self.obj,], False)
             self.par.change_pointdata()
             self.par.kill()

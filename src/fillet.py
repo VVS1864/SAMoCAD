@@ -118,6 +118,7 @@ class Fillet(Base):
         cd2['in_mass'] = False
         cd1['temp'] = False
         cd2['temp'] = False
+        new_objects = []
         if xc:
             #Если радиус != 0
             start, extent = calc.calc_angles_360(xc, yc, xe1, ye1, xe2, ye2)
@@ -133,6 +134,7 @@ class Fillet(Base):
                 ya1 = ye1
                 xa2 = xe2
                 ya2 = ye2
+                
             c_arc(
                 self.par,
                 xc,
@@ -150,9 +152,13 @@ class Fillet(Base):
                 in_mass = False,
                 temp = False,
                 )
-                
+            new_objects.append(self.par.total_N)       
         self.par.ALLOBJECT[self.par.collection[0]]['class'].create_object(cd2)
+        new_objects.append(self.par.total_N) 
         self.par.ALLOBJECT[self.par.collection[1]]['class'].create_object(cd1)
+        new_objects.append(self.par.total_N)
+        super(Fillet, self).add_history(objects = self.par.collection, mode = 'replace', objects_2 = new_objects)
+        
         self.par.delete_objects(self.par.collection, False)   
         self.par.change_pointdata()
         

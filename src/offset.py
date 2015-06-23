@@ -128,5 +128,7 @@ class Offset(Base):
         y3 = self.par.y_priv
         
         e = self.par.ALLOBJECT[self.par.rline]['class'].offset(self.par.pd, x3, y3)
+        if event:
+            super(Offset, self).add_history(objects = [self.par.rline,], mode = 'replace', objects_2 = [self.par.total_N,])
         self.par.kill()
         self.offsetEvent()

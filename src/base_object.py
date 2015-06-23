@@ -10,7 +10,7 @@ class Base_object(object):
     
     ### Edit_prop method ###
     def edit_prop(self, params):
-        cd = self.par.ALLOBJECT[self.obj]
+        cd = self.par.ALLOBJECT[self.obj].copy()
         for param in params:
             if param in cd:
                 cd[param] = params[param]

@@ -1,4 +1,5 @@
 import src.sectors_alg as sectors_alg
+import src.undo as undo
             
 def Edit_prop(par, params, objects):
     new_objects = []
@@ -20,7 +21,8 @@ def Edit_prop(par, params, objects):
             par.sectors,
             par.q_scale
             )
-    
+        undo.add_undo(par, objects = remove_list, mode = 'replace', objects_2 = new_objects)
+
         par.delete_objects(remove_list, False)
         
         par.change_pointdata()

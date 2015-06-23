@@ -75,6 +75,7 @@ class Object(Base):
                 self.par.ex = self.par.ex2
                 self.par.ey = self.par.ey2
                 self.el = self.par.total_N
+                super(Object, self).add_history(objects = [self.par.total_N,], mode = 'create')
             
         else:
             cd['temp'] = True
