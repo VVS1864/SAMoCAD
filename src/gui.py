@@ -17,6 +17,8 @@ import src.scale_object as scale_object
 import src.fillet as fillet
 import src.offset as offset
 
+import src.undo as undo
+
 
 import src.print_to_file as print_to_file
 import src.save_file as save_file
@@ -36,6 +38,13 @@ appPath = os.getcwd()
 class Window(wx.Frame):
     def __init__(self, parent, title, par):
         self.par = par
+        #отправляем в par основные параметры объектов
+        for modul, obj in {line:'line',
+                           text_line:'text_line',
+                           dimension:'dim',
+                           circle:'circle',
+                           arc:'arc'}.items():
+            self.par.objects_base_parametrs[obj] = modul.list_prop
 
 #Dialogs
         self.print_dialog = None
@@ -224,6 +233,11 @@ class Window(wx.Frame):
         self.sizer_toolbar.Add(self.dim_text_size_ctrl, flag = wx.ALL, border = 4)
         self.dim_text_size_ctrl.Bind(wx.EVT_KILL_FOCUS, self.dim_size_text)
         self.dim_text_size_ctrl.Bind(wx.EVT_KEY_DOWN, self.dim_size_text_enter)
+
+        self.image_undo = wx.Image(os.path.join(appPath, 'res', 'undo.gif'), wx.BITMAP_TYPE_GIF).ConvertToBitmap()
+        self.button_undo = wx.BitmapButton(self, wx.NewId(), self.image_undo)
+        self.sizer_toolbar.Add(self.button_undo)
+        self.button_undo.Bind(wx.EVT_BUTTON, self.undo)
 
         #Создаем GLCanvas и запихиваем его в сайзер
         self.canvas = myGLCanvas(self)
@@ -455,6 +469,11 @@ class Window(wx.Frame):
             self.dim_size_text(e)
             self.par.focus_cmd()
         e.Skip()
+
+    def undo(self, e):
+        undo.undo(self.par)
+        #self.par.action(line.Line)
+        #self.par.focus_cmd()
             
 
 # ОБРАБОТЧИКИ КНОПОК СЛЕВА

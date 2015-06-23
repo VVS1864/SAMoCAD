@@ -8,7 +8,19 @@ import wx
 import calc
 from src.base import Base
 from src.base_object import Base_object
-list_prop = ('color', 'text', 'layer', 'angle', 'anchor', 'text_size', 'text_s_s', 'text_w', 'text_font')
+list_prop = (
+    'color',
+    'text',
+    'layer',
+    'angle',
+    'anchor',
+    'text_size',
+    'text_s_s',
+    'text_w',
+    'text_font',
+    'x',
+    'y',
+    )
 temp_dict = {
     'layer' : 't',
     'color' : [255, 255, 0],
@@ -114,8 +126,8 @@ def c_text(
                                         'lines': lines,
                                         'width': 1,
                                         'pointdata': pointdata,
-                                        'x' : x,
-                                        'y' : y,
+                                        #'x' : x,
+                                        #'y' : y,
                                         'snap_type':'line',
                                         }
         par.ALLOBJECT[par.total_N].update(dict_prop)

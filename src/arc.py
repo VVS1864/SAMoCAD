@@ -13,16 +13,22 @@ list_prop = (
     'layer',
     'start',
     'extent',
-    'stipple',
-    'factor_stipple',
-    'R'
+    #'stipple',
+    #'factor_stipple',
+    'R',
+    'x1',
+    'y1',
+    'x3',
+    'y3',
+    'x2',
+    'y2',
     )
 temp_dict = {
     'width' : 1,
     'layer' : 't',
     'color' : [255, 255, 0],
-    'stipple' : None,
-    'factor_stipple' : None,
+    #'stipple' : None,
+    #'factor_stipple' : None,
     'in_mass' : False,
     'temp' : True,
     }

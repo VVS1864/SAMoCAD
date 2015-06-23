@@ -5,7 +5,7 @@ class Base_object(object):
         self.text_changeble = False
 
     ### History_undo method ###
-    def undo(self, cd, zoomOLDres, xynachres):
+    def undo(self, cd):
         pass      
     
     ### Edit_prop method ###

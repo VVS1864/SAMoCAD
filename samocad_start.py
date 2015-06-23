@@ -4,6 +4,7 @@
 import src.clip as clip
 import src.line as line
 import src.gui  as gui
+import src.undo as undo
 
 import src.sectors_alg as sectors_alg
 import src.opengl_wrapper as opengl_wrapper
@@ -156,6 +157,8 @@ class Graphics:
             'dim_text_w':('Width of letters factor', 'Num'),
             'dim_text_font':('Dim font', None),
             }
+
+        self.objects_base_parametrs = {}
         
         self.old_func = (self.action, line.Line)
         self.prog_version = 'Samocad - v0.0.9.0'
@@ -209,7 +212,13 @@ class Graphics:
         self.temp_lines_list = []
         self.ALLOBJECT = {} #ВСЕ объекты (Объект : {параметр : значение}}
         self.all_clone = {}
-        self.history_undo = [] #Список событий
+
+        #Список событий:
+        #Структура history_undo:
+        #[action,]
+        #action =  [mode, [object,]]
+        #object =  [ {parametr:value,} ]
+        self.history_undo = [] 
 
         self.drawing_rect_data = [
             0.0, 0.0, self.drawing_w, 0.0,
@@ -494,32 +503,32 @@ class Graphics:
     def delete_objects(self, objects, add_history = False):
         #Уделение объектов
         if add_history:
-            pass
-        else:
-            for i, o in enumerate(objects):
-                for s in self.ALLOBJECT[o]['sectors']:
-                    self.sectors[s].remove(o)
-                del self.ALLOBJECT[o]
-                
-            if 'trace' in self.ALLOBJECT:
-                for s in self.ALLOBJECT['trace']['sectors']:
-                    self.sectors[s].remove('trace')
-                del self.ALLOBJECT['trace']
-                 
-            #self.pointdata = array.array('f', [])
-            #self.colordata = array.array('B', [])
-            self.clear_pointdata()
+            undo.add_undo(self, objects, mode = 'del')
+        #else:
+        for i, o in enumerate(objects):
+            for s in self.ALLOBJECT[o]['sectors']:
+                self.sectors[s].remove(o)
+            del self.ALLOBJECT[o]
             
-            #if 'trace' in self.ALLOBJECT:
-                #del self.ALLOBJECT['trase']
-            for obj in self.ALLOBJECT.values():
-                pointdata = obj['pointdata']
-                len_pointdata = len(pointdata)/2
+        if 'trace' in self.ALLOBJECT:
+            for s in self.ALLOBJECT['trace']['sectors']:
+                self.sectors[s].remove('trace')
+            del self.ALLOBJECT['trace']
+             
+        #self.pointdata = array.array('f', [])
+        #self.colordata = array.array('B', [])
+        self.clear_pointdata()
+        
+        #if 'trace' in self.ALLOBJECT:
+            #del self.ALLOBJECT['trase']
+        for obj in self.ALLOBJECT.values():
+            pointdata = obj['pointdata']
+            len_pointdata = len(pointdata)/2
 
-                self.point_color_data_vbo_dict[obj['width']][0].extend(pointdata)
-                self.point_color_data_vbo_dict[obj['width']][1].extend(len_pointdata*obj['color'])
-                #self.pointdata.fromlist(pointdata)
-                #self.colordata.fromlist(len_pointdata*obj['color'])
+            self.point_color_data_vbo_dict[obj['width']][0].extend(pointdata)
+            self.point_color_data_vbo_dict[obj['width']][1].extend(len_pointdata*obj['color'])
+            #self.pointdata.fromlist(pointdata)
+            #self.colordata.fromlist(len_pointdata*obj['color'])
 
                 
 
@@ -672,7 +681,7 @@ class Graphics:
                 return
             if key == wx.WXK_DELETE and self.collection:
                 t1 = t.time()
-                self.delete_objects(self.collection)
+                self.delete_objects(self.collection, add_history = True)
                 self.change_pointdata()
                 t2 = t.time()
                 print 'delete ', len(self.collection), ' objects', t2-t1, 'sec'

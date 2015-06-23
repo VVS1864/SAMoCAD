@@ -1,6 +1,5 @@
 # -*- coding: utf-8; -*-
 import time
-import wx
 import src.sectors_alg as sectors_alg
 
 from base import Base

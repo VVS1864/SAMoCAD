@@ -13,7 +13,11 @@ list_prop = (
     'width',
     'layer',
     'stipple',
-    'factor_stipple'
+    'factor_stipple',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
     )
 
 temp_dict = {
@@ -121,10 +125,10 @@ def c_line(
                                     'coords': ([x1,y1,x2,y2],),
                                     'lines': lines,
                                     'pointdata': pointdata,
-                                    'x1': x1,
-                                    'y1': y1,
-                                    'x2': x2,
-                                    'y2': y2,
+                                    #'x1': x1,
+                                    #'y1': y1,
+                                    #'x2': x2,
+                                    #'y2': y2,
                                     'snap_type':'line',
                                     }
         par.ALLOBJECT[par.total_N].update(dict_prop)

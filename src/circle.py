@@ -12,17 +12,19 @@ list_prop = (
     'color',
     'width',
     'layer',
-    'stipple',
-    'factor_stipple',
-    'R'
+    #'stipple',
+    #'factor_stipple',
+    'R',
+    'x1',
+    'y1',
     )
 
 temp_dict = {
     'width' : 1,
     'layer' : 't',
     'color' : [255, 255, 0],
-    'stipple' : None,
-    'factor_stipple' : None,
+    #'stipple' : None,
+    #'factor_stipple' : None,
     'in_mass' : False,
     'temp' : True,
     }
@@ -121,8 +123,8 @@ def c_circle(
                                     'coords': lines,
                                     'lines': lines,
                                     'pointdata': pointdata,
-                                    'x1': x1,
-                                    'y1': y1,
+                                    #'x1': x1,
+                                    #'y1': y1,
                                     'snap_type':'circle',
                                     }
         par.ALLOBJECT[par.total_N].update(dict_prop)

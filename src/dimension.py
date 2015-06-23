@@ -25,7 +25,7 @@ list_prop = (
     'text',
     'layer',
     #'angle',
-    'anchor',
+    #'anchor',
     'dim_text_size',
     'dim_text_s_s',
     'dim_text_w',
