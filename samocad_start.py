@@ -216,9 +216,11 @@ class Graphics:
         #Список событий:
         #Структура history_undo:
         #[action,]
-        #action =  [mode, [object,]]
-        #object =  [ {parametr:value,} ]
-        self.history_undo = [] 
+        #action =  [mode, {object_id:parametrs,}]
+        #parametrs =  {parametr:value,} для del
+        #parametrs = None для create
+        self.history_undo = []
+        self.set_replace = set()
 
         self.drawing_rect_data = [
             0.0, 0.0, self.drawing_w, 0.0,
