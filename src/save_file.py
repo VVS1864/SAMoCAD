@@ -68,7 +68,7 @@ text {
 ]]></style>
 </defs>"""
         self.write_list.append(e)
-        super(Save_to_SVG, self).__init__(file_format, ALLOBJECT, layers, drawing_w, drawing_h)
+        super(Save_to_SVG, self).__init__(par, file_format, ALLOBJECT, layers, drawing_w, drawing_h)
         for i in self.config_list:
             strings = i['svg_strings']
             self.write_list.extend(strings)

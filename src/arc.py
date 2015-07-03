@@ -254,7 +254,7 @@ class Object_arc(Base_object):
         cd['y3'] = drawing_h - cd['y3']
         
 
-        if file_format == 'svg':
+        if file_format == '.svg':
             cd['sf'] = 0
                 
             if abs(cd['extent'] - cd['start']) < 180:
@@ -276,7 +276,7 @@ class Object_arc(Base_object):
             
             en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
                 
-            e = '''<path class="st1" d="M%(x3)s,%(y3)s A%(R)s,%(R)s 0 %(lf)s %(sf)s %(x2)s,%(y2)s"'''+en+'/>'
+            e = '''<path class="st1" d="M%(x3)s,%(y3)s A%(R)s,%(R)s 0 %(lf)s %(sf)s %(x2)s,%(y2)s"'''+en+''' fill="none"/>'''
             e = (e % cd)
             cd['svg_strings'] = [e,]
             

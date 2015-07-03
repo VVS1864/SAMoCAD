@@ -232,7 +232,7 @@ class Object_line(Base_object):
         cd = self.par.ALLOBJECT[self.obj].copy()
         
 
-        if file_format == 'svg':
+        if file_format == '.svg':
             cd['y1'] = drawing_h - cd['y1']
         
             cd['y2'] = drawing_h - cd['y2']

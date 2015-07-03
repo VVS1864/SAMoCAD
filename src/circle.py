@@ -171,7 +171,7 @@ class Object_circle(Base_object):
         cd = self.par.ALLOBJECT[self.obj].copy()
         
 
-        if file_format == 'svg':
+        if file_format == '.svg':
             cd['y1'] = drawing_h - cd['y1']
             '''
             try:
@@ -193,7 +193,7 @@ class Object_circle(Base_object):
             
             en = save_file.prop_to_svg_style(layers, cd, SVG_prop)
                 
-            e = '''<circle class="st1" cx="%(x1)s" cy="%(y1)s" r="%(R)s"'''+en+"/>"
+            e = '''<circle class="st1" cx="%(x1)s" cy="%(y1)s" r="%(R)s"'''+en+''' fill="none"/>'''
             e = (e % cd)
             cd['svg_strings'] = [e,]
             
