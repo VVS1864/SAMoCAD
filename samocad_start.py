@@ -674,14 +674,15 @@ class Graphics:
         
     def key(self, e):
         key =  e.GetKeyCode()
-        if key == wx.WXK_ESCAPE:
+        print key
+        if key in (wx.WXK_ESCAPE, wx.WXK_TAB):
             self.kill()
         elif not self.resFlag:
             try:
-                chr_key = chr(key)
+                chr_key = chr(key) 
             except:
                 return
-            if key == wx.WXK_DELETE and self.collection:
+            if key in (wx.WXK_DELETE, wx.WXK_BACK) and self.collection:
                 t1 = t.time()
                 self.delete_objects(self.collection, add_history = True)
                 self.change_pointdata()
@@ -700,7 +701,7 @@ class Graphics:
             else:
                 self.old_func[0](self.old_func[1])
             
-        #e.Skip()
+        e.Skip()
 
     def kill(self, event=None):#Возвращает все в исходное состояние
         print 'kill'
