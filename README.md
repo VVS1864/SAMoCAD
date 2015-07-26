@@ -10,7 +10,7 @@ Program written in Python 2 and use the following libraries:
 * PIL - library for working with images (printing drawings to rastr files)
 * Reportlab - for created PDF (printing drawings to pdf)
 
-How install it on Windows [see here](http://vvs1864.github.io/samocad/en_install.html)
+How install it on Windows [see here](http://vvs1864.github.io/samocad/en_use.html)
 
 Run file samocad_start.py to run the program.
 Bug, errors and wishes to develop sent to simonovsen@yandex.ru 
