@@ -328,8 +328,8 @@ class Graphics:
         
         self.standart_binds()
         self.interface.Show(True)
-        for i in xrange(10):
-            self.zoom((0,500), -1)
+        #for i in xrange(10):
+            #self.zoom((0,500), -1)
 
     
 
