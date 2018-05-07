@@ -266,10 +266,7 @@ class Graphics:
             self.gl_wrap.OnDraw(None)
         wx.EVT_ERASE_BACKGROUND(self.c, self.gl_wrap.OnEraseBackground)
         wx.EVT_PAINT(self.c, self.gl_wrap.OnDraw)
-        wx.EVT_SIZE(self.c, self.gl_wrap.OnSize)
-
-         
-        
+        wx.EVT_SIZE(self.c, self.gl_wrap.OnSize)        
         
     def initial(self):
         #События мыши
@@ -671,17 +668,29 @@ class Graphics:
     def move_off(self, e):
         self.motion_flag = False
         e.Skip()
+    
         
     def key(self, e):
         key =  e.GetKeyCode()
-        print key
+        #print key
         if key in (wx.WXK_ESCAPE, wx.WXK_TAB):
             self.kill()
+            return
+            
+        try:
+            chr_key = chr(key) 
+        except:
+            chr_key = None
+            
+        if key == wx.WXK_RETURN:
+            if self.resFlag:
+                self.kill()
+            else:
+                self.old_func[0](self.old_func[1])
+            
+            return
+                
         elif not self.resFlag:
-            try:
-                chr_key = chr(key) 
-            except:
-                return
             if key in (wx.WXK_DELETE, wx.WXK_BACK) and self.collection:
                 t1 = t.time()
                 self.delete_objects(self.collection, add_history = True)
@@ -690,18 +699,38 @@ class Graphics:
                 print 'delete ', len(self.collection), ' objects', t2-t1, 'sec'
                 self.collection = []
                 self.kill()
-            
-            elif e.ControlDown() and chr_key in self.interface.hot_keys_dict:
+                return
+                
+            if e.ControlDown() and chr_key in self.interface.hot_keys_dict:
                 self.action(self.interface.hot_keys_dict[chr_key])
                 self.focus_cmd()
+                return
+        
+        else:
+            print chr_key
+            if chr_key and (chr_key.isalpha() or chr_key.isdigit() or chr_key.isspace() or chr_key == '.'):
+                self.cmd.AppendText(chr_key)
+            if key == wx.WXK_BACK:
+                old_text = self.cmd.GetValue()
+                new_text = old_text[0:-1]
+                self.cmd.SetValue(new_text)
                 
-        if key == wx.WXK_RETURN:
-            if self.resFlag:
-                self.kill()
-            else:
-                self.old_func[0](self.old_func[1])
-            
-        e.Skip()
+        #if key not in (wx.WXK_DELETE, wx.WXK_BACK, wx.WXK_RETURN, wx.WXK_ESCAPE, wx.WXK_TAB):
+        #print key
+        #Level = e.StopPropagation()
+        #e.ResumePropagation(Level)
+        #e.Skip()
+        
+        #if self.skip == False:
+	#	e.Skip()
+	#	self.skip = True
+			
+	#else:
+	#	Level = e.StopPropagation()
+	#	e.ResumePropagation(Level)
+	#	self.skip = False
+        #
+
 
     def kill(self, event=None):#Возвращает все в исходное состояние
         print 'kill'

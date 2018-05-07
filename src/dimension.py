@@ -247,7 +247,7 @@ def get_dim_lines(
     list_lines = []
     list_text_lines = []
     list_snap_lines = []
-
+	
         
     x = max(x1, x2)
     xm = min(x1, x2)
@@ -309,7 +309,7 @@ def get_dim_lines(
 
     dx = abs(xm - x)
     ddx = format(dx, '.0f')
-
+	
     if text:
         textt = text
     else:

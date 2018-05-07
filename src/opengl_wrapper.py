@@ -78,6 +78,7 @@ class GL_wrapper:
         print 'end init VBO'
 
     def OnDraw(self, event):
+		
         self.par.c.SetCurrent(self.par.c.context)
         if not self.par.c.init:
             self.InitGL()
@@ -251,6 +252,7 @@ class GL_wrapper:
         
 
     def change_pointdata(self):
+		
         if not self.par.point_color_data_vbo_dict[1][2]:
             for data_list in self.par.point_color_data_vbo_dict.keys():
                 vbo = glGenBuffers(1)
@@ -283,7 +285,10 @@ class GL_wrapper:
         for data_list in self.par.point_color_data_vbo_dict.keys():
             
             self.c_VBO(self.par.point_color_data_vbo_dict[data_list][3], self.par.point_color_data_vbo_dict[data_list][2], self.par.point_color_data_vbo_dict[data_list][0], self.par.point_color_data_vbo_dict[data_list][1])
-
+	
+	#for key in self.par.point_color_data_vbo_dict: 	
+		#print key, ':', self.par.point_color_data_vbo_dict[key]	
+		
     def update_pointdata(self, pointdata, colordata, width = 1):
         #self.par.pointdata.extend(pointdata)
         #self.par.colordata.extend(colordata)
@@ -317,6 +322,7 @@ class GL_wrapper:
             )            
         
     def OnSize(self, event): # Перисовывает окно при ресайзе
+		
         #Получить новый размер окна
         try:
             width, height = event.GetSize()
@@ -343,6 +349,7 @@ class GL_wrapper:
         glPopMatrix()
         #Перерисовать
         self.par.c.Refresh()
+        print "refresh"
         #self.par.c.Update()
         event.Skip()
         

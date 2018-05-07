@@ -549,10 +549,10 @@ class Load_from_DXF:
                 dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
 
                 text = re.findall(r'AcDbDimension\r?\n[\W\w]*\r?\n[ ]*1\r?\n[ ]*([\S ]*)[\W\w]*100\r?\n[ ]*AcDbAlignedDimension', i[1], re.U)#unicode(i[1], "cp1251"), re.U)
-                if text:
-                    text = text[0]
+                
+		#if text:
+                #	text = text[0]
                 text = self.get_val(text, None)
-
                 
                 dimstyle_dict = self.excavated_dxf['dimstyles'][dimstyle]
 
